@@ -13,16 +13,10 @@ const categoryIdSchema = z
   .min(1, "categoryId is required.");
 
 const normalizedDescriptionSchema = z
-  .union([z.string(), z.null(), z.undefined()])
-  .transform((value) => {
-    if (typeof value !== "string") {
-      return null;
-    }
-
-    const trimmed = value.trim();
-
-    return trimmed.length > 0 ? trimmed : null;
-  });
+  .union([
+    z.string().trim().transform((value) => (value.length > 0 ? value : null)),
+    z.null(),
+  ]);
 
 export const createQuestSchema = z.object({
   categoryId: categoryIdSchema,
@@ -40,7 +34,7 @@ export const updateQuestSchema = z
     questType: questTypeSchema.optional(),
     isActive: z.boolean().optional(),
   })
-  .refine((value) => Object.keys(value).length > 0, {
+  .refine((value) => Object.values(value).some((field) => field !== undefined), {
     message: "At least one field must be provided.",
   });
 

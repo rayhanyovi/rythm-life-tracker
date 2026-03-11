@@ -1,0 +1,4 @@
+import "./unit/periods.test";
+import "./smoke/core-flow.test";
+import "./unit/streaks.test";
+import "./unit/validators.test";
