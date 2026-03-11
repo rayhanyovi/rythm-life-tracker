@@ -33,7 +33,11 @@ export function PageShell({
             </p>
           </div>
         </div>
-        {actions ? <div className="flex items-center gap-3">{actions}</div> : null}
+        {actions ? (
+          <div className="flex flex-wrap items-center gap-3 lg:justify-end">
+            {actions}
+          </div>
+        ) : null}
       </div>
       {children}
     </div>

@@ -8,7 +8,6 @@ import {
   Sparkles,
 } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import type { AppNavItem } from "@/types/app";
@@ -68,7 +67,7 @@ export function AppSidebar({
             Rythm
           </p>
           <p className="text-sm text-muted-foreground">
-            Simple structure for recurring life quests
+            Personal rhythm for recurring quests
           </p>
         </div>
       </div>
@@ -118,15 +117,18 @@ export function AppSidebar({
             <Sparkles className="size-4 text-accent-foreground" />
             Signed in
           </div>
-          <p className="mt-2 text-sm leading-6 text-muted-foreground">
+          <p className="mt-2 break-all text-sm leading-6 text-muted-foreground">
             {userName}
             <br />
             {userEmail}
           </p>
         </div>
-        <Button variant="outline" className="w-full justify-start">
-          Current routes are session protected
-        </Button>
+        <div className="rounded-md border border-border/70 bg-background/75 p-4">
+          <p className="text-sm font-semibold text-foreground">Personal scope only</p>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
+            Categories, quests, and history stay private to this account.
+          </p>
+        </div>
       </div>
     </div>
   );

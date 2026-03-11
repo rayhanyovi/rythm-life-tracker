@@ -59,3 +59,32 @@ export async function PATCH(
     completion: updatedCompletion,
   });
 }
+
+export async function DELETE(
+  request: Request,
+  context: CompletionNoteRouteContext,
+) {
+  const session = await getSessionFromRequest(request);
+
+  if (!session) {
+    return jsonError(401, "Authentication required.");
+  }
+
+  const { id } = await context.params;
+  const completion = await db.questCompletion.findFirst({
+    where: {
+      id,
+      userId: session.user.id,
+    },
+  });
+
+  if (!completion) {
+    return jsonError(404, "Completion not found.");
+  }
+
+  await db.questCompletion.delete({
+    where: { id: completion.id },
+  });
+
+  return new Response(null, { status: 204 });
+}

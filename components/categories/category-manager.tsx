@@ -14,6 +14,7 @@ import {
   X,
 } from "lucide-react";
 
+import { DetailPanel } from "@/components/app/detail-panel";
 import { DEFAULT_CATEGORY_NAMES } from "@/lib/category-defaults";
 import {
   Alert,
@@ -432,15 +433,13 @@ export function CategoryManager() {
         </CardContent>
       </Card>
 
-      <Card className="h-fit">
-        <CardHeader>
-          <CardTitle>Default Starter Pack</CardTitle>
-          <CardDescription>
-            Use the default Wheel of Life groups if you want a quick structure
-            before creating custom categories.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
+      <DetailPanel
+        title="Default Starter Pack"
+        description="Use the default Wheel of Life groups if you want a quick structure before creating custom categories."
+        sticky={false}
+        className="h-fit"
+        contentClassName="space-y-4"
+      >
           <div className="grid gap-2">
             {DEFAULT_CATEGORY_NAMES.map((name) => (
               <div
@@ -460,8 +459,7 @@ export function CategoryManager() {
             {isPending ? <Loader2 className="size-4 animate-spin" /> : <RotateCw className="size-4" />}
             Seed defaults
           </Button>
-        </CardContent>
-      </Card>
+      </DetailPanel>
 
       <AlertDialog
         open={Boolean(deleteTarget)}

@@ -67,7 +67,7 @@ export function AppShell({ children, userEmail, userName }: AppShellProps) {
             </div>
             <div className="hidden items-center gap-2 rounded-full bg-muted/80 px-3 py-2 text-sm text-muted-foreground md:flex">
               <Sparkles className="size-4 text-accent-foreground" />
-              Better Auth session is live
+              Personal account session
             </div>
             <SignOutButton />
           </div>

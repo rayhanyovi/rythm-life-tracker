@@ -28,7 +28,8 @@ export function SignOutButton() {
       disabled={isPending}
     >
       {isPending ? <Loader2 className="size-4 animate-spin" /> : <LogOut className="size-4" />}
-      Sign out
+      <span className="hidden sm:inline">Sign out</span>
+      <span className="sr-only sm:hidden">Sign out</span>
     </Button>
   );
 }
