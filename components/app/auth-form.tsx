@@ -56,6 +56,14 @@ export function AuthForm({ mode }: AuthFormProps) {
         return;
       }
 
+      try {
+        await fetch("/api/bootstrap/default-categories", {
+          method: "POST",
+        });
+      } catch {
+        // Best-effort seed: the user can still continue and create categories manually.
+      }
+
       router.push("/dashboard");
       router.refresh();
     });

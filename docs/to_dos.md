@@ -90,7 +90,7 @@ Temuan utama dari `quest-companion`:
 - [x] Tambahkan environment variable yang dibutuhkan di root app
 - [x] Konfigurasi Better Auth `allowedHosts` untuk `localhost:3000` dan `*.vercel.app`
 - [x] Buat `docs/environment.md` saat runtime configuration mulai dipakai
-- [ ] Tentukan flow bootstrap kategori default setelah first login
+- [x] Tentukan flow bootstrap kategori default setelah first login
 
 ## 6. Database Dan Security
 
@@ -111,17 +111,18 @@ Temuan utama dari `quest-companion`:
 - [ ] Pastikan period key dihitung konsisten dengan timezone `Asia/Jakarta`
 - [ ] Buat helper streak yang mengikuti aturan di `docs/techplan.md`
 - [ ] Buat mapper data dashboard yang mengelompokkan quest berdasarkan kategori
-- [ ] Buat validasi payload untuk category, quest, current completion, dan history filter
-- [ ] Buat flow bootstrap kategori default yang idempotent
+- [x] Buat validasi payload untuk category
+- [ ] Buat validasi payload untuk quest, current completion, dan history filter
+- [x] Buat flow bootstrap kategori default yang idempotent
 
 ## 8. API Dan Server Boundaries
 
 - [ ] Implement `GET /api/dashboard`
-- [ ] Implement `GET /api/categories`
-- [ ] Implement `POST /api/categories`
-- [ ] Implement `PATCH /api/categories/:id`
-- [ ] Implement `DELETE /api/categories/:id`
-- [ ] Implement `POST /api/categories/reorder`
+- [x] Implement `GET /api/categories`
+- [x] Implement `POST /api/categories`
+- [x] Implement `PATCH /api/categories/:id`
+- [x] Implement `DELETE /api/categories/:id`
+- [x] Implement `POST /api/categories/reorder`
 - [ ] Implement `GET /api/quests`
 - [ ] Implement `POST /api/quests`
 - [ ] Implement `GET /api/quests/:id`
@@ -131,7 +132,7 @@ Temuan utama dari `quest-companion`:
 - [ ] Implement `DELETE /api/quests/:id/current-completion`
 - [ ] Implement `PATCH /api/completions/:id`
 - [ ] Implement `GET /api/history`
-- [ ] Implement `POST /api/bootstrap/default-categories`
+- [x] Implement `POST /api/bootstrap/default-categories`
 
 ## 9. Authentication Flow
 

@@ -12,6 +12,12 @@ export const getSession = cache(async () => {
   });
 });
 
+export async function getSessionFromRequest(request: Request) {
+  return auth.api.getSession({
+    headers: request.headers,
+  });
+}
+
 export async function requireSession() {
   const session = await getSession();
 
