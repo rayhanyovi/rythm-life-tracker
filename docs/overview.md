@@ -28,6 +28,10 @@ Target utama Rythm adalah individu yang:
 
 Pengguna awal untuk MVP adalah founder dan pasangan founder, sehingga ruang lingkup produk dibuat sesederhana mungkin agar cepat dipakai dan divalidasi.
 
+## Akses Publik
+
+Rythm juga memiliki landing page publik di `/` untuk menjelaskan nilai produk sebelum pengguna masuk ke aplikasi. Pengguna yang sudah login tetap langsung diarahkan ke dashboard agar alur harian tidak terganggu.
+
 ## Konsep Inti
 
 ### Quest
@@ -95,7 +99,7 @@ Fitur yang termasuk dalam MVP:
 
 ### 1. Masuk ke aplikasi
 
-Pengguna membuat akun, memverifikasi email, lalu login dengan email dan password. Jika lupa password, pengguna dapat meminta reset link dan membuat password baru. Setelah berhasil masuk, pengguna langsung diarahkan ke dashboard.
+Pengguna biasanya masuk dari landing page publik, lalu membuat akun, memverifikasi email, dan login dengan email serta password. Jika lupa password, pengguna dapat meminta reset link dan membuat password baru. Setelah berhasil masuk, pengguna langsung diarahkan ke dashboard.
 
 ### 2. Menyiapkan struktur hidup
 
@@ -133,6 +137,10 @@ Pengguna dapat membuka halaman history untuk melihat daftar completion berdasark
 - sign in
 - forgot password
 - reset password
+
+### Public Landing Page
+
+Halaman publik untuk menjelaskan positioning Rythm, cara kerja produk, dan mengarahkan pengunjung ke sign up atau sign in.
 
 ### Dashboard
 

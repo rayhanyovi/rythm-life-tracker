@@ -1,9 +1,17 @@
 import { expect, test } from "@playwright/test";
 
-test("root redirects anonymous users to sign-in", async ({ page }) => {
+test("root shows the public landing page for anonymous users", async ({ page }) => {
   await page.goto("/");
 
-  await expect(page).toHaveURL(/\/sign-in$/);
+  await expect(
+    page.getByRole("heading", { name: /build a rhythm you can actually keep/i }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: /start with rythm/i }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Sign in", exact: true }),
+  ).toBeVisible();
 });
 
 test("sign-in layout stays usable on all supported viewports", async ({

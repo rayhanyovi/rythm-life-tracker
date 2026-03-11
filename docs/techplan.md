@@ -160,6 +160,7 @@ types/
 
 User-facing routes:
 
+- `/`
 - `/sign-in`
 - `/sign-up`
 - `/forgot-password`
@@ -171,8 +172,8 @@ User-facing routes:
 
 Optional redirects:
 
+- `/` -> render public landing page jika belum authenticated
 - `/` -> redirect ke `/dashboard` jika authenticated
-- `/` -> redirect ke `/sign-in` jika belum authenticated
 
 ## 6. Domain Model
 

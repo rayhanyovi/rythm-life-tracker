@@ -94,6 +94,24 @@
     linear-gradient(180deg, hsl(0 0% 100%), hsl(0 0% 98%));
   --app-auth-panel-background: linear-gradient(180deg, var(--secondary), var(--muted));
   --app-selection-background: hsl(0 0% 90%);
+  --marketing-shell-background:
+    radial-gradient(circle at top left, hsl(0 0% 94%), transparent 28%),
+    radial-gradient(circle at top right, hsl(0 0% 97%), transparent 22%),
+    linear-gradient(180deg, hsl(0 0% 100%), hsl(0 0% 98%));
+  --marketing-grid-line: hsl(0 0% 0% / 0.05);
+  --marketing-grid-background:
+    linear-gradient(to right, var(--marketing-grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--marketing-grid-line) 1px, transparent 1px);
+  --marketing-card-background:
+    linear-gradient(180deg, hsl(0 0% 100% / 0.92), hsl(0 0% 97% / 0.92));
+  --marketing-mini-panel-background:
+    linear-gradient(180deg, hsl(0 0% 100% / 0.82), hsl(0 0% 98% / 0.82));
+  --marketing-pill-background: hsl(0 0% 100% / 0.78);
+  --marketing-pill-foreground: hsl(0 0% 16%);
+  --marketing-orbit-background:
+    radial-gradient(circle at top, hsl(0 0% 100%), hsl(0 0% 92%));
+  --marketing-spotlight-background:
+    radial-gradient(circle, hsl(0 0% 100% / 0.9), transparent 72%);
 }
 
 .dark {
@@ -152,6 +170,24 @@
     linear-gradient(180deg, var(--background), hsl(0 0% 6%));
   --app-auth-panel-background: linear-gradient(180deg, var(--card), var(--secondary));
   --app-selection-background: hsl(0 0% 15%);
+  --marketing-shell-background:
+    radial-gradient(circle at top left, hsl(0 0% 14%), transparent 28%),
+    radial-gradient(circle at top right, hsl(0 0% 10%), transparent 22%),
+    linear-gradient(180deg, hsl(0 0% 5%), hsl(0 0% 4%));
+  --marketing-grid-line: hsl(0 0% 100% / 0.06);
+  --marketing-grid-background:
+    linear-gradient(to right, var(--marketing-grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--marketing-grid-line) 1px, transparent 1px);
+  --marketing-card-background:
+    linear-gradient(180deg, hsl(0 0% 9% / 0.94), hsl(0 0% 7% / 0.94));
+  --marketing-mini-panel-background:
+    linear-gradient(180deg, hsl(0 0% 12% / 0.84), hsl(0 0% 8% / 0.84));
+  --marketing-pill-background: hsl(0 0% 12% / 0.84);
+  --marketing-pill-foreground: hsl(0 0% 94%);
+  --marketing-orbit-background:
+    radial-gradient(circle at top, hsl(0 0% 16%), hsl(0 0% 8%));
+  --marketing-spotlight-background:
+    radial-gradient(circle, hsl(0 0% 100% / 0.08), transparent 72%);
 }
 
 @theme inline {
@@ -235,4 +271,67 @@ input {
 
 .app-auth-panel {
   background-image: var(--app-auth-panel-background);
+}
+
+.landing-shell {
+  background-image: var(--marketing-shell-background);
+}
+
+.landing-grid {
+  background-image: var(--marketing-grid-background);
+  background-position: center;
+  background-size: 3rem 3rem;
+}
+
+.landing-card {
+  background-image: var(--marketing-card-background);
+}
+
+.landing-mini-panel {
+  background-image: var(--marketing-mini-panel-background);
+}
+
+.landing-pill {
+  background-color: var(--marketing-pill-background);
+  color: var(--marketing-pill-foreground);
+}
+
+.landing-orbit {
+  background-image: var(--marketing-orbit-background);
+  box-shadow: var(--shadow-lg);
+}
+
+.landing-spotlight {
+  background-image: var(--marketing-spotlight-background);
+}
+
+@keyframes landing-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(0, 0.85rem, 0);
+  }
+}
+
+@keyframes landing-enter {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 1.5rem, 0);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.landing-float {
+  animation: landing-drift 16s ease-in-out infinite;
+}
+
+.landing-enter {
+  animation: landing-enter 720ms ease-out;
 }

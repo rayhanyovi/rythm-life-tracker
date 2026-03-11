@@ -152,6 +152,7 @@ Temuan utama dari `quest-companion`:
 
 ## 10. Product Pages
 
+- [x] Implement public landing page di `/` dengan redirect ke `/dashboard` untuk user yang sudah login
 - [x] Implement halaman dashboard
 - [x] Dashboard menampilkan tanggal saat ini
 - [x] Dashboard mendukung filter kategori
