@@ -101,18 +101,19 @@ Temuan utama dari `quest-companion`:
 - [ ] Tambahkan trigger `updated_at` untuk `quests`
 - [ ] Tambahkan index yang dibutuhkan untuk query dashboard, history, dan management page
 - [ ] Pastikan authorization server-side menggantikan kebutuhan RLS
-- [ ] Pastikan ownership `category -> quest -> completion` tervalidasi dengan benar
+- [x] Pastikan ownership `category -> quest -> completion` tervalidasi dengan benar
 - [x] Siapkan Prisma schema dan migration workflow untuk root app
 - [x] Pastikan schema tetap berada di jalur `postgresql` agar provider database masih fleksibel
 
 ## 7. Domain Logic
 
-- [ ] Buat helper period tunggal untuk `DAILY`, `WEEKLY`, `MONTHLY`, dan `MAIN`
-- [ ] Pastikan period key dihitung konsisten dengan timezone `Asia/Jakarta`
+- [x] Buat helper period tunggal untuk `DAILY`, `WEEKLY`, `MONTHLY`, dan `MAIN`
+- [x] Pastikan period key dihitung konsisten dengan timezone `Asia/Jakarta`
 - [ ] Buat helper streak yang mengikuti aturan di `docs/techplan.md`
 - [ ] Buat mapper data dashboard yang mengelompokkan quest berdasarkan kategori
 - [x] Buat validasi payload untuk category
-- [ ] Buat validasi payload untuk quest, current completion, dan history filter
+- [x] Buat validasi payload untuk quest dan current completion
+- [ ] Buat validasi payload untuk history filter
 - [x] Buat flow bootstrap kategori default yang idempotent
 
 ## 8. API Dan Server Boundaries
@@ -123,14 +124,14 @@ Temuan utama dari `quest-companion`:
 - [x] Implement `PATCH /api/categories/:id`
 - [x] Implement `DELETE /api/categories/:id`
 - [x] Implement `POST /api/categories/reorder`
-- [ ] Implement `GET /api/quests`
-- [ ] Implement `POST /api/quests`
-- [ ] Implement `GET /api/quests/:id`
-- [ ] Implement `PATCH /api/quests/:id`
-- [ ] Implement `DELETE /api/quests/:id`
-- [ ] Implement `PUT /api/quests/:id/current-completion`
-- [ ] Implement `DELETE /api/quests/:id/current-completion`
-- [ ] Implement `PATCH /api/completions/:id`
+- [x] Implement `GET /api/quests`
+- [x] Implement `POST /api/quests`
+- [x] Implement `GET /api/quests/:id`
+- [x] Implement `PATCH /api/quests/:id`
+- [x] Implement `DELETE /api/quests/:id`
+- [x] Implement `PUT /api/quests/:id/current-completion`
+- [x] Implement `DELETE /api/quests/:id/current-completion`
+- [x] Implement `PATCH /api/completions/:id`
 - [ ] Implement `GET /api/history`
 - [x] Implement `POST /api/bootstrap/default-categories`
 
