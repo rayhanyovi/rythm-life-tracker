@@ -17,7 +17,9 @@ test("root layout exposes manifest and service worker entry points", async ({
 
   const manifest = await manifestResponse.json();
   expect(manifest.name).toBe("Rythm");
+  expect(manifest.id).toBe("/");
   expect(manifest.display).toBe("standalone");
+  expect(manifest.scope).toBe("/");
   expect(manifest.icons).toEqual(
     expect.arrayContaining([
       expect.objectContaining({ src: "/pwa/icon-192.png" }),
@@ -62,4 +64,40 @@ test("service worker script can register on localhost smoke flow", async ({
   });
 
   expect(serviceWorkerUrl).toContain("/sw.js");
+});
+
+test("offline navigation falls back to the cached offline screen", async ({
+  context,
+  page,
+}) => {
+  await page.goto("/sign-in");
+
+  await page.evaluate(async () => {
+    if (!("serviceWorker" in navigator)) {
+      return;
+    }
+
+    await navigator.serviceWorker.register("/sw.js", {
+      scope: "/",
+    });
+    await navigator.serviceWorker.ready;
+  });
+
+  await page.reload();
+  await expect
+    .poll(async () => {
+      return page.evaluate(() => Boolean(navigator.serviceWorker?.controller));
+    })
+    .toBe(true);
+
+  await page.goto("/offline");
+  await context.setOffline(true);
+  await page.goto("/history");
+
+  await expect(
+    page.getByRole("heading", { name: "You're offline", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByText(/quest writes and history updates still need a connection/i),
+  ).toBeVisible();
 });

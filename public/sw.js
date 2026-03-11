@@ -1,7 +1,21 @@
-const CACHE_NAME = "rythm-app-shell-v1";
+const CACHE_NAME = "rythm-app-shell-v2";
+const OFFLINE_ROUTE = "/offline";
+const STATIC_ROUTES_TO_CACHE = [
+  OFFLINE_ROUTE,
+  "/manifest.webmanifest",
+  "/apple-icon",
+  "/pwa/icon-192.png",
+  "/pwa/icon-512.png",
+];
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(self.skipWaiting());
+  event.waitUntil(
+    (async () => {
+      const cache = await caches.open(CACHE_NAME);
+      await cache.addAll(STATIC_ROUTES_TO_CACHE);
+      await self.skipWaiting();
+    })(),
+  );
 });
 
 self.addEventListener("activate", (event) => {
@@ -51,8 +65,12 @@ self.addEventListener("fetch", (event) => {
       (async () => {
         try {
           const response = await fetch(request);
-          const cache = await caches.open(CACHE_NAME);
-          cache.put(request, response.clone());
+
+          if (new URL(request.url).pathname === OFFLINE_ROUTE && response.ok) {
+            const cache = await caches.open(CACHE_NAME);
+            cache.put(OFFLINE_ROUTE, response.clone());
+          }
+
           return response;
         } catch {
           const cached = await caches.match(request);
@@ -61,7 +79,7 @@ self.addEventListener("fetch", (event) => {
             return cached;
           }
 
-          return caches.match("/");
+          return caches.match(OFFLINE_ROUTE);
         }
       })(),
     );
@@ -76,7 +94,9 @@ self.addEventListener("fetch", (event) => {
         const cached = await cache.match(request);
         const networkFetch = fetch(request)
           .then((response) => {
-            cache.put(request, response.clone());
+            if (response.ok) {
+              cache.put(request, response.clone());
+            }
             return response;
           })
           .catch(() => cached);

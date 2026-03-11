@@ -181,7 +181,7 @@ Temuan utama dari `quest-companion`:
 - [x] Tambahkan installability metadata
 - [x] Tambahkan service worker atau strategi app shell caching yang sesuai untuk Next.js
 - [ ] Validasi bahwa app bisa di-install di mobile
-- [ ] Pastikan offline support tetap minimal dan tidak melebar ke sync kompleks
+- [x] Pastikan offline support tetap minimal dan tidak melebar ke sync kompleks
 
 ## 12. Deployment Readiness
 

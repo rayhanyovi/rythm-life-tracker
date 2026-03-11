@@ -37,6 +37,9 @@ Gunakan checklist ini setelah preview atau production URL tersedia.
 4. Install app
 5. Buka app hasil install
 6. Pastikan shell utama tetap tampil normal
+7. Aktifkan airplane mode atau offline simulation
+8. Buka route yang belum aktif menulis data
+9. Pastikan app jatuh ke halaman offline fallback, bukan error browser kosong
 
 ## Notes
 
