@@ -66,6 +66,18 @@ export function getResendApiKey() {
   return readEnv("RESEND_API_KEY");
 }
 
+export function getAuthEmailDeliveryConfig() {
+  const from = getAuthEmailFrom();
+  const resendApiKey = getResendApiKey();
+
+  return {
+    from,
+    isConfigured: Boolean(from && resendApiKey),
+    isPartiallyConfigured: Boolean(from || resendApiKey) && !(from && resendApiKey),
+    resendApiKey,
+  };
+}
+
 export function getBetterAuthAllowedHosts() {
   const authUrl = new URL(getBetterAuthUrl());
 

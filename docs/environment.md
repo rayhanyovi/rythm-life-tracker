@@ -82,6 +82,7 @@ Catatan:
 - jika `AUTH_EMAIL_FROM` dan `RESEND_API_KEY` sama-sama tersedia, reset password dan verification email akan dikirim lewat Resend
 - jika salah satu tidak tersedia, local dan preview fallback ke structured server log
 - fallback log ini berguna untuk development, tetapi bukan posture yang layak untuk launch publik
+- `npm run env:check:deployment` sekarang menganggap keduanya wajib karena verification dan password reset sudah menjadi bagian auth MVP
 
 ### `NEXT_PUBLIC_PWA_DEV_ENABLED`
 
@@ -143,6 +144,7 @@ Perilaku:
 
 - `env:check` aman untuk local development dan akan melaporkan fallback yang masih aktif
 - `env:check:deployment` akan gagal jika `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, atau `DATABASE_URL` belum diisi eksplisit
+- `env:check:deployment` juga akan gagal jika `AUTH_EMAIL_FROM` atau `RESEND_API_KEY` belum lengkap
 - `env:check:deployment` juga menolak `BETTER_AUTH_URL` yang masih mengarah ke `localhost`
 
 ## Deployment Notes

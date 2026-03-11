@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import {
   envFallbacks,
   getAppTimezone,
+  getAuthEmailDeliveryConfig,
   getBetterAuthSecret,
   getBetterAuthUrl,
   getDatabaseUrl,
@@ -82,5 +83,36 @@ describe("env helpers", () => {
       },
     );
   });
-});
 
+  it("reports auth email delivery as ready only when both env values exist", () => {
+    withEnv(
+      {
+        AUTH_EMAIL_FROM: "Rythm <auth@rythm.test>",
+        RESEND_API_KEY: "re_test_key",
+      },
+      () => {
+        assert.deepEqual(getAuthEmailDeliveryConfig(), {
+          from: "Rythm <auth@rythm.test>",
+          isConfigured: true,
+          isPartiallyConfigured: false,
+          resendApiKey: "re_test_key",
+        });
+      },
+    );
+
+    withEnv(
+      {
+        AUTH_EMAIL_FROM: "Rythm <auth@rythm.test>",
+        RESEND_API_KEY: undefined,
+      },
+      () => {
+        assert.deepEqual(getAuthEmailDeliveryConfig(), {
+          from: "Rythm <auth@rythm.test>",
+          isConfigured: false,
+          isPartiallyConfigured: true,
+          resendApiKey: undefined,
+        });
+      },
+    );
+  });
+});

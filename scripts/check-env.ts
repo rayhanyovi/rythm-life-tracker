@@ -1,6 +1,7 @@
 import {
   envFallbacks,
   getAppTimezone,
+  getAuthEmailDeliveryConfig,
   getBetterAuthSecret,
   getBetterAuthUrl,
   getDatabaseUrl,
@@ -34,6 +35,7 @@ const explicitAuthSecret = readEnv("BETTER_AUTH_SECRET") ?? readEnv("AUTH_SECRET
 const explicitAuthUrl = readEnv("BETTER_AUTH_URL");
 const explicitDatabaseUrl = readEnv("DATABASE_URL");
 const explicitTimezone = readEnv("NEXT_PUBLIC_APP_TIMEZONE");
+const authEmailDeliveryConfig = getAuthEmailDeliveryConfig();
 
 let resolvedAuthUrl = "";
 let resolvedTimezone = "";
@@ -66,6 +68,18 @@ if (!issues.length) {
     );
   }
 
+  if (authEmailDeliveryConfig.isPartiallyConfigured) {
+    warnings.push(
+      "AUTH_EMAIL_FROM and RESEND_API_KEY should be configured together; auth email delivery is partially configured.",
+    );
+  }
+
+  if (!authEmailDeliveryConfig.isConfigured) {
+    warnings.push(
+      "Auth email delivery is not fully configured; verification and password reset emails will fall back to server logs.",
+    );
+  }
+
   if (isDeploymentCheck) {
     if (!explicitAuthSecret) {
       issues.push("BETTER_AUTH_SECRET must be explicitly set for deployment.");
@@ -81,6 +95,12 @@ if (!issues.length) {
 
     if (resolvedAuthUrl.startsWith("http://localhost")) {
       issues.push("BETTER_AUTH_URL must not point to localhost for deployment.");
+    }
+
+    if (!authEmailDeliveryConfig.isConfigured) {
+      issues.push(
+        "AUTH_EMAIL_FROM and RESEND_API_KEY must be explicitly set for deployment because verification and password reset emails are part of the MVP auth flow.",
+      );
     }
   }
 }
@@ -104,6 +124,11 @@ console.log(
   }`,
 );
 console.log(`- NEXT_PUBLIC_APP_TIMEZONE: ${resolvedTimezone}`);
+console.log(
+  `- AUTH_EMAIL_DELIVERY: ${
+    authEmailDeliveryConfig.isConfigured ? "explicitly configured" : "fallback to server log"
+  }`,
+);
 
 if (getDirectUrl()) {
   console.log("- DIRECT_URL: configured");

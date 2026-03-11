@@ -192,6 +192,7 @@ Temuan utama dari `quest-companion`:
 - [x] Tambahkan `.env.example` sebagai baseline local dan deployment env
 - [x] Tambahkan script Prisma untuk `validate`, `migrate deploy`, dan status check
 - [x] Tambahkan canonical env resolver dan deployment env checker
+- [x] Pastikan deployment env checker ikut memvalidasi auth email delivery saat verification dan reset flow aktif
 - [x] Siapkan environment mapping untuk Vercel preview dan production
 - [x] Tambahkan dokumentasi deployment saat arah deployment mulai konkret
 - [x] Bandingkan opsi database hosting: Prisma Postgres, Neon, Supabase Postgres, dan PostgreSQL biasa

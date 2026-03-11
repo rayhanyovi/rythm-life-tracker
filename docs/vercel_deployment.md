@@ -29,6 +29,8 @@ Set di Vercel untuk preview dan production:
 - `BETTER_AUTH_SECRET`
 - `BETTER_AUTH_URL`
 - `DATABASE_URL`
+- `AUTH_EMAIL_FROM`
+- `RESEND_API_KEY`
 
 Optional:
 
@@ -49,6 +51,8 @@ Recommended:
 - `BETTER_AUTH_SECRET`: satu secret yang valid untuk seluruh environment non-local
 - `BETTER_AUTH_URL`: gunakan preview URL utama bila ingin preview auth flow end-to-end, atau gunakan production domain hanya jika flow host handling memang diinginkan seperti itu
 - `DATABASE_URL`: pakai database preview/shared yang memang aman untuk testing
+- `AUTH_EMAIL_FROM`: sender yang valid untuk verification dan reset email
+- `RESEND_API_KEY`: API key Resend untuk preview/production auth email delivery
 - `NEXT_PUBLIC_APP_TIMEZONE`: `Asia/Jakarta`
 
 Catatan:
@@ -63,6 +67,8 @@ Production harus memakai environment terpisah yang stabil:
 - `BETTER_AUTH_SECRET`: secret production yang kuat
 - `BETTER_AUTH_URL`: domain production final, misalnya `https://app.example.com`
 - `DATABASE_URL`: database production PostgreSQL-compatible
+- `AUTH_EMAIL_FROM`: sender production yang valid
+- `RESEND_API_KEY`: API key Resend production
 - `DIRECT_URL`: isi hanya jika provider database memang memisahkan pooled dan direct connection
 
 ## Install And Build Notes
@@ -70,6 +76,7 @@ Production harus memakai environment terpisah yang stabil:
 - `npm` adalah package manager canonical
 - `postinstall` sudah menjalankan `prisma generate`
 - `npm run env:check:deployment` sekarang tersedia untuk memblokir deploy dengan env yang belum lengkap
+- auth email delivery sekarang termasuk bagian deploy gate karena verification dan reset flow sudah live
 - `prisma.config.ts` sekarang dikunci di root repo supaya Prisma CLI selalu membaca schema dan migration dari path canonical
 - build verification saat ini memakai `npm run build`
 - jika `BETTER_AUTH_SECRET` kosong, Better Auth akan memunculkan warning yang harus dianggap blocker sebelum deploy nyata

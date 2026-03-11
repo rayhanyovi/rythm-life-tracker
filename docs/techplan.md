@@ -699,6 +699,7 @@ Build-time and tooling note:
 - sediakan `.env.example` sebagai baseline local dan Vercel environment mapping
 - Prisma client generation harus masuk ke alur install atau build agar deployment Vercel konsisten
 - sediakan `npm run env:check` dan `npm run env:check:deployment` untuk memvalidasi local fallback vs readiness deploy
+- `env:check:deployment` harus memblokir deploy jika auth email delivery belum lengkap karena verification dan password reset sudah live
 
 ## 16. Deployment And Database Options
 
