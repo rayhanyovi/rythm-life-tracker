@@ -9,6 +9,7 @@
 - `docs/parity_review.md` records the final prototype-vs-root cutover review.
 - `docs/environment.md` documents runtime and deployment-facing environment variables.
 - `docs/deployment_smoke.md` documents how to run Playwright against a deployed URL once preview or production access exists.
+- `docs/manual_verification.md` documents the screenshot-based manual QA workflow for desktop and mobile layout review.
 
 ## Core Agreement
 

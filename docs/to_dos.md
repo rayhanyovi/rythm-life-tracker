@@ -208,7 +208,7 @@ Temuan utama dari `quest-companion`:
 - [x] Tambahkan browser smoke test untuk authenticated app shell, dashboard, quest form, categories, dan history
 - [x] Ganti test placeholder dari prototype dengan test yang relevan di root app
 - [ ] Jalankan `npm run lint` untuk setiap vertical slice yang selesai
-- [ ] Tambahkan verifikasi manual untuk mobile layout dan desktop layout
+- [x] Tambahkan verifikasi manual untuk mobile layout dan desktop layout
 
 ## 14. Documentation Dan Delivery Discipline
 

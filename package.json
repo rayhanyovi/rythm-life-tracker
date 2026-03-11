@@ -10,6 +10,7 @@
     "lint": "eslint",
     "env:check": "node --import tsx scripts/check-env.ts",
     "env:check:deployment": "node --import tsx scripts/check-env.ts --deployment",
+    "qa:layout": "node --import tsx scripts/capture-layout-review.ts",
     "test": "node --test --import tsx tests/index.test.ts",
     "test:watch": "node --test --watch --import tsx tests/index.test.ts",
     "test:e2e": "cross-env NEXT_PUBLIC_PWA_DEV_ENABLED=true RYTHM_E2E_AUTH_BYPASS=true PLAYWRIGHT_APP_PORT=3100 BETTER_AUTH_URL=http://localhost:3100 playwright test",

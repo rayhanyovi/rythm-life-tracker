@@ -62,6 +62,7 @@ Stack layanan yang dibutuhkan untuk MVP:
 - Vercel sebagai hosting target untuk Next.js app
 - basic PWA manifest dan service worker caching
 - `node:test` + `tsx` untuk unit test helper domain dan validator
+- `@playwright/test` + `npm run qa:layout` untuk screenshot-based manual layout review workflow
 
 ## 3. System Architecture
 
@@ -766,4 +767,5 @@ MVP technical completion berarti:
 - browser smoke test dijalankan dengan Playwright untuk auth layout responsive, root redirect, manifest/icon endpoint, dan service worker registration baseline
 - browser smoke PWA juga harus memverifikasi offline navigation fallback tetap jatuh ke offline page, bukan mencoba cache API atau write flow
 - browser smoke untuk halaman authenticated boleh memakai env-gated auth bypass (`RYTHM_E2E_AUTH_BYPASS=true`) plus mocked `/api/*` responses agar dashboard, quest form, sidebar, categories, dan history bisa diverifikasi tanpa database eksternal
+- manual verification workflow tersedia lewat `npm run qa:layout` untuk menghasilkan screenshot desktop/mobile yang kemudian direview manusia
 - smoke test end-to-end tetap boleh menyusul setelah flow auth dan data foundation stabil

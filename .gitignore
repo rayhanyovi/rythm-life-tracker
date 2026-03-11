@@ -14,10 +14,12 @@
 /coverage
 /playwright-report
 /test-results
+/.artifacts
 
 # next.js
 /.next/
 /.next-e2e/
+/.next-manual/
 /out/
 
 # production
