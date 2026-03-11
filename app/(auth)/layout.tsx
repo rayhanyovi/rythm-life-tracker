@@ -9,7 +9,7 @@ export default async function AuthLayout({
 
   return (
     <div className="grid min-h-screen lg:grid-cols-[minmax(0,1.05fr)_minmax(24rem,0.95fr)]">
-      <section className="hidden border-r border-border/70 bg-[linear-gradient(180deg,oklch(0.968_0.018_89),oklch(0.932_0.025_83))] px-10 py-12 lg:flex lg:flex-col lg:justify-between">
+      <section className="app-auth-panel hidden border-r border-border/70 px-10 py-12 lg:flex lg:flex-col lg:justify-between">
         <div className="space-y-6">
           <div className="space-y-3">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
@@ -31,7 +31,7 @@ export default async function AuthLayout({
             ].map((item) => (
               <div
                 key={item}
-                className="rounded-[calc(var(--radius)-0.15rem)] border border-border/70 bg-background/75 px-5 py-4 text-sm text-foreground shadow-sm"
+                className="rounded-md border border-border/70 bg-background/75 px-5 py-4 text-sm text-foreground shadow-sm"
               >
                 {item}
               </div>

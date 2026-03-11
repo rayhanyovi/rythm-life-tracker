@@ -63,6 +63,8 @@ Temuan utama dari `quest-companion`:
 - [ ] Port pola sidebar, top bar, list item, form shell, dialog, dan detail panel ke komponen root
 - [ ] Standardisasi form, dialog, sheet, select, checkbox, toast, dan alert lewat `shadcn/ui`
 - [x] Ganti style token/theme saat ini dengan token baru yang lebih cocok untuk Rythm
+- [x] Jadikan `app/globals.css` sebagai source of truth token warna, radius, shadow, dan font
+- [x] Audit sisa style hardcoded dan pindahkan ke token atau utility berbasis token
 - [x] Ganti tipografi default root app dengan tipografi produk yang lebih intentional
 - [ ] Hapus branding `Quest2` dari icon, label, title, dan manifest
 - [ ] Normalisasi semua copy UI ke istilah `Quest` dan brand `Rythm`

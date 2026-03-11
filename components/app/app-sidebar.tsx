@@ -58,7 +58,7 @@ export function AppSidebar({
   onNavigate,
 }: AppSidebarProps) {
   return (
-    <div className="flex h-full flex-col rounded-[calc(var(--radius)+0.4rem)] border border-sidebar-border bg-sidebar/95 p-4 shadow-[0_32px_70px_-54px_rgba(34,42,28,0.45)]">
+    <div className="flex h-full flex-col rounded-xl border border-sidebar-border bg-sidebar/95 p-4 shadow-xl">
       <div className="flex items-center gap-3 px-2 pb-4">
         <div className="flex size-11 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm">
           <Compass className="size-5" />
@@ -93,7 +93,7 @@ export function AppSidebar({
             >
               <div
                 className={cn(
-                  "mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-2xl border transition-colors",
+                  "mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg border transition-colors",
                   active
                     ? "border-primary/30 bg-primary/15 text-primary"
                     : "border-border/70 bg-background/60 text-muted-foreground group-hover:text-foreground",
@@ -113,7 +113,7 @@ export function AppSidebar({
       </nav>
 
       <div className="mt-auto space-y-4 pt-6">
-        <div className="rounded-[calc(var(--radius)-0.1rem)] bg-background/75 p-4">
+        <div className="rounded-md bg-background/75 p-4">
           <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
             <Sparkles className="size-4 text-accent-foreground" />
             Signed in

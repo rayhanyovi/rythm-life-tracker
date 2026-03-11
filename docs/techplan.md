@@ -138,6 +138,9 @@ types/
 - simpan primitive hasil generate di `components/ui`
 - buat komponen produk Rythm di luar `components/ui`
 - hindari mencampur banyak UI kit agar styling token dan behavior tetap konsisten
+- gunakan token dari `app/globals.css` sebagai source of truth untuk warna, radius, shadow, font, dan surface treatment
+- jangan hardcode nilai visual seperti `hsl(...)`, `oklch(...)`, `rgba(...)`, gradient literal, atau shadow literal langsung di komponen jika bisa direpresentasikan sebagai token
+- jika butuh surface atau treatment baru yang belum ada, tambahkan token atau utility berbasis token di `app/globals.css` lebih dulu
 
 ## 5. Product Routes
 

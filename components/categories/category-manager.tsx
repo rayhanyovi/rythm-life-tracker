@@ -309,11 +309,11 @@ export function CategoryManager() {
           ) : null}
 
           {isLoading ? (
-            <div className="flex min-h-56 items-center justify-center rounded-[calc(var(--radius)-0.15rem)] border border-dashed border-border/70 bg-background/55">
+            <div className="flex min-h-56 items-center justify-center rounded-md border border-dashed border-border/70 bg-background/55">
               <Loader2 className="size-5 animate-spin text-muted-foreground" />
             </div>
           ) : categories.length === 0 ? (
-            <div className="rounded-[calc(var(--radius)-0.15rem)] border border-dashed border-border/70 bg-background/55 px-5 py-10 text-center">
+            <div className="rounded-md border border-dashed border-border/70 bg-background/55 px-5 py-10 text-center">
               <p className="text-sm font-medium text-foreground">No categories yet.</p>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
                 Seed the defaults or create your first custom life area.
@@ -327,7 +327,7 @@ export function CategoryManager() {
                 return (
                   <div
                     key={category.id}
-                    className="grid gap-3 rounded-[calc(var(--radius)-0.15rem)] border border-border/75 bg-background/80 p-4 sm:grid-cols-[auto_minmax(0,1fr)_auto]"
+                    className="grid gap-3 rounded-md border border-border/75 bg-background/80 p-4 sm:grid-cols-[auto_minmax(0,1fr)_auto]"
                   >
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <button
@@ -445,7 +445,7 @@ export function CategoryManager() {
             {DEFAULT_CATEGORY_NAMES.map((name) => (
               <div
                 key={name}
-                className="rounded-[calc(var(--radius)-0.2rem)] border border-border/70 bg-background/75 px-4 py-3 text-sm"
+                className="rounded-md border border-border/70 bg-background/75 px-4 py-3 text-sm"
               >
                 {name}
               </div>

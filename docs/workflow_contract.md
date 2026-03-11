@@ -34,6 +34,7 @@ For any non-trivial task, follow this order:
 - If logic is brought forward from historical prototype work, normalize it to Next.js App Router, server/client boundaries, and production constraints.
 - Keep browser-only code isolated behind explicit client components.
 - Move provider calls that need control, caching, or protection behind server boundaries where appropriate.
+- Keep styling token-driven. `app/globals.css` is the canonical source for theme tokens and component code should avoid hardcoded visual values when a token can represent them.
 
 ## Documentation Rules
 
