@@ -55,6 +55,7 @@ Stack layanan yang dibutuhkan untuk MVP:
 - `shadcn/ui` untuk primitive dan application components
 - Better Auth untuk email/password authentication dan session management
 - Prisma ORM untuk schema, migrations, dan query layer
+- `@prisma/adapter-pg` + `pg` untuk Prisma runtime pada jalur PostgreSQL-compatible saat ini
 - PostgreSQL-compatible database sebagai persistence layer
 - Vercel sebagai hosting target untuk Next.js app
 - basic PWA manifest dan service worker caching
@@ -75,6 +76,7 @@ Browser / PWA
 - Operasi data utama dilakukan lewat server boundary, bukan direct client-to-database pattern.
 - Better Auth menangani session cookie dan auth lifecycle.
 - Prisma menjadi source of truth untuk data model aplikasi dan query execution.
+- Prisma runtime saat ini diasumsikan berjalan melalui driver adapter PostgreSQL, sementara provider hosting database tetap bisa diputuskan belakangan selama kompatibel dengan jalur itu.
 - Ownership dan authorization di-enforce di layer aplikasi server, bukan melalui RLS.
 - UI primitives dan form building blocks distandardisasi lewat `shadcn/ui`, lalu dikomposisikan menjadi komponen produk milik Rythm.
 - Default runtime target untuk route handler yang menyentuh Prisma adalah Node.js runtime di Vercel, bukan Edge.
@@ -651,7 +653,8 @@ Build-time and tooling note:
 
 - root app perlu konfigurasi `shadcn/ui` yang kompatibel dengan Next.js App Router dan Tailwind CSS 4
 - Better Auth perlu konfigurasi host yang kompatibel dengan localhost dan preview deployment Vercel
-- Prisma client generation harus masuk ke alur build agar deployment Vercel konsisten
+- Prisma 7 memakai `prisma.config.ts` untuk datasource CLI
+- Prisma client generation harus masuk ke alur install atau build agar deployment Vercel konsisten
 
 ## 16. Deployment And Database Options
 

@@ -1,8 +1,12 @@
-export default function AuthLayout({
+import { redirectIfAuthenticated } from "@/lib/session";
+
+export default async function AuthLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  await redirectIfAuthenticated();
+
   return (
     <div className="grid min-h-screen lg:grid-cols-[minmax(0,1.05fr)_minmax(24rem,0.95fr)]">
       <section className="hidden border-r border-border/70 bg-[linear-gradient(180deg,oklch(0.968_0.018_89),oklch(0.932_0.025_83))] px-10 py-12 lg:flex lg:flex-col lg:justify-between">
@@ -35,9 +39,9 @@ export default function AuthLayout({
           </div>
         </div>
         <p className="max-w-md text-sm leading-7 text-muted-foreground">
-          Better Auth integration and server-side session flow are intentionally
-          split into the next vertical slice so the app shell stays stable while
-          the data boundary is introduced.
+          Better Auth now handles the session boundary in the root app, so this
+          area focuses on quick account access before users land in the main
+          dashboard flow.
         </p>
       </section>
       <div className="flex items-center justify-center px-5 py-10 md:px-8">

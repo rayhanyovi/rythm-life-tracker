@@ -42,6 +42,8 @@ export const appNavItems: AppNavItem[] = [
 
 type AppSidebarProps = {
   pathname: string;
+  userEmail: string;
+  userName: string;
   onNavigate?: () => void;
 };
 
@@ -49,7 +51,12 @@ function isActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function AppSidebar({ pathname, onNavigate }: AppSidebarProps) {
+export function AppSidebar({
+  pathname,
+  userEmail,
+  userName,
+  onNavigate,
+}: AppSidebarProps) {
   return (
     <div className="flex h-full flex-col rounded-[calc(var(--radius)+0.4rem)] border border-sidebar-border bg-sidebar/95 p-4 shadow-[0_32px_70px_-54px_rgba(34,42,28,0.45)]">
       <div className="flex items-center gap-3 px-2 pb-4">
@@ -109,15 +116,16 @@ export function AppSidebar({ pathname, onNavigate }: AppSidebarProps) {
         <div className="rounded-[calc(var(--radius)-0.1rem)] bg-background/75 p-4">
           <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
             <Sparkles className="size-4 text-accent-foreground" />
-            Foundation slice
+            Signed in
           </div>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            Layout and product routes are live in the root app. Better Auth,
-            Prisma, and data contracts are next.
+            {userName}
+            <br />
+            {userEmail}
           </p>
         </div>
         <Button variant="outline" className="w-full justify-start">
-          Auth wiring comes next
+          Current routes are session protected
         </Button>
       </div>
     </div>

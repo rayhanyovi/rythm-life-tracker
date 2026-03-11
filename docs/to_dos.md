@@ -50,7 +50,7 @@ Temuan utama dari `quest-companion`:
 
 - [x] Ganti halaman default root app dengan shell awal Rythm
 - [x] Tambahkan struktur route group App Router untuk area auth dan app utama
-- [ ] Siapkan folder dasar root app untuk `components`, `lib`, `types`, dan `app/api`
+- [x] Siapkan folder dasar root app untuk `components`, `lib`, `types`, dan `app/api`
 - [x] Install dependency yang memang dibutuhkan root app untuk Better Auth, Prisma, form handling, validation, icons, dan UI primitives
 - [x] Setup `shadcn/ui` di root app sebagai library komponen standar
 - [x] Rapikan metadata root app agar memakai nama dan deskripsi Rythm
@@ -81,20 +81,20 @@ Temuan utama dari `quest-companion`:
 
 ## 5. Better Auth, Prisma, Dan Environment Setup
 
-- [ ] Setup Better Auth server config di root app
-- [ ] Setup Better Auth client helper di root app
-- [ ] Buat route handler `app/api/auth/[...all]/route.ts`
-- [ ] Siapkan session handling Better Auth untuk Next.js App Router
-- [ ] Setup Prisma di root app
-- [ ] Buat Prisma client singleton yang aman untuk development dan Vercel
-- [ ] Tambahkan environment variable yang dibutuhkan di root app
-- [ ] Konfigurasi Better Auth `allowedHosts` untuk `localhost:3000` dan `*.vercel.app`
-- [ ] Buat `docs/environment.md` saat runtime configuration mulai dipakai
+- [x] Setup Better Auth server config di root app
+- [x] Setup Better Auth client helper di root app
+- [x] Buat route handler `app/api/auth/[...all]/route.ts`
+- [x] Siapkan session handling Better Auth untuk Next.js App Router
+- [x] Setup Prisma di root app
+- [x] Buat Prisma client singleton yang aman untuk development dan Vercel
+- [x] Tambahkan environment variable yang dibutuhkan di root app
+- [x] Konfigurasi Better Auth `allowedHosts` untuk `localhost:3000` dan `*.vercel.app`
+- [x] Buat `docs/environment.md` saat runtime configuration mulai dipakai
 - [ ] Tentukan flow bootstrap kategori default setelah first login
 
 ## 6. Database Dan Security
 
-- [ ] Generate core auth schema Better Auth untuk Prisma
+- [x] Selesaikan core auth schema Better Auth di Prisma schema
 - [ ] Buat migration canonical untuk tabel `categories`
 - [ ] Buat migration canonical untuk tabel `quests`
 - [ ] Buat migration canonical untuk tabel `quest_completions`
@@ -102,8 +102,8 @@ Temuan utama dari `quest-companion`:
 - [ ] Tambahkan index yang dibutuhkan untuk query dashboard, history, dan management page
 - [ ] Pastikan authorization server-side menggantikan kebutuhan RLS
 - [ ] Pastikan ownership `category -> quest -> completion` tervalidasi dengan benar
-- [ ] Siapkan Prisma schema dan migration workflow untuk root app
-- [ ] Pastikan schema tetap berada di jalur `postgresql` agar provider database masih fleksibel
+- [x] Siapkan Prisma schema dan migration workflow untuk root app
+- [x] Pastikan schema tetap berada di jalur `postgresql` agar provider database masih fleksibel
 
 ## 7. Domain Logic
 
@@ -135,11 +135,11 @@ Temuan utama dari `quest-companion`:
 
 ## 9. Authentication Flow
 
-- [ ] Implement halaman `sign-in`
-- [ ] Implement halaman `sign-up`
-- [ ] Tambahkan proteksi route untuk area app utama
-- [ ] Tambahkan redirect dari `/` ke `/dashboard` atau `/sign-in` sesuai status auth
-- [ ] Hubungkan auth flow ke Better Auth session di Next.js
+- [x] Implement halaman `sign-in`
+- [x] Implement halaman `sign-up`
+- [x] Tambahkan proteksi route untuk area app utama
+- [x] Tambahkan redirect dari `/` ke `/dashboard` atau `/sign-in` sesuai status auth
+- [x] Hubungkan auth flow ke Better Auth session di Next.js
 - [ ] Implement forgot password hanya jika memang masuk cut MVP
 - [ ] Putuskan apakah email verification wajib di MVP pertama atau tidak
 
@@ -180,7 +180,7 @@ Temuan utama dari `quest-companion`:
 
 - [ ] Siapkan root app agar deployment-ready di Vercel
 - [ ] Pastikan route yang memakai Prisma tetap berjalan di Node.js runtime
-- [ ] Pastikan Prisma client generation masuk ke build/install flow
+- [x] Pastikan Prisma client generation masuk ke build/install flow
 - [ ] Siapkan environment mapping untuk Vercel preview dan production
 - [ ] Tambahkan dokumentasi deployment saat arah deployment mulai konkret
 - [ ] Bandingkan opsi database hosting: Prisma Postgres, Neon, Supabase Postgres, dan PostgreSQL biasa

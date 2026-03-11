@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { Menu, Sparkles } from "lucide-react";
 
 import { AppSidebar, appNavItems } from "@/components/app/app-sidebar";
+import { SignOutButton } from "@/components/app/sign-out-button";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -16,9 +17,11 @@ import {
 
 type AppShellProps = {
   children: React.ReactNode;
+  userEmail: string;
+  userName: string;
 };
 
-export function AppShell({ children }: AppShellProps) {
+export function AppShell({ children, userEmail, userName }: AppShellProps) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -33,7 +36,11 @@ export function AppShell({ children }: AppShellProps) {
   return (
     <div className="min-h-screen md:grid md:grid-cols-[18rem_minmax(0,1fr)] md:gap-5 md:p-5">
       <aside className="hidden md:block">
-        <AppSidebar pathname={pathname} />
+        <AppSidebar
+          pathname={pathname}
+          userEmail={userEmail}
+          userName={userName}
+        />
       </aside>
 
       <div className="min-w-0">
@@ -60,8 +67,9 @@ export function AppShell({ children }: AppShellProps) {
             </div>
             <div className="hidden items-center gap-2 rounded-full bg-muted/80 px-3 py-2 text-sm text-muted-foreground md:flex">
               <Sparkles className="size-4 text-accent-foreground" />
-              Root app foundation is live
+              Better Auth session is live
             </div>
+            <SignOutButton />
           </div>
         </header>
 
@@ -74,7 +82,12 @@ export function AppShell({ children }: AppShellProps) {
             <SheetTitle>Navigation</SheetTitle>
             <SheetDescription>Navigate across the Rythm app shell.</SheetDescription>
           </SheetHeader>
-          <AppSidebar pathname={pathname} onNavigate={() => setMobileOpen(false)} />
+          <AppSidebar
+            pathname={pathname}
+            userEmail={userEmail}
+            userName={userName}
+            onNavigate={() => setMobileOpen(false)}
+          />
         </SheetContent>
       </Sheet>
     </div>
