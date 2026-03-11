@@ -120,6 +120,8 @@ Catatan:
 
 Lihat [`.env.example`](/c:/Projects/rhythm/.env.example) untuk baseline local setup.
 
+Jika app ikut dijalankan di Docker container, gunakan [.env.docker.example](/c:/Projects/rhythm/.env.docker.example) sebagai baseline karena `DATABASE_URL` di mode itu harus menunjuk ke host service `db`, bukan `localhost`.
+
 Prisma CLI membaca `DATABASE_URL` lewat [prisma.config.ts](/c:/Projects/rhythm/prisma.config.ts), jadi local development tetap perlu `.env.local` atau `.env` yang valid saat menjalankan migrate terhadap database nyata.
 
 Catatan tambahan:
@@ -132,6 +134,17 @@ Catatan tambahan:
 - forgot password dan email verification saat ini punya fallback email delivery ke server log jika provider email belum diisi
 - `NEXT_PUBLIC_PWA_DEV_ENABLED` sengaja optional dan default-nya nonaktif agar service worker tidak mengganggu development harian
 - `RYTHM_E2E_AUTH_BYPASS` sengaja optional dan default-nya nonaktif agar auth bypass tidak pernah aktif di runtime normal
+- local Docker stack canonical didokumentasikan di [docs/local_docker.md](/c:/Projects/rhythm/docs/local_docker.md)
+
+## Compose-Only Local Overrides
+
+Variable di bawah bukan dibaca runtime code secara langsung, tetapi dipakai oleh [compose.yaml](/c:/Projects/rhythm/compose.yaml) untuk local infrastructure:
+
+- `POSTGRES_DB`
+- `POSTGRES_USER`
+- `POSTGRES_PASSWORD`
+
+Nilai default-nya sudah aman untuk local development dan tersedia di [.env.docker.example](/c:/Projects/rhythm/.env.docker.example).
 
 ## Environment Check Commands
 

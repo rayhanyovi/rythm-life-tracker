@@ -1,0 +1,18 @@
+.git
+.github
+.next
+.next-e2e
+.next-manual
+.vercel
+.artifacts
+coverage
+node_modules
+playwright-report
+test-results
+quest-companion
+docs/RYTHM - PRD + BRD + TRD.txt
+docs/Rythm PRD + BRD + TRD .txt
+.env
+.env.*
+!.env.example
+!.env.docker.example

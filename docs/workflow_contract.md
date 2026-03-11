@@ -8,6 +8,7 @@
 - `docs/workflow_contract.md` is the canonical workflow contract for AI agents and developers.
 - `docs/parity_review.md` records the final prototype-vs-root cutover review.
 - `docs/environment.md` documents runtime and deployment-facing environment variables.
+- `docs/local_docker.md` documents the canonical local Docker setup for app + Postgres.
 - `docs/deployment_smoke.md` documents how to run Playwright against a deployed URL once preview or production access exists.
 - `docs/manual_verification.md` documents the screenshot-based manual QA workflow for desktop and mobile layout review.
 
@@ -44,6 +45,7 @@ For any non-trivial task, follow this order:
 - Update `docs/overview.md` when understanding of architecture, scope, or system boundaries materially changes.
 - Update `docs/techplan.md` when schema, endpoint contracts, auth behavior, runtime boundaries, or technical decisions materially change.
 - Update `docs/environment.md` when runtime configuration, deployment assumptions, or environment variable usage changes.
+- Update `docs/local_docker.md` when local Docker assumptions, compose services, or container commands change.
 - Update `docs/vercel_deployment.md` when Vercel runtime assumptions, function limits, or deployment posture changes.
 - Update `docs/to_dos.md` when a task is started, finished, split, or deprioritized.
 - If commits are intentionally deferred, create or update a temporary commit tracker document before ending the task.

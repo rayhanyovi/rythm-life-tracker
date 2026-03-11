@@ -190,6 +190,7 @@ Temuan utama dari `quest-companion`:
 - [x] Pastikan Prisma client generation masuk ke build/install flow
 - [x] Tambahkan `prisma.config.ts` di root repo untuk Prisma CLI
 - [x] Tambahkan `.env.example` sebagai baseline local dan deployment env
+- [x] Tambahkan Docker lokal untuk app + Postgres agar setup development konsisten
 - [x] Tambahkan script Prisma untuk `validate`, `migrate deploy`, dan status check
 - [x] Tambahkan canonical env resolver dan deployment env checker
 - [x] Pastikan deployment env checker ikut memvalidasi auth email delivery saat verification dan reset flow aktif

@@ -64,6 +64,7 @@ Stack layanan yang dibutuhkan untuk MVP:
 - `node:test` + `tsx` untuk unit test helper domain dan validator
 - `@playwright/test` + `npm run qa:layout` untuk screenshot-based manual layout review workflow
 - GitHub Actions untuk quality gate root app dan browser smoke otomatis
+- Dockerfile + Docker Compose sebagai local-only convenience stack untuk app dan Postgres
 
 ## 3. System Architecture
 
@@ -701,6 +702,8 @@ Build-time and tooling note:
 - Prisma client generation harus masuk ke alur install atau build agar deployment Vercel konsisten
 - sediakan `npm run env:check` dan `npm run env:check:deployment` untuk memvalidasi local fallback vs readiness deploy
 - `env:check:deployment` harus memblokir deploy jika auth email delivery belum lengkap karena verification dan password reset sudah live
+- local Docker stack boleh dipakai untuk development consistency, tetapi tidak menggantikan deployment posture Vercel
+- untuk mode app-in-container, gunakan `.env.docker.example` karena `DATABASE_URL` perlu mengarah ke service `db`
 
 ## 16. Deployment And Database Options
 
