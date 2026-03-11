@@ -1,13 +1,5 @@
 import { db } from "@/lib/db";
-
-export const DEFAULT_CATEGORY_NAMES = [
-  "Spiritual",
-  "Finance",
-  "Career",
-  "Health",
-  "Personal Growth",
-  "Relationship",
-] as const;
+import { DEFAULT_CATEGORY_NAMES } from "@/lib/category-defaults";
 
 export async function bootstrapDefaultCategories(userId: string) {
   const [existingCategories, existingDefaults] = await Promise.all([

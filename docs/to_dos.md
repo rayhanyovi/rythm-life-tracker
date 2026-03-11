@@ -159,11 +159,11 @@ Temuan utama dari `quest-companion`:
 - [ ] Implement edit quest form
 - [ ] Implement deactivate quest flow
 - [ ] Implement delete quest flow
-- [ ] Implement halaman categories
-- [ ] Implement create category flow
-- [ ] Implement rename category flow
-- [ ] Implement delete category flow dengan constraint yang benar
-- [ ] Implement reorder category flow
+- [x] Implement halaman categories
+- [x] Implement create category flow
+- [x] Implement rename category flow
+- [x] Implement delete category flow dengan constraint yang benar
+- [x] Implement reorder category flow
 - [ ] Implement halaman history
 - [ ] History mendukung filter quest, category, dan type
 - [ ] History mendukung edit note completion
