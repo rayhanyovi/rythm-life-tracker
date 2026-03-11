@@ -20,7 +20,7 @@ model User {
   emailVerified Boolean           @default(false) @map("email_verified")
   image         String?           @db.Text
   createdAt     DateTime          @default(now()) @map("created_at")
-  updatedAt     DateTime          @updatedAt @map("updated_at")
+  updatedAt     DateTime          @default(now()) @updatedAt @map("updated_at")
   sessions      Session[]
   accounts      Account[]
   categories    Category[]
@@ -38,7 +38,7 @@ model Session {
   ipAddress String?  @map("ip_address")
   userAgent String?  @map("user_agent")
   createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId], map: "idx_session_user_id")
@@ -58,7 +58,7 @@ model Account {
   scope                 String?
   password              String?
   createdAt             DateTime  @default(now()) @map("created_at")
-  updatedAt             DateTime  @updatedAt @map("updated_at")
+  updatedAt             DateTime  @default(now()) @updatedAt @map("updated_at")
   user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([providerId, accountId], map: "account_provider_account_unique")
@@ -72,7 +72,7 @@ model Verification {
   value      String
   expiresAt  DateTime @map("expires_at")
   createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
+  updatedAt  DateTime @default(now()) @updatedAt @map("updated_at")
 
   @@map("verification")
 }
@@ -100,7 +100,7 @@ model Quest {
   questType   QuestType         @map("quest_type")
   isActive    Boolean           @default(true) @map("is_active")
   createdAt   DateTime          @default(now()) @map("created_at")
-  updatedAt   DateTime          @updatedAt @map("updated_at")
+  updatedAt   DateTime          @default(now()) @updatedAt @map("updated_at")
   user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   category    Category          @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   completions QuestCompletion[]
