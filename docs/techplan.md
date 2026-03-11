@@ -63,6 +63,7 @@ Stack layanan yang dibutuhkan untuk MVP:
 - basic PWA manifest dan service worker caching
 - `node:test` + `tsx` untuk unit test helper domain dan validator
 - `@playwright/test` + `npm run qa:layout` untuk screenshot-based manual layout review workflow
+- GitHub Actions untuk quality gate root app dan browser smoke otomatis
 
 ## 3. System Architecture
 
@@ -773,6 +774,7 @@ MVP technical completion berarti:
 ## 19. Testing Baseline
 
 - unit test root app dijalankan dengan `node:test` menggunakan `tsx` untuk file TypeScript
+- `npm run verify` menjadi jalur quality gate canonical untuk env check, Prisma validate, unit/smoke test, lint, dan production build
 - simpan unit test pure domain logic di `tests/unit`
 - prioritas coverage awal adalah helper `period`, helper `streak`, dan payload validator
 - smoke test route-level boleh memakai in-memory DB stub + `sessionApi` seam agar flow kategori, quest, completion, dan history bisa diverifikasi tanpa database eksternal
@@ -782,4 +784,5 @@ MVP technical completion berarti:
 - browser smoke PWA juga harus memverifikasi offline navigation fallback tetap jatuh ke offline page, bukan mencoba cache API atau write flow
 - browser smoke untuk halaman authenticated boleh memakai env-gated auth bypass (`RYTHM_E2E_AUTH_BYPASS=true`) plus mocked `/api/*` responses agar dashboard, quest form, sidebar, categories, dan history bisa diverifikasi tanpa database eksternal
 - manual verification workflow tersedia lewat `npm run qa:layout` untuk menghasilkan screenshot desktop/mobile yang kemudian direview manusia
+- GitHub Actions boleh menjalankan `npm run verify`, `npm run test:e2e`, dan `npm run env:check:deployment` dengan env dummy yang valid untuk menjaga readiness repo
 - smoke test end-to-end tetap boleh menyusul setelah flow auth dan data foundation stabil

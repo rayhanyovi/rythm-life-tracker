@@ -1,0 +1,82 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          cache: npm
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run quality gate
+        run: npm run verify
+
+  browser-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: quality
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          cache: npm
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run browser smoke tests
+        run: npm run test:e2e
+
+  deployment-readiness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: quality
+    env:
+      AUTH_EMAIL_FROM: Rythm <auth@rythm.test>
+      BETTER_AUTH_SECRET: ci-deployment-secret
+      BETTER_AUTH_URL: https://rythm-preview.vercel.app
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/rythm?schema=public
+      RESEND_API_KEY: re_ci_key
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          cache: npm
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate deployment env contract
+        run: npm run env:check:deployment

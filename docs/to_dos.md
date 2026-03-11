@@ -208,6 +208,7 @@ Temuan utama dari `quest-companion`:
 - [x] Tambahkan browser smoke test untuk auth layout responsive dan entry point PWA
 - [x] Tambahkan browser smoke test untuk authenticated app shell, dashboard, quest form, categories, dan history
 - [x] Ganti test placeholder dari prototype dengan test yang relevan di root app
+- [x] Tambahkan canonical verify script dan CI workflow untuk env check, Prisma validate, test, lint, build, dan browser smoke
 - [ ] Jalankan `npm run lint` untuk setiap vertical slice yang selesai
 - [x] Tambahkan verifikasi manual untuk mobile layout dan desktop layout
 

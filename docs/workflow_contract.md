@@ -27,7 +27,7 @@ For any non-trivial task, follow this order:
 3. Check `docs/to_dos.md` and pick the matching task line.
 4. Check `docs/parity_review.md` if historical prototype behavior matters.
 5. Implement in the root Next.js app.
-6. Verify with the smallest meaningful validation step.
+6. Verify with the smallest meaningful validation step. Prefer `npm run verify` when the task touches shared app behavior, build integrity, or deployment-sensitive code.
 7. Update `docs/to_dos.md` if the task is truly finished.
 8. Create a separate commit for a completed task, unless the active instruction is to defer commits and use a temporary commit tracker.
 
@@ -87,3 +87,4 @@ Use simple top-level tags such as:
 - Stabilize route structure, data contracts, and service boundaries early.
 - Keep fairness explainable and privacy constraints visible in implementation decisions.
 - Treat Vercel deployment readiness as a first-class goal, not an afterthought.
+- Keep a single canonical quality gate. Local work and CI should converge on the same `npm run verify` baseline unless a task explicitly needs broader coverage like Playwright.

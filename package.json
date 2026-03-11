@@ -8,6 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "verify": "npm run env:check && npm run prisma:validate && npm run test && npm run lint && npm run build",
+    "verify:e2e": "npm run test:e2e",
     "env:check": "node --import tsx scripts/check-env.ts",
     "env:check:deployment": "node --import tsx scripts/check-env.ts --deployment",
     "qa:layout": "node --import tsx scripts/capture-layout-review.ts",
