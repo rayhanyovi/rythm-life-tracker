@@ -80,6 +80,7 @@ Contoh:
 Fitur yang termasuk dalam MVP:
 
 - registrasi, login, dan logout
+- forgot password dan reset password
 - dashboard untuk melihat quest pada periode berjalan
 - checklist cepat untuk menyelesaikan atau membatalkan quest
 - manajemen quest: buat, edit, nonaktifkan, hapus
@@ -93,7 +94,7 @@ Fitur yang termasuk dalam MVP:
 
 ### 1. Masuk ke aplikasi
 
-Pengguna membuat akun atau login dengan email dan password. Setelah berhasil masuk, pengguna langsung diarahkan ke dashboard.
+Pengguna membuat akun atau login dengan email dan password. Jika lupa password, pengguna dapat meminta reset link dan membuat password baru. Setelah berhasil masuk, pengguna langsung diarahkan ke dashboard.
 
 ### 2. Menyiapkan struktur hidup
 
@@ -129,6 +130,8 @@ Pengguna dapat membuka halaman history untuk melihat daftar completion berdasark
 
 - sign up
 - sign in
+- forgot password
+- reset password
 
 ### Dashboard
 

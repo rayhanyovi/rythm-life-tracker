@@ -46,6 +46,7 @@ Device yang di-capture:
 ### Public Auth
 
 - sign-in card tetap terbaca dan tidak terlalu padat di mobile
+- forgot-password dan reset-password tetap jelas walau card lebih tinggi
 - auth panel hanya muncul di desktop
 - tidak ada horizontal overflow
 

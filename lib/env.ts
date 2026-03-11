@@ -58,6 +58,14 @@ export function getDirectUrl() {
   return readEnv("DIRECT_URL");
 }
 
+export function getAuthEmailFrom() {
+  return readEnv("AUTH_EMAIL_FROM");
+}
+
+export function getResendApiKey() {
+  return readEnv("RESEND_API_KEY");
+}
+
 export function getBetterAuthAllowedHosts() {
   const authUrl = new URL(getBetterAuthUrl());
 
@@ -78,4 +86,3 @@ export const envFallbacks = {
   databaseUrl: LOCAL_DATABASE_URL,
   timeZone: DEFAULT_APP_TIMEZONE,
 };
-

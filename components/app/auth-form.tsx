@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Loader2, LockKeyhole, Mail, UserRound } from "lucide-react";
@@ -106,7 +107,17 @@ export function AuthForm({ mode }: AuthFormProps) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor={`${mode}-password`}>Password</Label>
+        <div className="flex items-center justify-between gap-3">
+          <Label htmlFor={`${mode}-password`}>Password</Label>
+          {isSignIn ? (
+            <Link
+              href="/forgot-password"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground"
+            >
+              Forgot password?
+            </Link>
+          ) : null}
+        </div>
         <div className="relative">
           <LockKeyhole className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -143,7 +154,7 @@ export function AuthForm({ mode }: AuthFormProps) {
 
       <Button className="w-full" disabled={isPending}>
         {isPending ? <Loader2 className="size-4 animate-spin" /> : null}
-        {isSignIn ? "Sign in with Better Auth" : "Create account with Better Auth"}
+        {isSignIn ? "Sign in" : "Create account"}
         {!isPending ? <ArrowRight className="size-4" /> : null}
       </Button>
     </form>

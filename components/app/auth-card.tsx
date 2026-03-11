@@ -2,6 +2,8 @@ import Link from "next/link";
 import { Compass } from "lucide-react";
 
 import { AuthForm } from "@/components/app/auth-form";
+import { RequestPasswordResetForm } from "@/components/app/request-password-reset-form";
+import { ResetPasswordForm } from "@/components/app/reset-password-form";
 import {
   Card,
   CardContent,
@@ -13,11 +15,50 @@ import {
 import { Separator } from "@/components/ui/separator";
 
 type AuthCardProps = {
-  mode: "sign-in" | "sign-up";
+  mode: "sign-in" | "sign-up" | "forgot-password" | "reset-password";
+  resetPasswordError?: string | null;
+  resetPasswordToken?: string | null;
 };
 
-export function AuthCard({ mode }: AuthCardProps) {
-  const isSignIn = mode === "sign-in";
+export function AuthCard({
+  mode,
+  resetPasswordError,
+  resetPasswordToken,
+}: AuthCardProps) {
+  const content = {
+    "sign-in": {
+      description: "Sign in to continue your daily rhythm.",
+      helper:
+        "Email and password auth is mounted in the root app with guarded routes, auth-aware redirects, and a recovery path for lost access.",
+      footerPrompt: "Need an account?",
+      footerHref: "/sign-up",
+      footerLabel: "Go to sign up",
+    },
+    "sign-up": {
+      description: "Create your account to start shaping your recurring rhythm.",
+      helper:
+        "New accounts land in the same root app flow immediately, including default category bootstrap and the shared dashboard shell.",
+      footerPrompt: "Already have an account?",
+      footerHref: "/sign-in",
+      footerLabel: "Go to sign in",
+    },
+    "forgot-password": {
+      description: "Request a reset link if you need to recover access.",
+      helper:
+        "Reset links point back to the root app and can be delivered by a real email provider later. Local development falls back to server logs when mail delivery is not configured.",
+      footerPrompt: "Remembered your password?",
+      footerHref: "/sign-in",
+      footerLabel: "Back to sign in",
+    },
+    "reset-password": {
+      description: "Choose a new password and return to your rhythm.",
+      helper:
+        "Reset tokens are short-lived and single-use. Successful resets revoke older sessions so the new password becomes the only valid path back in.",
+      footerPrompt: "Need another reset link?",
+      footerHref: "/forgot-password",
+      footerLabel: "Request a new link",
+    },
+  }[mode];
 
   return (
     <Card className="w-full max-w-md">
@@ -28,32 +69,35 @@ export function AuthCard({ mode }: AuthCardProps) {
           </div>
           <div>
             <CardTitle className="text-2xl">Rythm</CardTitle>
-            <CardDescription>
-              {isSignIn
-                ? "Sign in to continue your daily rhythm."
-                : "Create your account to start shaping your recurring rhythm."}
-            </CardDescription>
+            <CardDescription>{content.description}</CardDescription>
           </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <AuthForm mode={mode} />
+        {mode === "sign-in" || mode === "sign-up" ? (
+          <AuthForm mode={mode} />
+        ) : mode === "forgot-password" ? (
+          <RequestPasswordResetForm />
+        ) : (
+          <ResetPasswordForm
+            searchError={resetPasswordError ?? null}
+            token={resetPasswordToken ?? null}
+          />
+        )}
 
         <div className="rounded-[calc(var(--radius)-0.25rem)] bg-muted/70 p-4 text-sm leading-6 text-muted-foreground">
-          Email and password auth is now mounted in the root app. Protected
-          routes and auth-aware redirects are already wired server-side, while
-          recovery flows stay outside the current MVP cut.
+          {content.helper}
         </div>
       </CardContent>
       <CardFooter className="flex-col items-stretch gap-4">
         <Separator />
         <p className="text-sm text-muted-foreground">
-          {isSignIn ? "Need an account?" : "Already have an account?"}{" "}
+          {content.footerPrompt}{" "}
           <Link
-            href={isSignIn ? "/sign-up" : "/sign-in"}
+            href={content.footerHref}
             className="font-semibold text-foreground hover:text-primary"
           >
-            {isSignIn ? "Go to sign up" : "Go to sign in"}
+            {content.footerLabel}
           </Link>
         </p>
       </CardFooter>

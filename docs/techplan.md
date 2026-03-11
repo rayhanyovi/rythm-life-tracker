@@ -160,6 +160,8 @@ User-facing routes:
 
 - `/sign-in`
 - `/sign-up`
+- `/forgot-password`
+- `/reset-password`
 - `/dashboard`
 - `/quests`
 - `/categories`
@@ -416,8 +418,11 @@ Implementation notes:
 - handler sebaiknya dipasang di `app/api/auth/[...all]/route.ts`
 - gunakan Better Auth Next.js handler (`toNextJsHandler`)
 - gunakan Better Auth client untuk client-side sign-in/sign-up flows
+- gunakan Better Auth client untuk `requestPasswordReset` dan `resetPassword` flows
 - gunakan `auth.api.getSession({ headers: await headers() })` untuk server-side session checks
 - konfigurasi `baseURL.allowedHosts` harus mencakup `localhost:3000`, host aktif dari `BETTER_AUTH_URL`, dan `*.vercel.app` agar preview deployment aman dan local smoke test dengan port terpisah tetap valid
+- `emailAndPassword.sendResetPassword` harus aktif agar forgot password flow benar-benar usable
+- reset token MVP berlaku selama 1 jam dan reset password harus merevoke session lama demi keamanan dasar
 
 ### 11.2 Dashboard
 
@@ -677,11 +682,14 @@ Optional:
 
 - `DIRECT_URL` untuk provider Postgres serverless yang memisahkan direct dan pooled connection
 - `NEXT_PUBLIC_APP_TIMEZONE=Asia/Jakarta`
+- `AUTH_EMAIL_FROM` untuk sender email auth
+- `RESEND_API_KEY` bila delivery reset password ingin langsung memakai Resend
 
 Build-time and tooling note:
 
 - root app perlu konfigurasi `shadcn/ui` yang kompatibel dengan Next.js App Router dan Tailwind CSS 4
 - Better Auth perlu konfigurasi host yang kompatibel dengan localhost dan preview deployment Vercel
+- forgot password boleh fallback ke server log saat local dev bila provider email belum diisi, tetapi preview/production sebaiknya memakai provider email nyata
 - env access sebaiknya dipusatkan di `lib/env.ts`, bukan tersebar langsung di `process.env`
 - Prisma 7 memakai `prisma.config.ts` untuk datasource CLI
 - simpan `prisma.config.ts` di root repo dan arahkan ke `prisma/schema.prisma` + `prisma/migrations`
@@ -765,6 +773,7 @@ MVP technical completion berarti:
 - prioritas coverage awal adalah helper `period`, helper `streak`, dan payload validator
 - smoke test route-level boleh memakai in-memory DB stub + `sessionApi` seam agar flow kategori, quest, completion, dan history bisa diverifikasi tanpa database eksternal
 - browser smoke test dijalankan dengan Playwright untuk auth layout responsive, root redirect, manifest/icon endpoint, dan service worker registration baseline
+- auth browser smoke juga harus mencakup halaman `forgot-password` dan `reset-password`
 - browser smoke PWA juga harus memverifikasi manifest parse berhasil dan Chromium mobile tidak mengembalikan blocking installability errors
 - browser smoke PWA juga harus memverifikasi offline navigation fallback tetap jatuh ke offline page, bukan mencoba cache API atau write flow
 - browser smoke untuk halaman authenticated boleh memakai env-gated auth bypass (`RYTHM_E2E_AUTH_BYPASS=true`) plus mocked `/api/*` responses agar dashboard, quest form, sidebar, categories, dan history bisa diverifikasi tanpa database eksternal

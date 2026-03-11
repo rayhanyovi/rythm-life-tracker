@@ -2,6 +2,7 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";
 
+import { sendPasswordResetEmail } from "@/lib/auth-email";
 import { db } from "@/lib/db";
 import {
   getBetterAuthAllowedHosts,
@@ -28,6 +29,15 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     minPasswordLength: 8,
+    resetPasswordTokenExpiresIn: 60 * 60,
+    revokeSessionsOnPasswordReset: true,
+    sendResetPassword: async ({ url, user }) => {
+      await sendPasswordResetEmail({
+        email: user.email,
+        name: user.name,
+        resetUrl: url,
+      });
+    },
   },
   plugins: [nextCookies()],
 });
