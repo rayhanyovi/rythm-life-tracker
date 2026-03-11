@@ -100,7 +100,7 @@ Temuan utama dari `quest-companion`:
 - [ ] Buat migration canonical untuk tabel `quest_completions`
 - [ ] Tambahkan trigger `updated_at` untuk `quests`
 - [ ] Tambahkan index yang dibutuhkan untuk query dashboard, history, dan management page
-- [ ] Pastikan authorization server-side menggantikan kebutuhan RLS
+- [x] Pastikan authorization server-side menggantikan kebutuhan RLS
 - [x] Pastikan ownership `category -> quest -> completion` tervalidasi dengan benar
 - [x] Siapkan Prisma schema dan migration workflow untuk root app
 - [x] Pastikan schema tetap berada di jalur `postgresql` agar provider database masih fleksibel
@@ -109,16 +109,16 @@ Temuan utama dari `quest-companion`:
 
 - [x] Buat helper period tunggal untuk `DAILY`, `WEEKLY`, `MONTHLY`, dan `MAIN`
 - [x] Pastikan period key dihitung konsisten dengan timezone `Asia/Jakarta`
-- [ ] Buat helper streak yang mengikuti aturan di `docs/techplan.md`
-- [ ] Buat mapper data dashboard yang mengelompokkan quest berdasarkan kategori
+- [x] Buat helper streak yang mengikuti aturan di `docs/techplan.md`
+- [x] Buat mapper data dashboard yang mengelompokkan quest berdasarkan kategori
 - [x] Buat validasi payload untuk category
 - [x] Buat validasi payload untuk quest dan current completion
-- [ ] Buat validasi payload untuk history filter
+- [x] Buat validasi payload untuk history filter
 - [x] Buat flow bootstrap kategori default yang idempotent
 
 ## 8. API Dan Server Boundaries
 
-- [ ] Implement `GET /api/dashboard`
+- [x] Implement `GET /api/dashboard`
 - [x] Implement `GET /api/categories`
 - [x] Implement `POST /api/categories`
 - [x] Implement `PATCH /api/categories/:id`
@@ -132,7 +132,7 @@ Temuan utama dari `quest-companion`:
 - [x] Implement `PUT /api/quests/:id/current-completion`
 - [x] Implement `DELETE /api/quests/:id/current-completion`
 - [x] Implement `PATCH /api/completions/:id`
-- [ ] Implement `GET /api/history`
+- [x] Implement `GET /api/history`
 - [x] Implement `POST /api/bootstrap/default-categories`
 
 ## 9. Authentication Flow
