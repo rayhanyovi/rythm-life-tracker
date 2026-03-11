@@ -679,10 +679,12 @@ Build-time and tooling note:
 
 - root app perlu konfigurasi `shadcn/ui` yang kompatibel dengan Next.js App Router dan Tailwind CSS 4
 - Better Auth perlu konfigurasi host yang kompatibel dengan localhost dan preview deployment Vercel
+- env access sebaiknya dipusatkan di `lib/env.ts`, bukan tersebar langsung di `process.env`
 - Prisma 7 memakai `prisma.config.ts` untuk datasource CLI
 - simpan `prisma.config.ts` di root repo dan arahkan ke `prisma/schema.prisma` + `prisma/migrations`
 - sediakan `.env.example` sebagai baseline local dan Vercel environment mapping
 - Prisma client generation harus masuk ke alur install atau build agar deployment Vercel konsisten
+- sediakan `npm run env:check` dan `npm run env:check:deployment` untuk memvalidasi local fallback vs readiness deploy
 
 ## 16. Deployment And Database Options
 

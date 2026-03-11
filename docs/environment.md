@@ -2,6 +2,8 @@
 
 Dokumen ini mencatat environment variable yang dipakai oleh root app Rythm saat ini.
 
+Runtime code sekarang membaca env lewat [lib/env.ts](/c:/Projects/rhythm/lib/env.ts) agar fallback local, guard Vercel, dan default timezone tidak tersebar di banyak file.
+
 ## Required
 
 ### `BETTER_AUTH_SECRET`
@@ -109,6 +111,19 @@ Catatan tambahan:
 - `NEXT_PUBLIC_PWA_DEV_ENABLED` sengaja optional dan default-nya nonaktif agar service worker tidak mengganggu development harian
 - `RYTHM_E2E_AUTH_BYPASS` sengaja optional dan default-nya nonaktif agar auth bypass tidak pernah aktif di runtime normal
 
+## Environment Check Commands
+
+Script yang tersedia sekarang:
+
+- `npm run env:check`
+- `npm run env:check:deployment`
+
+Perilaku:
+
+- `env:check` aman untuk local development dan akan melaporkan fallback yang masih aktif
+- `env:check:deployment` akan gagal jika `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, atau `DATABASE_URL` belum diisi eksplisit
+- `env:check:deployment` juga menolak `BETTER_AUTH_URL` yang masih mengarah ke `localhost`
+
 ## Deployment Notes
 
 - Vercel preview dan production harus punya `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, dan `DATABASE_URL`
@@ -116,6 +131,7 @@ Catatan tambahan:
 - Better Auth juga menambahkan host dari `BETTER_AUTH_URL` ke allowlist lokal agar smoke test dengan port non-standar tetap aman
 - Prisma tetap distandardisasi ke database family `postgresql`
 - `npm install` akan menjalankan `prisma generate` lewat script `postinstall`
+- jalankan `npm run env:check:deployment` sebelum menganggap preview atau production environment siap
 - script Prisma yang tersedia sekarang:
   - `npm run prisma:validate`
   - `npm run prisma:migrate:dev`

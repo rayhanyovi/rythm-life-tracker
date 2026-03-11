@@ -185,12 +185,13 @@ Temuan utama dari `quest-companion`:
 
 ## 12. Deployment Readiness
 
-- [ ] Siapkan root app agar deployment-ready di Vercel
+- [x] Siapkan root app agar deployment-ready di Vercel
 - [x] Pastikan route yang memakai Prisma tetap berjalan di Node.js runtime
 - [x] Pastikan Prisma client generation masuk ke build/install flow
 - [x] Tambahkan `prisma.config.ts` di root repo untuk Prisma CLI
 - [x] Tambahkan `.env.example` sebagai baseline local dan deployment env
 - [x] Tambahkan script Prisma untuk `validate`, `migrate deploy`, dan status check
+- [x] Tambahkan canonical env resolver dan deployment env checker
 - [x] Siapkan environment mapping untuk Vercel preview dan production
 - [x] Tambahkan dokumentasi deployment saat arah deployment mulai konkret
 - [x] Bandingkan opsi database hosting: Prisma Postgres, Neon, Supabase Postgres, dan PostgreSQL biasa
@@ -205,7 +206,7 @@ Temuan utama dari `quest-companion`:
 - [x] Tambahkan smoke test untuk alur auth -> create category -> create quest -> complete quest -> lihat history
 - [x] Tambahkan browser smoke test untuk auth layout responsive dan entry point PWA
 - [x] Tambahkan browser smoke test untuk authenticated app shell, dashboard, quest form, categories, dan history
-- [ ] Ganti test placeholder dari prototype dengan test yang relevan di root app
+- [x] Ganti test placeholder dari prototype dengan test yang relevan di root app
 - [ ] Jalankan `npm run lint` untuk setiap vertical slice yang selesai
 - [ ] Tambahkan verifikasi manual untuk mobile layout dan desktop layout
 

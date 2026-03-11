@@ -9,7 +9,6 @@
 - `docs/parity_review.md` records the final prototype-vs-root cutover review.
 - `docs/environment.md` documents runtime and deployment-facing environment variables.
 - `docs/deployment_smoke.md` documents how to run Playwright against a deployed URL once preview or production access exists.
-- `docs/pending_commits.md` is the temporary commit planning file when implementation is intentionally left uncommitted.
 
 ## Core Agreement
 
@@ -29,7 +28,7 @@ For any non-trivial task, follow this order:
 5. Implement in the root Next.js app.
 6. Verify with the smallest meaningful validation step.
 7. Update `docs/to_dos.md` if the task is truly finished.
-8. Create a separate commit for a completed task, unless the active instruction is to defer commits and track them in `docs/pending_commits.md`.
+8. Create a separate commit for a completed task, unless the active instruction is to defer commits and use a temporary commit tracker.
 
 ## Repo Boundary Rules
 
@@ -46,7 +45,7 @@ For any non-trivial task, follow this order:
 - Update `docs/environment.md` when runtime configuration, deployment assumptions, or environment variable usage changes.
 - Update `docs/vercel_deployment.md` when Vercel runtime assumptions, function limits, or deployment posture changes.
 - Update `docs/to_dos.md` when a task is started, finished, split, or deprioritized.
-- Update `docs/pending_commits.md` when completed work is intentionally left uncommitted.
+- If commits are intentionally deferred, create or update a temporary commit tracker document before ending the task.
 - Keep task names concrete enough that another developer can resume work without re-auditing the repo.
 - If a discovered blocker changes the migration strategy, record it in `docs/overview.md` or this contract before continuing.
 

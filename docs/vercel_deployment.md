@@ -69,6 +69,7 @@ Production harus memakai environment terpisah yang stabil:
 
 - `npm` adalah package manager canonical
 - `postinstall` sudah menjalankan `prisma generate`
+- `npm run env:check:deployment` sekarang tersedia untuk memblokir deploy dengan env yang belum lengkap
 - `prisma.config.ts` sekarang dikunci di root repo supaya Prisma CLI selalu membaca schema dan migration dari path canonical
 - build verification saat ini memakai `npm run build`
 - jika `BETTER_AUTH_SECRET` kosong, Better Auth akan memunculkan warning yang harus dianggap blocker sebelum deploy nyata
@@ -80,9 +81,11 @@ Yang sudah siap:
 
 - Next.js App Router fullstack structure
 - Better Auth route handler
+- canonical env resolver di `lib/env.ts`
 - Prisma client generation pada install flow
 - Prisma CLI config di [prisma.config.ts](/c:/Projects/rhythm/prisma.config.ts)
 - env template di [`.env.example`](/c:/Projects/rhythm/.env.example)
+- deployment env checker di `npm run env:check:deployment`
 - API routes Prisma di Node.js runtime
 - manifest, icons, dan minimal service worker
 

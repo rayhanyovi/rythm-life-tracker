@@ -1,6 +1,6 @@
 import { QuestType } from "@prisma/client";
 
-const DEFAULT_TIMEZONE = "Asia/Jakarta";
+import { getAppTimezone as getConfiguredAppTimezone } from "@/lib/env";
 
 function getDatePartsInTimeZone(date: Date, timeZone: string) {
   const formatter = new Intl.DateTimeFormat("en-CA", {
@@ -92,7 +92,7 @@ export function parseLocalDateInput(dateValue: string) {
 }
 
 export function getAppTimezone() {
-  return process.env.NEXT_PUBLIC_APP_TIMEZONE ?? DEFAULT_TIMEZONE;
+  return getConfiguredAppTimezone();
 }
 
 export function getLocalDateKey(date = new Date(), timeZone = getAppTimezone()) {

@@ -1,9 +1,7 @@
 import "dotenv/config";
 
 import { defineConfig } from "prisma/config";
-
-const fallbackDatabaseUrl =
-  "postgresql://postgres:postgres@localhost:5432/rythm?schema=public";
+import { getDatabaseUrl } from "./lib/env";
 
 export default defineConfig({
   schema: "prisma/schema.prisma",
@@ -12,6 +10,6 @@ export default defineConfig({
   },
   // Keep CLI commands usable before local env is fully populated.
   datasource: {
-    url: process.env.DATABASE_URL ?? fallbackDatabaseUrl,
+    url: getDatabaseUrl(),
   },
 });
