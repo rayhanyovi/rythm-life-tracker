@@ -88,10 +88,10 @@ Yang sudah diverifikasi lewat automation:
 - authenticated shell responsive
 - service worker registration
 - manifest + icon endpoints
+- Chromium mobile installability audit tanpa blocking errors
 - offline fallback page
 
 Yang masih tetap butuh human check:
 
 - rasa visual akhir di perangkat mobile nyata
-- installability nyata di browser mobile/device nyata
-
+- satu check install nyata di browser mobile/device nyata sebelum launch

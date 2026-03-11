@@ -46,3 +46,4 @@ Gunakan checklist ini setelah preview atau production URL tersedia.
 - Dokumen ini sengaja fokus ke smoke flow, bukan test automation
 - Jika preview deploy gagal karena env atau host mismatch, perbaiki di `docs/vercel_deployment.md` dan `docs/environment.md`
 - Browser smoke lokal yang sudah tersedia sekarang bisa dijalankan lewat `npm run test:e2e`
+- Browser smoke lokal sekarang juga memeriksa Chromium mobile installability errors, tetapi tetap lebih aman melakukan satu check nyata di device sebelum release publik

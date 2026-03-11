@@ -765,6 +765,7 @@ MVP technical completion berarti:
 - prioritas coverage awal adalah helper `period`, helper `streak`, dan payload validator
 - smoke test route-level boleh memakai in-memory DB stub + `sessionApi` seam agar flow kategori, quest, completion, dan history bisa diverifikasi tanpa database eksternal
 - browser smoke test dijalankan dengan Playwright untuk auth layout responsive, root redirect, manifest/icon endpoint, dan service worker registration baseline
+- browser smoke PWA juga harus memverifikasi manifest parse berhasil dan Chromium mobile tidak mengembalikan blocking installability errors
 - browser smoke PWA juga harus memverifikasi offline navigation fallback tetap jatuh ke offline page, bukan mencoba cache API atau write flow
 - browser smoke untuk halaman authenticated boleh memakai env-gated auth bypass (`RYTHM_E2E_AUTH_BYPASS=true`) plus mocked `/api/*` responses agar dashboard, quest form, sidebar, categories, dan history bisa diverifikasi tanpa database eksternal
 - manual verification workflow tersedia lewat `npm run qa:layout` untuk menghasilkan screenshot desktop/mobile yang kemudian direview manusia

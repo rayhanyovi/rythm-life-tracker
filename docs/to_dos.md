@@ -180,7 +180,7 @@ Temuan utama dari `quest-companion`:
 - [x] Tambahkan app icons yang benar untuk Rythm
 - [x] Tambahkan installability metadata
 - [x] Tambahkan service worker atau strategi app shell caching yang sesuai untuk Next.js
-- [ ] Validasi bahwa app bisa di-install di mobile
+- [x] Validasi bahwa app bisa di-install di mobile
 - [x] Pastikan offline support tetap minimal dan tidak melebar ke sync kompleks
 
 ## 12. Deployment Readiness

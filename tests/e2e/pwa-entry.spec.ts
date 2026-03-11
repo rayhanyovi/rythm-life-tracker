@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
 
+test.describe.configure({ mode: "serial" });
+
 test("root layout exposes manifest and service worker entry points", async ({
   page,
   request,
@@ -66,10 +68,48 @@ test("service worker script can register on localhost smoke flow", async ({
   expect(serviceWorkerUrl).toContain("/sw.js");
 });
 
-test("offline navigation falls back to the cached offline screen", async ({
+test("mobile chromium reports no blocking PWA installability errors", async ({
   context,
+  isMobile,
   page,
 }) => {
+  test.skip(!isMobile, "Installability audit only needs the mobile project.");
+
+  await page.goto("/sign-in");
+
+  await page.evaluate(async () => {
+    if (!("serviceWorker" in navigator)) {
+      return;
+    }
+
+    await navigator.serviceWorker.register("/sw.js", {
+      scope: "/",
+    });
+    await navigator.serviceWorker.ready;
+  });
+
+  await page.reload();
+  await expect
+    .poll(async () => {
+      return page.evaluate(() => Boolean(navigator.serviceWorker?.controller));
+    })
+    .toBe(true);
+
+  const session = await context.newCDPSession(page);
+  const manifestResult = await session.send("Page.getAppManifest");
+  const installabilityResult = await session.send("Page.getInstallabilityErrors");
+
+  expect(manifestResult.errors).toEqual([]);
+  expect(installabilityResult.installabilityErrors).toEqual([]);
+});
+
+test("offline navigation falls back to the cached offline screen", async ({
+  context,
+  isMobile,
+  page,
+}) => {
+  test.skip(isMobile, "Mobile installability is covered separately; desktop keeps offline fallback coverage stable.");
+
   await page.goto("/sign-in");
 
   await page.evaluate(async () => {
