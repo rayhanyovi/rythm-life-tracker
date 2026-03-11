@@ -28,13 +28,14 @@ For any non-trivial task, follow this order:
 3. Check `docs/to_dos.md` and pick the matching task line.
 4. Check `docs/parity_review.md` if historical prototype behavior matters.
 5. Implement in the root Next.js app.
-6. Verify with the smallest meaningful validation step. Prefer `npm run verify` when the task touches shared app behavior, build integrity, or deployment-sensitive code.
+6. Verify with the smallest meaningful validation step. Prefer `npm run verify` when the task touches shared app behavior, build integrity, or deployment-sensitive code. `npm run discipline:check` is the lightweight guard for repo boundary and tracker updates.
 7. Update `docs/to_dos.md` if the task is truly finished.
 8. Create a separate commit for a completed task, unless the active instruction is to defer commits and use a temporary commit tracker.
 
 ## Repo Boundary Rules
 
 - Do not reintroduce a second app workspace for prototype-only product development.
+- Changes under `quest-companion/` should be treated as blocked by default; repo discipline checks exist to enforce root-app-only product work.
 - If logic is brought forward from historical prototype work, normalize it to Next.js App Router, server/client boundaries, and production constraints.
 - Keep browser-only code isolated behind explicit client components.
 - Move provider calls that need control, caching, or protection behind server boundaries where appropriate.
@@ -48,6 +49,7 @@ For any non-trivial task, follow this order:
 - Update `docs/local_docker.md` when local Docker assumptions, compose services, or container commands change.
 - Update `docs/vercel_deployment.md` when Vercel runtime assumptions, function limits, or deployment posture changes.
 - Update `docs/to_dos.md` when a task is started, finished, split, or deprioritized.
+- `docs/to_dos.md` should move with source changes; repo discipline checks now fail if non-doc changes skip the tracker.
 - If commits are intentionally deferred, create or update a temporary commit tracker document before ending the task.
 - Keep task names concrete enough that another developer can resume work without re-auditing the repo.
 - If a discovered blocker changes the migration strategy, record it in `docs/overview.md` or this contract before continuing.

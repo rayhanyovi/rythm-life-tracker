@@ -7,6 +7,7 @@
     "postinstall": "prisma generate",
     "build": "next build",
     "start": "next start",
+    "discipline:check": "node --import tsx scripts/check-repo-discipline.ts",
     "docker:up": "docker compose up --build",
     "docker:db": "docker compose up db",
     "docker:down": "docker compose down --remove-orphans",

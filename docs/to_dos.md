@@ -218,7 +218,9 @@ Temuan utama dari `quest-companion`:
 - [ ] Update `docs/overview.md` jika flow produk berubah
 - [ ] Update `docs/techplan.md` jika schema, endpoint, atau boundary teknis berubah
 - [ ] Update `docs/to_dos.md` setiap ada task selesai, dipecah, atau diubah prioritas
-- [ ] Simpan implementasi hanya di root app, bukan di `quest-companion`
+- [x] Tambahkan repo discipline guard untuk memblokir perubahan di `quest-companion` dan mewajibkan update `docs/to_dos.md` saat source berubah
+- [x] Tambahkan PR template untuk mengingatkan update docs canonical dan validation checklist
+- [x] Simpan implementasi hanya di root app, bukan di `quest-companion`
 - [ ] Buat commit terpisah untuk task yang benar-benar selesai
 
 ## 15. Guardrails MVP

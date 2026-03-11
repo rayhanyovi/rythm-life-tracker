@@ -788,4 +788,5 @@ MVP technical completion berarti:
 - browser smoke untuk halaman authenticated boleh memakai env-gated auth bypass (`RYTHM_E2E_AUTH_BYPASS=true`) plus mocked `/api/*` responses agar dashboard, quest form, sidebar, categories, dan history bisa diverifikasi tanpa database eksternal
 - manual verification workflow tersedia lewat `npm run qa:layout` untuk menghasilkan screenshot desktop/mobile yang kemudian direview manusia
 - GitHub Actions boleh menjalankan `npm run verify`, `npm run test:e2e`, dan `npm run env:check:deployment` dengan env dummy yang valid untuk menjaga readiness repo
+- repo discipline guard sekarang boleh dijalankan lewat `npm run discipline:check` dan juga dipasang di CI untuk memblokir perubahan source tanpa update `docs/to_dos.md` serta perubahan di `quest-companion`
 - smoke test end-to-end tetap boleh menyusul setelah flow auth dan data foundation stabil
