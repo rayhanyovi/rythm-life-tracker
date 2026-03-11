@@ -419,9 +419,12 @@ Implementation notes:
 - gunakan Better Auth Next.js handler (`toNextJsHandler`)
 - gunakan Better Auth client untuk client-side sign-in/sign-up flows
 - gunakan Better Auth client untuk `requestPasswordReset` dan `resetPassword` flows
+- gunakan Better Auth client untuk `sendVerificationEmail` saat user perlu resend verification
 - gunakan `auth.api.getSession({ headers: await headers() })` untuk server-side session checks
 - konfigurasi `baseURL.allowedHosts` harus mencakup `localhost:3000`, host aktif dari `BETTER_AUTH_URL`, dan `*.vercel.app` agar preview deployment aman dan local smoke test dengan port terpisah tetap valid
 - `emailAndPassword.sendResetPassword` harus aktif agar forgot password flow benar-benar usable
+- `emailVerification.sendVerificationEmail` harus aktif agar sign-up dan resend verification bisa berjalan
+- email verification diwajibkan untuk first sign-in MVP, dengan `sendOnSignUp` dan `sendOnSignIn` aktif
 - reset token MVP berlaku selama 1 jam dan reset password harus merevoke session lama demi keamanan dasar
 
 ### 11.2 Dashboard
@@ -683,13 +686,13 @@ Optional:
 - `DIRECT_URL` untuk provider Postgres serverless yang memisahkan direct dan pooled connection
 - `NEXT_PUBLIC_APP_TIMEZONE=Asia/Jakarta`
 - `AUTH_EMAIL_FROM` untuk sender email auth
-- `RESEND_API_KEY` bila delivery reset password ingin langsung memakai Resend
+- `RESEND_API_KEY` bila delivery reset password dan verification ingin langsung memakai Resend
 
 Build-time and tooling note:
 
 - root app perlu konfigurasi `shadcn/ui` yang kompatibel dengan Next.js App Router dan Tailwind CSS 4
 - Better Auth perlu konfigurasi host yang kompatibel dengan localhost dan preview deployment Vercel
-- forgot password boleh fallback ke server log saat local dev bila provider email belum diisi, tetapi preview/production sebaiknya memakai provider email nyata
+- forgot password dan verification email boleh fallback ke server log saat local dev bila provider email belum diisi, tetapi preview/production sebaiknya memakai provider email nyata
 - env access sebaiknya dipusatkan di `lib/env.ts`, bukan tersebar langsung di `process.env`
 - Prisma 7 memakai `prisma.config.ts` untuk datasource CLI
 - simpan `prisma.config.ts` di root repo dan arahkan ke `prisma/schema.prisma` + `prisma/migrations`

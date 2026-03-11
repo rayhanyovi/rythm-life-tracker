@@ -148,7 +148,7 @@ Temuan utama dari `quest-companion`:
 - [x] Tambahkan redirect dari `/` ke `/dashboard` atau `/sign-in` sesuai status auth
 - [x] Hubungkan auth flow ke Better Auth session di Next.js
 - [x] Implement forgot password hanya jika memang masuk cut MVP
-- [ ] Putuskan apakah email verification wajib di MVP pertama atau tidak
+- [x] Putuskan apakah email verification wajib di MVP pertama atau tidak
 
 ## 10. Product Pages
 

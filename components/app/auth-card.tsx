@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { Compass } from "lucide-react";
 
@@ -15,21 +16,36 @@ import {
 import { Separator } from "@/components/ui/separator";
 
 type AuthCardProps = {
+  authNotice?: {
+    description: string;
+    title: string;
+    variant?: "default" | "destructive";
+  } | null;
   mode: "sign-in" | "sign-up" | "forgot-password" | "reset-password";
   resetPasswordError?: string | null;
   resetPasswordToken?: string | null;
 };
 
 export function AuthCard({
+  authNotice,
   mode,
   resetPasswordError,
   resetPasswordToken,
 }: AuthCardProps) {
-  const content = {
+  const content: Record<
+    AuthCardProps["mode"],
+    {
+      description: string;
+      footerHref: string;
+      footerLabel: string;
+      footerPrompt: string;
+      helper: ReactNode;
+    }
+  > = {
     "sign-in": {
       description: "Sign in to continue your daily rhythm.",
       helper:
-        "Email and password auth is mounted in the root app with guarded routes, auth-aware redirects, and a recovery path for lost access.",
+        "Email and password auth is mounted in the root app with guarded routes, verification checks, and a recovery path for lost access.",
       footerPrompt: "Need an account?",
       footerHref: "/sign-up",
       footerLabel: "Go to sign up",
@@ -37,7 +53,7 @@ export function AuthCard({
     "sign-up": {
       description: "Create your account to start shaping your recurring rhythm.",
       helper:
-        "New accounts land in the same root app flow immediately, including default category bootstrap and the shared dashboard shell.",
+        "New accounts now verify their email before first sign-in, while category bootstrap still happens after the first successful authenticated entry into the app shell.",
       footerPrompt: "Already have an account?",
       footerHref: "/sign-in",
       footerLabel: "Go to sign in",
@@ -58,7 +74,7 @@ export function AuthCard({
       footerHref: "/forgot-password",
       footerLabel: "Request a new link",
     },
-  }[mode];
+  };
 
   return (
     <Card className="w-full max-w-md">
@@ -69,13 +85,13 @@ export function AuthCard({
           </div>
           <div>
             <CardTitle className="text-2xl">Rythm</CardTitle>
-            <CardDescription>{content.description}</CardDescription>
+            <CardDescription>{content[mode].description}</CardDescription>
           </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
         {mode === "sign-in" || mode === "sign-up" ? (
-          <AuthForm mode={mode} />
+          <AuthForm mode={mode} initialNotice={authNotice} />
         ) : mode === "forgot-password" ? (
           <RequestPasswordResetForm />
         ) : (
@@ -86,18 +102,18 @@ export function AuthCard({
         )}
 
         <div className="rounded-[calc(var(--radius)-0.25rem)] bg-muted/70 p-4 text-sm leading-6 text-muted-foreground">
-          {content.helper}
+          {content[mode].helper}
         </div>
       </CardContent>
       <CardFooter className="flex-col items-stretch gap-4">
         <Separator />
         <p className="text-sm text-muted-foreground">
-          {content.footerPrompt}{" "}
+          {content[mode].footerPrompt}{" "}
           <Link
-            href={content.footerHref}
+            href={content[mode].footerHref}
             className="font-semibold text-foreground hover:text-primary"
           >
-            {content.footerLabel}
+            {content[mode].footerLabel}
           </Link>
         </p>
       </CardFooter>

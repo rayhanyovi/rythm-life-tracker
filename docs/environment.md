@@ -65,7 +65,7 @@ Asia/Jakarta
 
 ### `AUTH_EMAIL_FROM`
 
-Alamat sender opsional untuk email auth jika flow reset password ingin benar-benar mengirim email.
+Alamat sender opsional untuk email auth jika flow reset password dan verification ingin benar-benar mengirim email.
 
 Contoh:
 
@@ -79,7 +79,7 @@ API key opsional untuk delivery email auth via Resend.
 
 Catatan:
 
-- jika `AUTH_EMAIL_FROM` dan `RESEND_API_KEY` sama-sama tersedia, reset password email akan dikirim lewat Resend
+- jika `AUTH_EMAIL_FROM` dan `RESEND_API_KEY` sama-sama tersedia, reset password dan verification email akan dikirim lewat Resend
 - jika salah satu tidak tersedia, local dan preview fallback ke structured server log
 - fallback log ini berguna untuk development, tetapi bukan posture yang layak untuk launch publik
 
@@ -128,7 +128,7 @@ Catatan tambahan:
 - tetap lebih baik isi `BETTER_AUTH_SECRET` secara eksplisit bahkan untuk local development
 - `prisma.config.ts` juga memberi fallback localhost Postgres untuk menjaga `prisma generate` dan `prisma validate` tetap bisa dijalankan sebelum local env lengkap
 - fallback Prisma ini bukan sinyal bahwa local database otomatis tersedia; command migrate tetap butuh database yang benar-benar hidup
-- forgot password saat ini punya fallback email delivery ke server log jika provider email belum diisi
+- forgot password dan email verification saat ini punya fallback email delivery ke server log jika provider email belum diisi
 - `NEXT_PUBLIC_PWA_DEV_ENABLED` sengaja optional dan default-nya nonaktif agar service worker tidak mengganggu development harian
 - `RYTHM_E2E_AUTH_BYPASS` sengaja optional dan default-nya nonaktif agar auth bypass tidak pernah aktif di runtime normal
 
@@ -150,7 +150,7 @@ Perilaku:
 - Vercel preview dan production harus punya `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, dan `DATABASE_URL`
 - Better Auth dikonfigurasi untuk menerima `localhost:3000` dan `*.vercel.app`
 - Better Auth juga menambahkan host dari `BETTER_AUTH_URL` ke allowlist lokal agar smoke test dengan port non-standar tetap aman
-- flow reset password akan benar-benar mengirim email jika `AUTH_EMAIL_FROM` dan `RESEND_API_KEY` diisi
+- flow reset password dan verification akan benar-benar mengirim email jika `AUTH_EMAIL_FROM` dan `RESEND_API_KEY` diisi
 - Prisma tetap distandardisasi ke database family `postgresql`
 - `npm install` akan menjalankan `prisma generate` lewat script `postinstall`
 - jalankan `npm run env:check:deployment` sebelum menganggap preview atau production environment siap

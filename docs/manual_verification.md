@@ -47,6 +47,7 @@ Device yang di-capture:
 
 - sign-in card tetap terbaca dan tidak terlalu padat di mobile
 - forgot-password dan reset-password tetap jelas walau card lebih tinggi
+- verification pending, verified success, dan expired verification state tetap mudah dipahami
 - auth panel hanya muncul di desktop
 - tidak ada horizontal overflow
 

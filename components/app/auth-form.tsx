@@ -6,15 +6,27 @@ import { useRouter } from "next/navigation";
 import { ArrowRight, Loader2, LockKeyhole, Mail, UserRound } from "lucide-react";
 
 import { authClient } from "@/lib/auth-client";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
+type AuthNotice = {
+  description: string;
+  title: string;
+  variant?: "default" | "destructive";
+};
+
 type AuthFormProps = {
+  initialNotice?: AuthNotice | null;
   mode: "sign-in" | "sign-up";
 };
 
-export function AuthForm({ mode }: AuthFormProps) {
+function buildVerificationCallbackUrl() {
+  return new URL("/sign-in?verified=1", window.location.origin).toString();
+}
+
+export function AuthForm({ initialNotice, mode }: AuthFormProps) {
   const router = useRouter();
   const isSignIn = mode === "sign-in";
   const [isPending, startTransition] = useTransition();
@@ -22,11 +34,14 @@ export function AuthForm({ mode }: AuthFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [infoNotice, setInfoNotice] = useState<AuthNotice | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [verificationEmail, setVerificationEmail] = useState<string | null>(null);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
+    setInfoNotice(null);
 
     if (!isSignIn) {
       if (!name.trim()) {
@@ -41,19 +56,40 @@ export function AuthForm({ mode }: AuthFormProps) {
     }
 
     startTransition(async () => {
+      const trimmedEmail = email.trim();
       const response = isSignIn
         ? await authClient.signIn.email({
-            email: email.trim(),
+            email: trimmedEmail,
             password,
           })
         : await authClient.signUp.email({
-            email: email.trim(),
+            callbackURL: buildVerificationCallbackUrl(),
+            email: trimmedEmail,
             password,
             name: name.trim(),
           });
 
       if (response.error) {
+        const isVerificationError =
+          isSignIn &&
+          (response.error.status === 403 ||
+            /verify/i.test(response.error.message ?? ""));
+
+        if (isVerificationError) {
+          setVerificationEmail(trimmedEmail);
+          setError(
+            "Your email is not verified yet. Check your inbox or resend the verification email.",
+          );
+          return;
+        }
+
         setError(response.error.message ?? "Authentication failed.");
+        return;
+      }
+
+      if (!isSignIn) {
+        router.push(`/sign-in?verification=sent&email=${encodeURIComponent(trimmedEmail)}`);
+        router.refresh();
         return;
       }
 
@@ -70,8 +106,49 @@ export function AuthForm({ mode }: AuthFormProps) {
     });
   };
 
+  const handleResendVerification = () => {
+    if (!verificationEmail) {
+      return;
+    }
+
+    setError(null);
+    setInfoNotice(null);
+
+    startTransition(async () => {
+      const response = await authClient.sendVerificationEmail({
+        callbackURL: buildVerificationCallbackUrl(),
+        email: verificationEmail,
+      });
+
+      if (response.error) {
+        setError(response.error.message ?? "Verification email could not be sent.");
+        return;
+      }
+
+      setInfoNotice({
+        description:
+          "A fresh verification link has been issued. In local development without a configured email provider, check the server logs for the fallback preview.",
+        title: "Verification email sent",
+      });
+    });
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {initialNotice ? (
+        <Alert variant={initialNotice.variant}>
+          <AlertTitle>{initialNotice.title}</AlertTitle>
+          <AlertDescription>{initialNotice.description}</AlertDescription>
+        </Alert>
+      ) : null}
+
+      {infoNotice ? (
+        <Alert>
+          <AlertTitle>{infoNotice.title}</AlertTitle>
+          <AlertDescription>{infoNotice.description}</AlertDescription>
+        </Alert>
+      ) : null}
+
       {!isSignIn ? (
         <div className="space-y-2">
           <Label htmlFor="name">Name</Label>
@@ -147,9 +224,10 @@ export function AuthForm({ mode }: AuthFormProps) {
       ) : null}
 
       {error ? (
-        <div className="rounded-[calc(var(--radius)-0.25rem)] border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-          {error}
-        </div>
+        <Alert variant="destructive">
+          <AlertTitle>Authentication failed</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       ) : null}
 
       <Button className="w-full" disabled={isPending}>
@@ -157,6 +235,19 @@ export function AuthForm({ mode }: AuthFormProps) {
         {isSignIn ? "Sign in" : "Create account"}
         {!isPending ? <ArrowRight className="size-4" /> : null}
       </Button>
+
+      {isSignIn && verificationEmail ? (
+        <Button
+          type="button"
+          variant="secondary"
+          className="w-full"
+          onClick={handleResendVerification}
+          disabled={isPending}
+        >
+          {isPending ? <Loader2 className="size-4 animate-spin" /> : null}
+          Resend verification email
+        </Button>
+      ) : null}
     </form>
   );
 }

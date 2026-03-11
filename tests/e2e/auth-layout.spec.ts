@@ -38,6 +38,20 @@ test("sign-in layout stays usable on all supported viewports", async ({
   expect(hasHorizontalOverflow).toBeFalsy();
 });
 
+test("sign-in page surfaces verification states from callback query params", async ({
+  page,
+}) => {
+  await page.goto("/sign-in?verification=sent&email=user%40example.com");
+
+  await expect(page.getByText(/check your inbox/i)).toBeVisible();
+  await expect(
+    page.getByText(/A verification link was sent to user@example.com/i),
+  ).toBeVisible();
+
+  await page.goto("/sign-in?verified=1");
+  await expect(page.getByText(/email verified/i)).toBeVisible();
+});
+
 test("sign-up layout keeps the longer form readable on mobile and desktop", async ({
   page,
 }) => {

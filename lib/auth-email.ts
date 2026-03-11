@@ -7,6 +7,8 @@ type AuthEmailPayload = {
   to: string;
 };
 
+type AuthEmailFallbackMetadata = Record<string, string | null | undefined>;
+
 async function sendWithResend(payload: AuthEmailPayload) {
   const resendApiKey = getResendApiKey();
   const from = getAuthEmailFrom();
@@ -51,6 +53,37 @@ function buildPasswordResetEmail(resetUrl: string): AuthEmailPayload {
   };
 }
 
+function buildVerificationEmail(verificationUrl: string): AuthEmailPayload {
+  return {
+    to: "",
+    subject: "Verify your Rythm email",
+    text: `Use this link to verify your Rythm email: ${verificationUrl}`,
+    html: [
+      "<p>Welcome to <strong>Rythm</strong>.</p>",
+      `<p><a href="${verificationUrl}">Verify your email</a></p>`,
+      "<p>Once verified, you can sign in and continue building your recurring rhythm.</p>",
+    ].join(""),
+  };
+}
+
+async function deliverAuthEmail(options: {
+  fallbackMetadata: AuthEmailFallbackMetadata;
+  payload: AuthEmailPayload;
+}) {
+  const delivered = await sendWithResend(options.payload);
+
+  if (delivered) {
+    return;
+  }
+
+  console.info("[Rythm auth email fallback]", {
+    previewOnly: true,
+    subject: options.payload.subject,
+    to: options.payload.to,
+    ...options.fallbackMetadata,
+  });
+}
+
 export async function sendPasswordResetEmail(options: {
   email: string;
   name: string | null | undefined;
@@ -61,17 +94,30 @@ export async function sendPasswordResetEmail(options: {
     to: options.email,
   };
 
-  const delivered = await sendWithResend(emailPayload);
+  await deliverAuthEmail({
+    fallbackMetadata: {
+      resetUrl: options.resetUrl,
+      userName: options.name ?? null,
+    },
+    payload: emailPayload,
+  });
+}
 
-  if (delivered) {
-    return;
-  }
+export async function sendVerificationEmail(options: {
+  email: string;
+  name: string | null | undefined;
+  verificationUrl: string;
+}) {
+  const emailPayload = {
+    ...buildVerificationEmail(options.verificationUrl),
+    to: options.email,
+  };
 
-  console.info("[Rythm auth email fallback]", {
-    previewOnly: true,
-    subject: emailPayload.subject,
-    to: emailPayload.to,
-    resetUrl: options.resetUrl,
-    userName: options.name ?? null,
+  await deliverAuthEmail({
+    fallbackMetadata: {
+      userName: options.name ?? null,
+      verificationUrl: options.verificationUrl,
+    },
+    payload: emailPayload,
   });
 }

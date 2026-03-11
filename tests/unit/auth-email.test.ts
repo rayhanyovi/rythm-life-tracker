@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { sendPasswordResetEmail } from "@/lib/auth-email";
+import { sendPasswordResetEmail, sendVerificationEmail } from "@/lib/auth-email";
 
 async function withEnv(
   updates: Record<string, string | undefined>,
@@ -114,5 +114,36 @@ describe("auth email delivery", () => {
       "Bearer re_test_key",
     );
     assert.match(String(fetchCalls[0]?.init?.body), /Reset your Rythm password/);
+  });
+
+  it("falls back to console preview for verification email when provider env is missing", async () => {
+    const originalInfo = console.info;
+    let loggedPayload: unknown[] | null = null;
+
+    console.info = (...args: unknown[]) => {
+      loggedPayload = args;
+    };
+
+    try {
+      await withEnv(
+        {
+          AUTH_EMAIL_FROM: undefined,
+          RESEND_API_KEY: undefined,
+        },
+        async () => {
+          await sendVerificationEmail({
+            email: "user@example.com",
+            name: "Rythm User",
+            verificationUrl: "https://app.rythm.test/api/auth/verify-email?token=abc",
+          });
+        },
+      );
+    } finally {
+      console.info = originalInfo;
+    }
+
+    assert.ok(loggedPayload);
+    assert.equal(loggedPayload?.[0], "[Rythm auth email fallback]");
+    assert.match(JSON.stringify(loggedPayload?.[1]), /verificationUrl/);
   });
 });
