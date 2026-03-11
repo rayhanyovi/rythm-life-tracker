@@ -53,12 +53,15 @@ Stack yang sudah ada di repo root:
 Stack layanan yang dibutuhkan untuk MVP:
 
 - `shadcn/ui` untuk primitive dan application components
+- `@radix-ui/react-select` dan `@radix-ui/react-checkbox` sebagai primitive control yang dibungkus via `shadcn/ui`
+- `sonner` sebagai baseline toast yang dipasang lewat wrapper `shadcn/ui`
 - Better Auth untuk email/password authentication dan session management
 - Prisma ORM untuk schema, migrations, dan query layer
 - `@prisma/adapter-pg` + `pg` untuk Prisma runtime pada jalur PostgreSQL-compatible saat ini
 - PostgreSQL-compatible database sebagai persistence layer
 - Vercel sebagai hosting target untuk Next.js app
 - basic PWA manifest dan service worker caching
+- `node:test` + `tsx` untuk unit test helper domain dan validator
 
 ## 3. System Architecture
 
@@ -120,6 +123,11 @@ lib/
 components/
   ui/
   app/
+    page-intro.tsx
+    metric-card.tsx
+    detail-panel.tsx
+    detail-stat.tsx
+    interactive-list-card.tsx
   quests/
   categories/
   history/
@@ -137,10 +145,12 @@ types/
 - gunakan `shadcn/ui` sebagai library komponen utama
 - simpan primitive hasil generate di `components/ui`
 - buat komponen produk Rythm di luar `components/ui`
+- simpan pattern layout lintas halaman di `components/app` agar `page intro`, `metric card`, `list item shell`, dan `detail panel` tidak diulang di setiap screen
 - hindari mencampur banyak UI kit agar styling token dan behavior tetap konsisten
 - gunakan token dari `app/globals.css` sebagai source of truth untuk warna, radius, shadow, font, dan surface treatment
 - jangan hardcode nilai visual seperti `hsl(...)`, `oklch(...)`, `rgba(...)`, gradient literal, atau shadow literal langsung di komponen jika bisa direpresentasikan sebagai token
 - jika butuh surface atau treatment baru yang belum ada, tambahkan token atau utility berbasis token di `app/globals.css` lebih dulu
+- untuk filter dan form yang padat, prioritaskan `Select`, `Checkbox`, `Sheet`, `AlertDialog`, `Alert`, dan `Toast` dari jalur `shadcn/ui` agar behavior mobile dan desktop tetap konsisten
 
 ## 5. Product Routes
 
@@ -303,6 +313,13 @@ create index idx_completions_user_quest_period on quest_completions(user_id, que
 create index idx_completions_user_completed_at on quest_completions(user_id, completed_at desc);
 ```
 
+### 7.5.1 Canonical Migration Baseline
+
+- simpan baseline SQL pertama di `prisma/migrations` sebagai migration canonical
+- migration awal harus mencakup auth tables Better Auth dan tabel aplikasi Rythm
+- `quests.updated_at` harus dijaga oleh trigger database di migration canonical agar timestamp tetap konsisten walau ada write di luar Prisma
+- `updated_at` columns yang dipakai auth dan quest sebaiknya punya `default now()` sekaligus tetap di-update oleh Prisma pada write normal
+
 ### 7.6 Integrity Rules
 
 - `quests.user_id` harus sama dengan owner category yang dipakai
@@ -398,7 +415,7 @@ Implementation notes:
 - gunakan Better Auth Next.js handler (`toNextJsHandler`)
 - gunakan Better Auth client untuk client-side sign-in/sign-up flows
 - gunakan `auth.api.getSession({ headers: await headers() })` untuk server-side session checks
-- konfigurasi `baseURL.allowedHosts` harus mencakup `localhost:3000` dan `*.vercel.app` agar preview deployment aman
+- konfigurasi `baseURL.allowedHosts` harus mencakup `localhost:3000`, host aktif dari `BETTER_AUTH_URL`, dan `*.vercel.app` agar preview deployment aman dan local smoke test dengan port terpisah tetap valid
 
 ### 11.2 Dashboard
 
@@ -530,6 +547,11 @@ type UpdateCompletionBody = {
 }
 ```
 
+`DELETE /api/completions/:id`
+
+- menghapus satu row completion berdasarkan `completionId`
+- dipakai oleh history page untuk correction flow tanpa menghapus quest
+
 ### 11.7 History
 
 `GET /api/history`
@@ -610,6 +632,7 @@ Security model MVP tidak menggunakan RLS. Authorization dilakukan di server laye
 - semua route handler, server action, dan protected page harus mengambil session dari Better Auth
 - semua request tanpa session valid harus ditolak atau diarahkan ke sign-in
 - proxy atau middleware boleh dipakai untuk redirect optimistis, tetapi validasi final tetap harus dilakukan di page atau route handler
+- akses session sebaiknya tetap dipusatkan di `lib/session.ts` melalui `sessionApi` agar route/page tests bisa mengganti auth source tanpa menduplikasi logic handler
 
 ### Data Authorization Rules
 
@@ -657,6 +680,8 @@ Build-time and tooling note:
 - root app perlu konfigurasi `shadcn/ui` yang kompatibel dengan Next.js App Router dan Tailwind CSS 4
 - Better Auth perlu konfigurasi host yang kompatibel dengan localhost dan preview deployment Vercel
 - Prisma 7 memakai `prisma.config.ts` untuk datasource CLI
+- simpan `prisma.config.ts` di root repo dan arahkan ke `prisma/schema.prisma` + `prisma/migrations`
+- sediakan `.env.example` sebagai baseline local dan Vercel environment mapping
 - Prisma client generation harus masuk ke alur install atau build agar deployment Vercel konsisten
 
 ## 16. Deployment And Database Options
@@ -695,6 +720,7 @@ Alasan:
 - standardisasi schema di Prisma dengan `provider = "postgresql"`
 - hindari mengunci desain ke fitur vendor-specific terlalu awal
 - hindari pindah ke SQLite atau MySQL bila target produksi kemungkinan besar tetap serverless Postgres
+- lihat [docs/database_options.md](/c:/Projects/rhythm/docs/database_options.md) untuk comparison canonical antar provider yang masih dipertimbangkan
 
 ## 17. Open Product Decisions Already Resolved for MVP
 
@@ -726,3 +752,13 @@ MVP technical completion berarti:
 - Prisma schema dan migrations berjalan
 - app installable sebagai PWA
 - app siap dideploy ke Vercel
+
+## 19. Testing Baseline
+
+- unit test root app dijalankan dengan `node:test` menggunakan `tsx` untuk file TypeScript
+- simpan unit test pure domain logic di `tests/unit`
+- prioritas coverage awal adalah helper `period`, helper `streak`, dan payload validator
+- smoke test route-level boleh memakai in-memory DB stub + `sessionApi` seam agar flow kategori, quest, completion, dan history bisa diverifikasi tanpa database eksternal
+- browser smoke test dijalankan dengan Playwright untuk auth layout responsive, root redirect, manifest/icon endpoint, dan service worker registration baseline
+- browser smoke untuk halaman authenticated boleh memakai env-gated auth bypass (`RYTHM_E2E_AUTH_BYPASS=true`) plus mocked `/api/*` responses agar dashboard, quest form, sidebar, categories, dan history bisa diverifikasi tanpa database eksternal
+- smoke test end-to-end tetap boleh menyusul setelah flow auth dan data foundation stabil

@@ -16,7 +16,7 @@ Gunakan checklist berikut:
 - [x] Keputusan auth diganti dari Supabase Auth ke Better Auth
 - [x] Target deployment dikunci ke fullstack Next.js di Vercel
 - [x] ORM default distandardisasi ke Prisma
-- [ ] Root app sudah selaras dengan scope MVP Rythm
+- [x] Root app sudah selaras dengan scope MVP Rythm
 
 ## Hasil Audit Singkat
 
@@ -43,7 +43,7 @@ Temuan utama dari `quest-companion`:
 - [x] Buat `docs/techplan.md`
 - [x] Audit `quest-companion` terhadap dokumen canonical
 - [x] Buat `docs/to_dos.md` sebagai tracker utama
-- [ ] Selaraskan `docs/workflow_contract.md` dengan pembagian tanggung jawab `overview.md` dan `techplan.md`
+- [x] Selaraskan `docs/workflow_contract.md` dengan pembagian tanggung jawab `overview.md` dan `techplan.md`
 - [ ] Pastikan setiap perubahan scope besar dicatat di dokumen canonical sebelum implementasi lanjut
 
 ## 2. Foundation Root App
@@ -60,26 +60,29 @@ Temuan utama dari `quest-companion`:
 
 - [x] Port app shell utama dari `quest-companion` ke root app
 - [x] Buat folder `components/ui` untuk primitive `shadcn/ui` di root app
-- [ ] Port pola sidebar, top bar, list item, form shell, dialog, dan detail panel ke komponen root
-- [ ] Standardisasi form, dialog, sheet, select, checkbox, toast, dan alert lewat `shadcn/ui`
+- [x] Port pola sidebar, top bar, list item, form shell, dialog, dan detail panel ke komponen root
+- [x] Standardisasi form, dialog, sheet, select, checkbox, toast, dan alert lewat `shadcn/ui`
 - [x] Ganti style token/theme saat ini dengan token baru yang lebih cocok untuk Rythm
 - [x] Jadikan `app/globals.css` sebagai source of truth token warna, radius, shadow, dan font
 - [x] Audit sisa style hardcoded dan pindahkan ke token atau utility berbasis token
 - [x] Ganti tipografi default root app dengan tipografi produk yang lebih intentional
-- [ ] Hapus branding `Quest2` dari icon, label, title, dan manifest
-- [ ] Normalisasi semua copy UI ke istilah `Quest` dan brand `Rythm`
-- [ ] Pastikan dashboard, form, sidebar, dan history tetap nyaman di mobile dan desktop
+- [x] Hapus branding `Quest2` dari icon, label, title, dan manifest
+- [x] Normalisasi semua copy UI ke istilah `Quest` dan brand `Rythm`
+- [x] Kompakkan filter dashboard, quests, dan history dengan `Select` dan `Checkbox` berbasis token
+- [x] Taruh `page intro`, `metric card`, `interactive list card`, dan `detail panel` shared di `components/app`
+- [x] Rapikan titik overflow mobile pada `PageShell`, `SignOutButton`, dan sidebar account card
+- [x] Pastikan dashboard, form, sidebar, dan history tetap nyaman di mobile dan desktop
 
 ## 4. Cleanup Scope Dari Prototype
 
-- [ ] Jangan port fitur `projects`
-- [ ] Jangan port fitur `project_tasks`
-- [ ] Jangan port `completion_mode`
-- [ ] Jangan port `target_count`
-- [ ] Jangan port `deadline` pada quest MVP
-- [ ] Jangan port completion `count`
-- [ ] Jangan port route atau copy berbasis `/tasks`; gunakan `/quests`
-- [ ] Hindari membawa dependency atau pola khusus `Lovable` yang tidak dibutuhkan di root app
+- [x] Jangan port fitur `projects`
+- [x] Jangan port fitur `project_tasks`
+- [x] Jangan port `completion_mode`
+- [x] Jangan port `target_count`
+- [x] Jangan port `deadline` pada quest MVP
+- [x] Jangan port completion `count`
+- [x] Jangan port route atau copy berbasis `/tasks`; gunakan `/quests`
+- [x] Hindari membawa dependency atau pola khusus `Lovable` yang tidak dibutuhkan di root app
 
 ## 5. Better Auth, Prisma, Dan Environment Setup
 
@@ -97,11 +100,11 @@ Temuan utama dari `quest-companion`:
 ## 6. Database Dan Security
 
 - [x] Selesaikan core auth schema Better Auth di Prisma schema
-- [ ] Buat migration canonical untuk tabel `categories`
-- [ ] Buat migration canonical untuk tabel `quests`
-- [ ] Buat migration canonical untuk tabel `quest_completions`
-- [ ] Tambahkan trigger `updated_at` untuk `quests`
-- [ ] Tambahkan index yang dibutuhkan untuk query dashboard, history, dan management page
+- [x] Buat migration canonical untuk tabel `categories`
+- [x] Buat migration canonical untuk tabel `quests`
+- [x] Buat migration canonical untuk tabel `quest_completions`
+- [x] Tambahkan trigger `updated_at` untuk `quests`
+- [x] Tambahkan index yang dibutuhkan untuk query dashboard, history, dan management page
 - [x] Pastikan authorization server-side menggantikan kebutuhan RLS
 - [x] Pastikan ownership `category -> quest -> completion` tervalidasi dengan benar
 - [x] Siapkan Prisma schema dan migration workflow untuk root app
@@ -149,53 +152,59 @@ Temuan utama dari `quest-companion`:
 
 ## 10. Product Pages
 
-- [ ] Implement halaman dashboard
-- [ ] Dashboard menampilkan tanggal saat ini
-- [ ] Dashboard mendukung filter kategori
-- [ ] Dashboard mendukung toggle `show inactive`
-- [ ] Dashboard mendukung quick check/uncheck untuk periode aktif
-- [ ] Dashboard mendukung akses cepat untuk note completion
-- [ ] Implement halaman manage quests
-- [ ] Implement search dan filter di manage quests
-- [ ] Implement create quest form
-- [ ] Implement edit quest form
-- [ ] Implement deactivate quest flow
-- [ ] Implement delete quest flow
+- [x] Implement halaman dashboard
+- [x] Dashboard menampilkan tanggal saat ini
+- [x] Dashboard mendukung filter kategori
+- [x] Dashboard mendukung toggle `show inactive`
+- [x] Dashboard mendukung quick check/uncheck untuk periode aktif
+- [x] Dashboard mendukung akses cepat untuk note completion
+- [x] Implement halaman manage quests
+- [x] Implement search dan filter di manage quests
+- [x] Implement create quest form
+- [x] Implement edit quest form
+- [x] Implement deactivate quest flow
+- [x] Implement delete quest flow
 - [x] Implement halaman categories
 - [x] Implement create category flow
 - [x] Implement rename category flow
 - [x] Implement delete category flow dengan constraint yang benar
 - [x] Implement reorder category flow
-- [ ] Implement halaman history
-- [ ] History mendukung filter quest, category, dan type
-- [ ] History mendukung edit note completion
-- [ ] History mendukung remove completion
+- [x] Implement halaman history
+- [x] History mendukung filter quest, category, dan type
+- [x] History mendukung edit note completion
+- [x] History mendukung remove completion
 
 ## 11. PWA Dan Branding Assets
 
-- [ ] Tambahkan manifest untuk Rythm di root app
-- [ ] Tambahkan app icons yang benar untuk Rythm
-- [ ] Tambahkan installability metadata
-- [ ] Tambahkan service worker atau strategi app shell caching yang sesuai untuk Next.js
+- [x] Tambahkan manifest untuk Rythm di root app
+- [x] Tambahkan app icons yang benar untuk Rythm
+- [x] Tambahkan installability metadata
+- [x] Tambahkan service worker atau strategi app shell caching yang sesuai untuk Next.js
 - [ ] Validasi bahwa app bisa di-install di mobile
 - [ ] Pastikan offline support tetap minimal dan tidak melebar ke sync kompleks
 
 ## 12. Deployment Readiness
 
 - [ ] Siapkan root app agar deployment-ready di Vercel
-- [ ] Pastikan route yang memakai Prisma tetap berjalan di Node.js runtime
+- [x] Pastikan route yang memakai Prisma tetap berjalan di Node.js runtime
 - [x] Pastikan Prisma client generation masuk ke build/install flow
-- [ ] Siapkan environment mapping untuk Vercel preview dan production
-- [ ] Tambahkan dokumentasi deployment saat arah deployment mulai konkret
-- [ ] Bandingkan opsi database hosting: Prisma Postgres, Neon, Supabase Postgres, dan PostgreSQL biasa
+- [x] Tambahkan `prisma.config.ts` di root repo untuk Prisma CLI
+- [x] Tambahkan `.env.example` sebagai baseline local dan deployment env
+- [x] Tambahkan script Prisma untuk `validate`, `migrate deploy`, dan status check
+- [x] Siapkan environment mapping untuk Vercel preview dan production
+- [x] Tambahkan dokumentasi deployment saat arah deployment mulai konkret
+- [x] Bandingkan opsi database hosting: Prisma Postgres, Neon, Supabase Postgres, dan PostgreSQL biasa
 - [ ] Putuskan provider database setelah kebutuhan operasional lebih jelas, tanpa mengubah schema app
 
 ## 13. Quality, Test, Dan Verification
 
-- [ ] Tambahkan unit test untuk helper period
-- [ ] Tambahkan unit test untuk perhitungan streak
-- [ ] Tambahkan test untuk validasi payload penting
-- [ ] Tambahkan smoke test untuk alur auth -> create category -> create quest -> complete quest -> lihat history
+- [x] Setup test runner ringan untuk root app unit test
+- [x] Tambahkan unit test untuk helper period
+- [x] Tambahkan unit test untuk perhitungan streak
+- [x] Tambahkan test untuk validasi payload penting
+- [x] Tambahkan smoke test untuk alur auth -> create category -> create quest -> complete quest -> lihat history
+- [x] Tambahkan browser smoke test untuk auth layout responsive dan entry point PWA
+- [x] Tambahkan browser smoke test untuk authenticated app shell, dashboard, quest form, categories, dan history
 - [ ] Ganti test placeholder dari prototype dengan test yang relevan di root app
 - [ ] Jalankan `npm run lint` untuk setiap vertical slice yang selesai
 - [ ] Tambahkan verifikasi manual untuk mobile layout dan desktop layout

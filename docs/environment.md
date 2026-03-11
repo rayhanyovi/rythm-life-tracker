@@ -61,15 +61,63 @@ Nilai MVP saat ini:
 Asia/Jakarta
 ```
 
+### `NEXT_PUBLIC_PWA_DEV_ENABLED`
+
+Flag opsional untuk menyalakan registrasi service worker di local development.
+
+Gunakan hanya untuk smoke test atau debugging PWA lokal.
+
+Contoh:
+
+```txt
+NEXT_PUBLIC_PWA_DEV_ENABLED=true
+```
+
+### `RYTHM_E2E_AUTH_BYPASS`
+
+Flag opsional khusus local browser smoke untuk melewati auth server-side saat Playwright membuka halaman protected.
+
+Gunakan hanya untuk automated testing lokal atau CI. Jangan dipakai sebagai konfigurasi runtime normal.
+
+Contoh:
+
+```txt
+RYTHM_E2E_AUTH_BYPASS=true
+```
+
+Catatan:
+
+- bypass ini hanya aktif jika env diset ke `true`
+- request juga tetap harus mengirim header `x-rythm-e2e-user-id`
+- `npm run test:e2e` sudah mengaktifkan flag ini otomatis
+- `npm run test:e2e` juga memakai port lokal terpisah (`3100`), dist dir Next terpisah (`.next-e2e`), dan memaksa Playwright menjalankan fresh dev server agar tidak salah menempel ke server lokal lama tanpa bypass
+- jangan menyalakan flag ini di Vercel preview atau production
+
 ## Local Development Baseline
 
 Lihat [`.env.example`](/c:/Projects/rhythm/.env.example) untuk baseline local setup.
 
 Prisma CLI membaca `DATABASE_URL` lewat [prisma.config.ts](/c:/Projects/rhythm/prisma.config.ts), jadi local development tetap perlu `.env.local` atau `.env` yang valid saat menjalankan migrate terhadap database nyata.
 
+Catatan tambahan:
+
+- auth config saat ini memberi local-only fallback secret bila `BETTER_AUTH_SECRET` belum diisi dan app tidak berjalan di Vercel
+- fallback ini hanya untuk menghindari default secret bawaan Better Auth saat build lokal
+- tetap lebih baik isi `BETTER_AUTH_SECRET` secara eksplisit bahkan untuk local development
+- `prisma.config.ts` juga memberi fallback localhost Postgres untuk menjaga `prisma generate` dan `prisma validate` tetap bisa dijalankan sebelum local env lengkap
+- fallback Prisma ini bukan sinyal bahwa local database otomatis tersedia; command migrate tetap butuh database yang benar-benar hidup
+- `NEXT_PUBLIC_PWA_DEV_ENABLED` sengaja optional dan default-nya nonaktif agar service worker tidak mengganggu development harian
+- `RYTHM_E2E_AUTH_BYPASS` sengaja optional dan default-nya nonaktif agar auth bypass tidak pernah aktif di runtime normal
+
 ## Deployment Notes
 
 - Vercel preview dan production harus punya `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, dan `DATABASE_URL`
 - Better Auth dikonfigurasi untuk menerima `localhost:3000` dan `*.vercel.app`
+- Better Auth juga menambahkan host dari `BETTER_AUTH_URL` ke allowlist lokal agar smoke test dengan port non-standar tetap aman
 - Prisma tetap distandardisasi ke database family `postgresql`
 - `npm install` akan menjalankan `prisma generate` lewat script `postinstall`
+- script Prisma yang tersedia sekarang:
+  - `npm run prisma:validate`
+  - `npm run prisma:migrate:dev`
+  - `npm run prisma:migrate:deploy`
+  - `npm run prisma:migrate:status`
