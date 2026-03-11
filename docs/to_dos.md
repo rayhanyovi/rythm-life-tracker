@@ -48,22 +48,22 @@ Temuan utama dari `quest-companion`:
 
 ## 2. Foundation Root App
 
-- [ ] Ganti halaman default root app dengan shell awal Rythm
-- [ ] Tambahkan struktur route group App Router untuk area auth dan app utama
+- [x] Ganti halaman default root app dengan shell awal Rythm
+- [x] Tambahkan struktur route group App Router untuk area auth dan app utama
 - [ ] Siapkan folder dasar root app untuk `components`, `lib`, `types`, dan `app/api`
-- [ ] Install dependency yang memang dibutuhkan root app untuk Better Auth, Prisma, form handling, validation, icons, dan UI primitives
-- [ ] Setup `shadcn/ui` di root app sebagai library komponen standar
-- [ ] Rapikan metadata root app agar memakai nama dan deskripsi Rythm
-- [ ] Tambahkan loading, empty state, dan error state dasar yang konsisten
+- [x] Install dependency yang memang dibutuhkan root app untuk Better Auth, Prisma, form handling, validation, icons, dan UI primitives
+- [x] Setup `shadcn/ui` di root app sebagai library komponen standar
+- [x] Rapikan metadata root app agar memakai nama dan deskripsi Rythm
+- [x] Tambahkan loading, empty state, dan error state dasar yang konsisten
 
 ## 3. Design System Dan UI Migration
 
-- [ ] Port app shell utama dari `quest-companion` ke root app
-- [ ] Buat folder `components/ui` untuk primitive `shadcn/ui` di root app
+- [x] Port app shell utama dari `quest-companion` ke root app
+- [x] Buat folder `components/ui` untuk primitive `shadcn/ui` di root app
 - [ ] Port pola sidebar, top bar, list item, form shell, dialog, dan detail panel ke komponen root
 - [ ] Standardisasi form, dialog, sheet, select, checkbox, toast, dan alert lewat `shadcn/ui`
-- [ ] Ganti style token/theme saat ini dengan token baru yang lebih cocok untuk Rythm
-- [ ] Ganti tipografi default root app dengan tipografi produk yang lebih intentional
+- [x] Ganti style token/theme saat ini dengan token baru yang lebih cocok untuk Rythm
+- [x] Ganti tipografi default root app dengan tipografi produk yang lebih intentional
 - [ ] Hapus branding `Quest2` dari icon, label, title, dan manifest
 - [ ] Normalisasi semua copy UI ke istilah `Quest` dan brand `Rythm`
 - [ ] Pastikan dashboard, form, sidebar, dan history tetap nyaman di mobile dan desktop
