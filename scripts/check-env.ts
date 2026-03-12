@@ -6,6 +6,8 @@ import {
   getBetterAuthUrl,
   getDatabaseUrl,
   getDirectUrl,
+  isDevEmailVerificationBypassRequested,
+  isLocalEmailVerificationBypassEnabled,
 } from "../lib/env";
 
 const isDeploymentCheck = process.argv.includes("--deployment");
@@ -36,6 +38,8 @@ const explicitAuthUrl = readEnv("BETTER_AUTH_URL");
 const explicitDatabaseUrl = readEnv("DATABASE_URL");
 const explicitTimezone = readEnv("NEXT_PUBLIC_APP_TIMEZONE");
 const authEmailDeliveryConfig = getAuthEmailDeliveryConfig();
+const devEmailVerificationBypassRequested = isDevEmailVerificationBypassRequested();
+const devEmailVerificationBypassEnabled = isLocalEmailVerificationBypassEnabled();
 
 let resolvedAuthUrl = "";
 let resolvedTimezone = "";
@@ -80,6 +84,12 @@ if (!issues.length) {
     );
   }
 
+  if (devEmailVerificationBypassEnabled) {
+    warnings.push(
+      "RYTHM_DEV_SKIP_EMAIL_VERIFICATION is enabled; local email/password auth will not require verification links.",
+    );
+  }
+
   if (isDeploymentCheck) {
     if (!explicitAuthSecret) {
       issues.push("BETTER_AUTH_SECRET must be explicitly set for deployment.");
@@ -101,6 +111,10 @@ if (!issues.length) {
       issues.push(
         "AUTH_EMAIL_FROM and RESEND_API_KEY must be explicitly set for deployment because verification and password reset emails are part of the MVP auth flow.",
       );
+    }
+
+    if (devEmailVerificationBypassRequested) {
+      issues.push("RYTHM_DEV_SKIP_EMAIL_VERIFICATION must not be enabled for deployment.");
     }
   }
 }

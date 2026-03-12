@@ -78,6 +78,14 @@ export function getAuthEmailDeliveryConfig() {
   };
 }
 
+export function isDevEmailVerificationBypassRequested() {
+  return readEnv("RYTHM_DEV_SKIP_EMAIL_VERIFICATION") === "true";
+}
+
+export function isLocalEmailVerificationBypassEnabled() {
+  return isDevEmailVerificationBypassRequested() && !isVercelRuntime();
+}
+
 export function getBetterAuthAllowedHosts() {
   const authUrl = new URL(getBetterAuthUrl());
 

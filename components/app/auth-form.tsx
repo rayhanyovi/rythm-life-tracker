@@ -26,6 +26,16 @@ function buildVerificationCallbackUrl() {
   return new URL("/sign-in?verified=1", window.location.origin).toString();
 }
 
+async function bootstrapDefaultCategories() {
+  try {
+    await fetch("/api/bootstrap/default-categories", {
+      method: "POST",
+    });
+  } catch {
+    // Best-effort seed: the user can still continue and create categories manually.
+  }
+}
+
 export function AuthForm({ initialNotice, mode }: AuthFormProps) {
   const router = useRouter();
   const isSignIn = mode === "sign-in";
@@ -88,19 +98,19 @@ export function AuthForm({ initialNotice, mode }: AuthFormProps) {
       }
 
       if (!isSignIn) {
+        if (response.data?.token) {
+          await bootstrapDefaultCategories();
+          router.push("/dashboard");
+          router.refresh();
+          return;
+        }
+
         router.push(`/sign-in?verification=sent&email=${encodeURIComponent(trimmedEmail)}`);
         router.refresh();
         return;
       }
 
-      try {
-        await fetch("/api/bootstrap/default-categories", {
-          method: "POST",
-        });
-      } catch {
-        // Best-effort seed: the user can still continue and create categories manually.
-      }
-
+      await bootstrapDefaultCategories();
       router.push("/dashboard");
       router.refresh();
     });

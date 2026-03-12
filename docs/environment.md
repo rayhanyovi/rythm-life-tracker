@@ -84,6 +84,23 @@ Catatan:
 - fallback log ini berguna untuk development, tetapi bukan posture yang layak untuk launch publik
 - `npm run env:check:deployment` sekarang menganggap keduanya wajib karena verification dan password reset sudah menjadi bagian auth MVP
 
+### `RYTHM_DEV_SKIP_EMAIL_VERIFICATION`
+
+Flag opsional local-only untuk mematikan requirement email verification pada auth email/password saat development.
+
+Contoh:
+
+```txt
+RYTHM_DEV_SKIP_EMAIL_VERIFICATION=true
+```
+
+Catatan:
+
+- hanya aktif di local runtime non-Vercel
+- saat aktif, sign-up email/password langsung membuat session dan masuk ke dashboard
+- email verification otomatis pada sign-up dan sign-in juga dimatikan
+- jangan aktifkan untuk preview atau production
+
 ### `NEXT_PUBLIC_PWA_DEV_ENABLED`
 
 Flag opsional untuk menyalakan registrasi service worker di local development.
@@ -158,6 +175,7 @@ Perilaku:
 - `env:check` aman untuk local development dan akan melaporkan fallback yang masih aktif
 - `env:check:deployment` akan gagal jika `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, atau `DATABASE_URL` belum diisi eksplisit
 - `env:check:deployment` juga akan gagal jika `AUTH_EMAIL_FROM` atau `RESEND_API_KEY` belum lengkap
+- `env:check:deployment` juga akan gagal jika `RYTHM_DEV_SKIP_EMAIL_VERIFICATION=true`
 - `env:check:deployment` juga menolak `BETTER_AUTH_URL` yang masih mengarah ke `localhost`
 
 ## Deployment Notes

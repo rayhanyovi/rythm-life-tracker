@@ -8,6 +8,8 @@ import {
   getBetterAuthSecret,
   getBetterAuthUrl,
   getDatabaseUrl,
+  isDevEmailVerificationBypassRequested,
+  isLocalEmailVerificationBypassEnabled,
 } from "@/lib/env";
 
 function withEnv<T>(
@@ -112,6 +114,30 @@ describe("env helpers", () => {
           isPartiallyConfigured: true,
           resendApiKey: undefined,
         });
+      },
+    );
+  });
+
+  it("enables the dev email verification bypass only outside Vercel", () => {
+    withEnv(
+      {
+        RYTHM_DEV_SKIP_EMAIL_VERIFICATION: "true",
+        VERCEL: undefined,
+      },
+      () => {
+        assert.equal(isDevEmailVerificationBypassRequested(), true);
+        assert.equal(isLocalEmailVerificationBypassEnabled(), true);
+      },
+    );
+
+    withEnv(
+      {
+        RYTHM_DEV_SKIP_EMAIL_VERIFICATION: "true",
+        VERCEL: "1",
+      },
+      () => {
+        assert.equal(isDevEmailVerificationBypassRequested(), true);
+        assert.equal(isLocalEmailVerificationBypassEnabled(), false);
       },
     );
   });

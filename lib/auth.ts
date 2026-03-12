@@ -9,10 +9,12 @@ import {
   getBetterAuthSecret,
   getBetterAuthTrustedOrigins,
   getBetterAuthUrl,
+  isLocalEmailVerificationBypassEnabled,
 } from "@/lib/env";
 
 const fallbackBaseUrl = getBetterAuthUrl();
 const fallbackProtocol = fallbackBaseUrl.startsWith("https://") ? "https" : "http";
+const skipEmailVerificationInDev = isLocalEmailVerificationBypassEnabled();
 
 export const auth = betterAuth({
   appName: "Rythm",
@@ -29,7 +31,7 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     minPasswordLength: 8,
-    requireEmailVerification: true,
+    requireEmailVerification: !skipEmailVerificationInDev,
     resetPasswordTokenExpiresIn: 60 * 60,
     revokeSessionsOnPasswordReset: true,
     sendResetPassword: async ({ url, user }) => {
@@ -43,8 +45,8 @@ export const auth = betterAuth({
   emailVerification: {
     autoSignInAfterVerification: false,
     expiresIn: 60 * 60,
-    sendOnSignIn: true,
-    sendOnSignUp: true,
+    sendOnSignIn: !skipEmailVerificationInDev,
+    sendOnSignUp: !skipEmailVerificationInDev,
     sendVerificationEmail: async ({ url, user }) => {
       await sendVerificationEmail({
         email: user.email,
