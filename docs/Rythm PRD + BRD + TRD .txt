@@ -1,0 +1,509 @@
+# Rythm — Product, Business, and Technical Requirements Document
+Version: 1.0  
+Status: MVP Definition  
+Project Owner: Yovi  
+Product Name: **Rythm**
+
+---
+
+# 1. Product Overview
+
+## 1.1 Vision
+
+Rythm adalah aplikasi **habit & life rhythm tracker** berbasis quest yang membantu pengguna menjalani rutinitas hidup secara konsisten melalui sistem checklist yang sederhana dan terstruktur.
+
+Aplikasi ini berfokus pada:
+
+- Rutinitas yang berulang (Daily / Weekly / Monthly)
+- Milestone hidup (Main Quest)
+- Sistem streak untuk menjaga konsistensi
+
+Tujuan utama Rythm adalah memberikan pengguna **struktur kehidupan yang jelas** melalui sistem quest sederhana yang bisa dicentang setiap periode.
+
+---
+
+# 2. Business Requirements (BRD)
+
+## 2.1 Problem Statement
+
+Banyak orang ingin hidup lebih disiplin tetapi kesulitan menjaga konsistensi karena:
+
+- Tidak ada sistem tracking yang jelas
+- Rutinitas tidak terstruktur
+- Habit tracker terlalu kompleks atau terlalu gamified
+
+Rythm menyelesaikan masalah ini dengan:
+
+- Sistem **quest sederhana**
+- Checklist berbasis periode
+- Tracking streak otomatis
+- Struktur hidup berbasis kategori
+
+---
+
+## 2.2 Target Users
+
+### Primary Users
+
+Individu yang:
+
+- menyukai rutinitas
+- ingin sistem disiplin yang jelas
+- menjalankan habit seperti ibadah, olahraga, belajar
+
+### Early Users
+
+- Founder
+- Pasangan founder
+
+---
+
+## 2.3 Value Proposition
+
+Rythm memberikan:
+
+- Struktur hidup yang jelas
+- Habit tracking yang ringan
+- Visual progress sederhana
+- Sistem quest yang intuitif
+
+---
+
+## 2.4 Success Metrics (MVP)
+
+Keberhasilan MVP diukur dari:
+
+- Pengguna mampu membuat quest sendiri
+- Pengguna dapat mencentang quest setiap hari
+- Streak dapat dihitung secara otomatis
+- Dashboard memberikan overview rutinitas
+
+Tidak ada analytics kompleks pada MVP.
+
+---
+
+# 3. Product Requirements (PRD)
+
+## 3.1 Platform
+
+- Web Application
+- Progressive Web App (PWA)
+- Multi-user
+
+---
+
+## 3.2 Authentication
+
+Menggunakan:
+
+- Supabase Auth
+- Email + Password
+
+---
+
+## 3.3 Core Product Concepts
+
+### Quest
+
+Quest adalah aktivitas yang ingin dilakukan pengguna.
+
+Quest memiliki tipe:
+
+| Type | Description |
+|-----|-------------|
+| Daily | Diulang setiap hari |
+| Weekly | Diulang setiap minggu |
+| Monthly | Diulang setiap bulan |
+| Main Quest | Quest satu kali (milestone) |
+
+---
+
+### Category
+
+Quest dikelompokkan dalam kategori berdasarkan konsep **Wheel of Life**.
+
+Contoh:
+
+- Spiritual
+- Health
+- Career
+- Finance
+- Personal Growth
+- Relationship
+
+Pengguna juga dapat membuat kategori baru.
+
+---
+
+### Completion
+
+Completion terjadi ketika user mencentang quest.
+
+Completion disimpan **per periode**.
+
+Contoh:
+
+Daily quest:
+
+
+Run 30 minutes
+Completion:
+2026-01-01
+2026-01-02
+2026-01-03
+
+
+---
+
+### Streak
+
+Streak adalah jumlah periode berturut-turut quest diselesaikan.
+
+Contoh:
+
+
+Daily Quest
+Jan 1 ✓
+Jan 2 ✓
+Jan 3 ✓
+Jan 4 ✗
+
+Streak = 3
+
+
+---
+
+## 3.4 MVP Features
+
+### 1️⃣ Authentication
+
+User dapat:
+
+- Register
+- Login
+- Logout
+
+---
+
+### 2️⃣ Quest CRUD
+
+User dapat:
+
+- Create quest
+- Edit quest
+- Delete quest
+- Deactivate quest
+
+Quest fields:
+
+| Field | Required |
+|------|----------|
+title | yes
+category | yes
+quest_type | yes
+description | optional
+
+---
+
+### 3️⃣ Quest Completion
+
+User dapat:
+
+- Centang quest
+- Uncheck quest
+- Menambahkan note opsional
+
+Completion dicatat per periode.
+
+---
+
+### 4️⃣ Dashboard
+
+Dashboard menampilkan:
+
+- Quest list hari ini
+- Status completion
+- Streak setiap quest
+- Filter berdasarkan kategori
+
+---
+
+### 5️⃣ History View
+
+User dapat melihat:
+
+- Riwayat completion
+- Catatan completion
+- Uncheck completion sebelumnya
+
+---
+
+### 6️⃣ Category Management
+
+User dapat:
+
+- Create category
+- Rename category
+- Delete category
+- Reorder category
+
+---
+
+# 4. Technical Requirements (TRD)
+
+## 4.1 Architecture
+
+Frontend:
+
+- React
+- TypeScript
+- TailwindCSS
+
+Backend:
+
+- Supabase
+
+Services:
+
+- Supabase Auth
+- Supabase Postgres
+- Supabase Row Level Security
+
+---
+
+## 4.2 System Architecture
+
+
+Client (React PWA)
+|
+| REST / Supabase client
+|
+Supabase Backend
+|
+Postgres Database
+
+
+---
+
+## 4.3 PWA Requirements
+
+Aplikasi harus:
+
+- Installable
+- Memiliki manifest.json
+- Service worker untuk caching app shell
+
+Offline sync tidak diperlukan pada MVP.
+
+---
+
+# 5. Database Schema
+
+## 5.1 categories
+
+```sql
+categories
+field	type
+id	uuid
+user_id	uuid
+name	text
+sort_order	int
+created_at	timestamptz
+
+Constraint:
+
+unique(user_id, name)
+5.2 quests
+quests
+field	type
+id	uuid
+user_id	uuid
+category_id	uuid
+title	text
+description	text
+quest_type	enum
+is_active	boolean
+created_at	timestamptz
+updated_at	timestamptz
+
+Quest Type enum:
+
+DAILY
+WEEKLY
+MONTHLY
+MAIN
+5.3 quest_completions
+quest_completions
+field	type
+id	uuid
+user_id	uuid
+quest_id	uuid
+period_type	text
+period_key	text
+completed_at	timestamptz
+note	text
+
+Unique constraint:
+
+(user_id, quest_id, period_type, period_key)
+6. Period System
+
+Completion disimpan menggunakan period_key.
+
+Daily
+2026-01-01
+Weekly
+2026-W04
+
+ISO Week format.
+
+Monthly
+2026-01
+Main Quest
+ONE_TIME
+7. Completion Flow
+Mark Complete
+
+User mencentang quest.
+
+System:
+
+INSERT quest_completions
+
+Jika sudah ada record:
+
+UPDATE completed_at
+Uncheck
+
+System:
+
+DELETE quest_completion
+WHERE period_key = current_period
+8. Streak Algorithm
+
+Untuk quest dengan tipe recurring.
+
+Daily
+
+Ambil completion terakhir
+
+Iterasi mundur per hari
+
+Stop ketika gap ditemukan
+
+Weekly
+
+Iterasi berdasarkan ISO week.
+
+Monthly
+
+Iterasi berdasarkan bulan.
+
+Main Quest tidak memiliki streak.
+
+9. Security
+
+Row Level Security wajib aktif.
+
+Policy:
+
+User hanya bisa mengakses data miliknya sendiri.
+
+user_id = auth.uid()
+10. UI Structure
+Pages
+/login
+/register
+/dashboard
+/quests
+/categories
+/history
+Dashboard Layout
+Header
+Current Date
+
+Category Sections
+  Quest
+  Quest
+  Quest
+
+Add Quest Button
+11. Non Goals (MVP)
+
+Tidak termasuk dalam MVP:
+
+Analytics charts
+
+XP system
+
+Level system
+
+Badges
+
+Social features
+
+Sub quests
+
+Team collaboration
+
+12. Future Features (Post-MVP)
+
+Potensi pengembangan:
+
+Habit analytics
+
+XP & gamification
+
+AI habit insights
+
+Mobile native app
+
+Shared quests (couples / family)
+
+Sub quests
+
+Habit difficulty scaling
+
+13. Design Principles
+
+Rythm harus:
+
+Fast
+
+Minimal
+
+Focused
+
+Habit-first
+
+Low cognitive load
+
+UI harus lebih mirip:
+
+Linear
+
+Notion
+
+Todoist
+
+bukan game.
+
+14. MVP Scope Summary
+
+MVP harus bisa:
+
+User login
+
+User membuat quest
+
+User mencentang quest
+
+Streak dihitung otomatis
+
+Dashboard menampilkan rutinitas
+
+Quest bisa di CRUD
+
+Completion tersimpan per periode
+
+Jika semua fitur di atas berjalan, MVP dianggap complete.

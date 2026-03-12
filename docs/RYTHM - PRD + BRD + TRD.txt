@@ -1,0 +1,164 @@
+A simple multi-user PWA web app called “Rythm” for tracking recurring quests (Daily/Weekly/Monthly) and non-recurring Main Quests. Use Prisma ORM. Use English UI. MVP only: CRUD quests, checklist + streak, simple dashboard, no analytics, no gamification.
+
+## Core Concepts
+- User action is primarily: checking/unchecking a quest completion for the current period.
+- Quest types:
+  1) Daily (recurs every calendar day)
+  2) Weekly (recurs every ISO week, Mon–Sun)
+  3) Monthly (recurs every calendar month)
+  4) Main Quest (one-time checklist; no auto reset)
+- Each quest has:
+  - title (required)
+  - category (required, from user-defined categories; user can create custom categories)
+  - quest_type (Daily/Weekly/Monthly/Main)
+  - optional description (optional)
+- Each completion has:
+  - completion date/time (required)
+  - optional note (optional)
+- Reset model:
+  - Daily/Weekly/Monthly automatically “reset” by period; i.e., completion is stored per period. Main Quest has a single completion record total.
+- Streak:
+  - Daily: consecutive completed days
+  - Weekly: consecutive completed ISO weeks
+  - Monthly: consecutive completed months
+  - Main Quest: show streak as “—” (not applicable) or always 0/1; choose “—” for clarity.
+- Offline: PWA installable; offline support can be minimal (cache shell). No need for offline-first data syncing in MVP.
+
+## Tech Requirements
+- React + TypeScript UI.
+- Tailwind for styling (clean, minimal, no heavy theming).
+- Supabase Auth (email/password is enough).
+- Supabase DB with RLS (strict).
+- PWA: manifest + service worker (basic caching). Make it installable on mobile.
+
+## Database Schema (Supabase)
+Create SQL migrations (or equivalent) with:
+1) categories
+- id uuid primary key default gen_random_uuid()
+- user_id uuid not null references auth.users(id) on delete cascade
+- name text not null
+- sort_order int default 0
+- created_at timestamptz default now()
+Unique constraint: (user_id, name)
+
+2) quests
+- id uuid primary key default gen_random_uuid()
+- user_id uuid not null references auth.users(id) on delete cascade
+- category_id uuid not null references categories(id) on delete restrict
+- title text not null
+- description text null
+- quest_type text not null check (quest_type in ('DAILY','WEEKLY','MONTHLY','MAIN'))
+- is_active boolean not null default true
+- created_at timestamptz default now()
+- updated_at timestamptz default now()
+
+3) quest_completions
+- id uuid primary key default gen_random_uuid()
+- user_id uuid not null references auth.users(id) on delete cascade
+- quest_id uuid not null references quests(id) on delete cascade
+- period_type text not null check (period_type in ('DAILY','WEEKLY','MONTHLY','MAIN'))
+- period_key text not null
+  - DAILY example: '2026-01-25'
+  - WEEKLY example: '2026-W04' (ISO week)
+  - MONTHLY example: '2026-01'
+  - MAIN example: 'ONE_TIME'
+- completed_at timestamptz not null default now()
+- note text null
+- created_at timestamptz default now()
+Unique constraint: (user_id, quest_id, period_type, period_key)
+
+Important:
+- period_type must match the quest’s quest_type (except MAIN uses MAIN).
+- App should compute period_key on the client based on user’s local date (assume Asia/Jakarta). Store keys as strings; avoid timezone bugs by deriving keys from local date components.
+
+## RLS Policies (Strict)
+Enable RLS on all tables.
+- categories: user can select/insert/update/delete only where user_id = auth.uid()
+- quests: same
+- quest_completions: same
+Add FK integrity: quest.user_id must match completion.user_id. Enforce this via application logic + RLS (e.g., policy with EXISTS joining quests where quests.id = quest_id and quests.user_id = auth.uid()).
+
+## App Screens / Routes
+1) Auth
+- Sign in / Sign up (Supabase)
+- After login → Dashboard
+
+2) Dashboard (Home)
+Goal: fastest “check today” experience.
+- Top header: date (today), quick filter: All / by Category
+- Sections by Category (collapsible):
+  - Each quest row:
+    - checkbox for current period completion
+    - quest title
+    - streak badge (e.g., “Streak: 12”)
+    - small “note” icon to add/edit note for this completion (optional)
+- For DAILY/WEEKLY/MONTHLY: checkbox represents current period only.
+- For MAIN: checkbox represents one-time completion.
+- Toggle “Show inactive” optional; default hidden.
+- Provide quick action: “Add Quest” and “Manage Quests”.
+
+3) Manage Quests (CRUD)
+- List quests with search + filter by type/category
+- Create quest form:
+  - title, category, quest_type, optional description, is_active
+- Edit quest form
+- Delete quest with confirmation
+- Option: deactivate instead of delete (keep history)
+
+4) Manage Categories (CRUD)
+- Add/rename/delete categories (prevent deleting if quests exist OR ask to reassign quests)
+- Reorder categories (simple up/down or drag-and-drop if easy)
+
+5) History (simple)
+No analytics, but user needs visibility.
+- Show list of completions by date (grouped by day)
+- Filter by quest / category / type
+- Allow editing note on a completion
+- Allow “uncheck” by deleting the completion record for that period.
+
+## Completion & Reset Logic (Key Implementation Details)
+- Compute current period_key:
+  - DAILY: YYYY-MM-DD (local date)
+  - WEEKLY: ISO week-based year + week number: YYYY-Www
+  - MONTHLY: YYYY-MM
+  - MAIN: ONE_TIME
+- When user checks a quest:
+  - Upsert into quest_completions with (user_id, quest_id, period_type, period_key)
+  - Set completed_at = now()
+- When user unchecks:
+  - Delete the matching completion row for that period.
+- Determine “isCompletedNow” by querying completions for the current period_key.
+- Streak calculation:
+  - For a given quest (DAILY/WEEKLY/MONTHLY), compute consecutive period_keys ending at current period (or most recent completed period if today not completed yet—choose one consistent rule).
+  - Prefer server-side function or efficient query; but MVP acceptable to compute on client by fetching last N completions:
+    - Daily: fetch last ~90 days
+    - Weekly: fetch last ~52 weeks
+    - Monthly: fetch last ~24 months
+  - Streak definition: count consecutive periods with completions without gaps, ending at current period if completed, otherwise ending at previous period (make this rule explicit in UI: show two streaks if needed is overkill; use “current streak” that requires completion in current period, otherwise streak is based on previous period).
+  - Main quests show streak as “—”.
+
+## UI / UX
+- Minimal, fast, mobile-friendly.
+- Use clear typography, spacing, and simple components.
+- Make check action instant; optimistic UI is okay with rollback on error.
+- Provide subtle feedback: toast on save/error.
+- No gamification, XP, badges.
+
+## PWA
+- Add manifest.json (name, short_name, icons, theme color).
+- Service worker: cache app shell (basic). Data can be online-only for now.
+
+## Non-goals (Do NOT build in MVP)
+- No analytics charts.
+- No XP/levels/badges.
+- No sub-quests.
+- No social/sharing.
+- No advanced offline sync.
+
+## Deliverables
+- Working app connected to Supabase.
+- SQL schema + RLS policies.
+- Clean code, TypeScript types for DB rows.
+- Seed: on first login, optionally create default categories matching Wheel of Life (Spiritual, Finance, Career, Health, Personal Growth, Relationship) but keep it optional and editable.
+
+Build it end-to-end.
