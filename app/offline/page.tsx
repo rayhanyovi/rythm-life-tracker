@@ -24,12 +24,12 @@ export default function OfflinePage() {
           </div>
           <div className="space-y-2">
             <CardTitle className="text-3xl tracking-tight">
-              You&apos;re offline
+              You&apos;re offline.
             </CardTitle>
             <CardDescription className="max-w-lg text-sm leading-7">
-              Rythm keeps offline support intentionally small. You can reopen the
-              app shell and cached assets, but quest writes and history updates
-              still need a connection.
+              Rythm keeps offline support intentionally small. You can reopen
+              the app shell and cached assets, but quest writes and history
+              updates still need a connection.
             </CardDescription>
           </div>
         </CardHeader>
