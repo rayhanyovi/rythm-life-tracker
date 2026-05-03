@@ -1,0 +1,2911 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rythm - Full Wireframe Spec</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 32px 16px 80px;
+        background: #eceff3;
+        color: #1f2329;
+        font-family: "Segoe UI", Arial, sans-serif;
+        line-height: 1.55;
+      }
+      .page {
+        max-width: 1180px;
+        margin: 0 auto;
+      }
+      .section {
+        margin-bottom: 32px;
+        padding: 24px;
+        background: rgba(250, 251, 252, 0.96);
+        border: 1px solid rgba(110, 118, 129, 0.26);
+        box-shadow: 0 16px 36px rgba(31, 35, 41, 0.08);
+      }
+      .num {
+        display: inline-block;
+        padding: 4px 10px;
+        margin-bottom: 10px;
+        background: #3d4652;
+        color: #fff;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+      h1 {
+        margin: 0 0 8px;
+        font-size: 28px;
+      }
+      h2 {
+        margin: 0 0 8px;
+        font-size: 22px;
+      }
+      h3 {
+        margin: 20px 0 8px;
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      a {
+        color: inherit;
+      }
+      p {
+        margin: 0 0 10px;
+      }
+      .sub {
+        color: #57606a;
+        font-size: 13px;
+        max-width: 100ch;
+      }
+      .callout,
+      .note,
+      .danger,
+      .success {
+        padding: 12px 14px;
+        margin: 14px 0;
+        border-left: 4px solid;
+        font-size: 12px;
+      }
+      .callout {
+        background: #edf2f7;
+        border-color: #59636e;
+      }
+      .note {
+        background: #f5f6f8;
+        border-color: #7a828d;
+      }
+      .danger {
+        background: #f6eeee;
+        border-color: #8a5e5e;
+      }
+      .success {
+        background: #edf4ee;
+        border-color: #58725f;
+      }
+      .grid {
+        display: grid;
+        gap: 12px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .grid-3 {
+        display: grid;
+        gap: 12px;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+      .card {
+        border: 1px dashed #8d96a0;
+        background: #fff;
+        padding: 12px;
+      }
+      .box {
+        margin-top: 14px;
+        padding: 12px 14px;
+        border: 1px solid rgba(110, 118, 129, 0.26);
+        background: #f5f7fa;
+        font-size: 12px;
+      }
+      .toc {
+        display: grid;
+        gap: 10px;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        margin-top: 14px;
+      }
+      .toc a {
+        display: block;
+        padding: 10px 12px;
+        border: 1px solid rgba(110, 118, 129, 0.26);
+        background: #fff;
+        text-decoration: none;
+        font-size: 12px;
+      }
+      .wire {
+        margin: 8px 0 0;
+        padding: 14px;
+        overflow-x: auto;
+        background: #f7f8fa;
+        border: 1px solid rgba(110, 118, 129, 0.26);
+        font-family: "Courier New", monospace;
+        font-size: 12px;
+        line-height: 1.55;
+        white-space: pre;
+      }
+      .flow {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+        margin: 14px 0;
+      }
+      .flow-step,
+      .flow-branch-item {
+        border: 1px solid #8d96a0;
+        background: #fff;
+        padding: 10px 14px;
+        font-size: 11px;
+        min-width: 140px;
+      }
+      .flow-step.primary,
+      .flow-branch-item.primary {
+        background: #e8edf3;
+        border-color: #3d4652;
+      }
+      .flow-step.alt,
+      .flow-branch-item.alt {
+        background: #f5f7fa;
+      }
+      .flow-arrow {
+        color: #57606a;
+        font-size: 18px;
+      }
+      .flow-branch {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .label {
+        display: block;
+        margin-bottom: 4px;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #57606a;
+      }
+      ul {
+        margin: 8px 0 0;
+        padding-left: 18px;
+      }
+      li {
+        margin-bottom: 6px;
+      }
+      code {
+        background: rgba(61, 70, 82, 0.08);
+        padding: 2px 6px;
+      }
+      .gallery-stack {
+        display: grid;
+        gap: 16px;
+      }
+      .mock-card {
+        border: 1px solid rgba(110, 118, 129, 0.26);
+        background: #fff;
+        padding: 14px;
+      }
+      .mock-frame {
+        margin-top: 10px;
+        border: 1px solid rgba(110, 118, 129, 0.3);
+        background: #f8fafc;
+        overflow: hidden;
+      }
+      .mock-shell {
+        display: grid;
+        grid-template-columns: 52px 220px minmax(0, 1fr) 280px;
+        min-height: 420px;
+      }
+      .mock-module {
+        border-right: 1px solid #d6dde5;
+        background: #e9edf2;
+        padding: 10px 8px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+      }
+      .mock-module-dot {
+        width: 28px;
+        height: 28px;
+        border: 1px solid #8d96a0;
+        background: #fff;
+      }
+      .mock-module-pill {
+        width: 26px;
+        height: 52px;
+        border: 1px solid #8d96a0;
+        background: #f7f8fa;
+      }
+      .mock-rail {
+        border-right: 1px solid #d6dde5;
+        background: #f3f6f9;
+        padding: 14px 12px;
+      }
+      .mock-main {
+        border-right: 1px solid #d6dde5;
+        background: #fff;
+        padding: 14px 16px;
+      }
+      .mock-detail {
+        background: #fbfcfd;
+        padding: 14px 16px;
+      }
+      .mock-rail-title {
+        margin: 0 0 8px;
+        color: #57606a;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .mock-nav-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+        padding: 9px 10px;
+        border: 1px solid transparent;
+        font-size: 12px;
+        background: transparent;
+      }
+      .mock-nav-item.active {
+        border-color: #8d96a0;
+        background: #e9eef4;
+        font-weight: 700;
+      }
+      .mock-divider {
+        height: 1px;
+        margin: 12px 0;
+        background: #d6dde5;
+      }
+      .mock-topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+      .mock-title {
+        font-size: 24px;
+        font-weight: 700;
+      }
+      .mock-title-sm {
+        font-size: 18px;
+        font-weight: 700;
+      }
+      .mock-toolbar-actions {
+        display: flex;
+        gap: 8px;
+      }
+      .mock-btn,
+      .mock-btn-lite {
+        padding: 8px 10px;
+        border: 1px solid #8d96a0;
+        font-size: 11px;
+        background: #fff;
+      }
+      .mock-btn-lite {
+        background: #f5f7fa;
+      }
+      .mock-input {
+        margin-bottom: 14px;
+        padding: 10px 12px;
+        border: 1px solid #c6cdd6;
+        background: #f5f7fa;
+        color: #6b7480;
+        font-size: 12px;
+      }
+      .mock-section-tag {
+        margin: 14px 0 8px;
+        color: #57606a;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .mock-list {
+        border: 1px solid #dfe4ea;
+        background: #fff;
+      }
+      .mock-row {
+        display: grid;
+        grid-template-columns: 18px minmax(0, 1fr) auto;
+        gap: 10px;
+        align-items: center;
+        padding: 10px 12px;
+        border-bottom: 1px solid #eceff3;
+        font-size: 12px;
+      }
+      .mock-row:last-child {
+        border-bottom: none;
+      }
+      .mock-row.selected {
+        background: #eef3f8;
+      }
+      .mock-check {
+        width: 14px;
+        height: 14px;
+        border: 1px solid #8d96a0;
+        background: #fff;
+      }
+      .mock-meta {
+        color: #6b7480;
+        font-size: 11px;
+        white-space: nowrap;
+      }
+      .mock-pane-block {
+        margin-bottom: 12px;
+        padding: 12px;
+        border: 1px solid #d6dde5;
+        background: #fff;
+        font-size: 12px;
+      }
+      .mock-line {
+        height: 8px;
+        margin-bottom: 8px;
+        background: #d0d7de;
+      }
+      .mock-line.w70 {
+        width: 70%;
+      }
+      .mock-line.w50 {
+        width: 50%;
+      }
+      .mock-line.w35 {
+        width: 35%;
+      }
+      .mock-line:last-child {
+        margin-bottom: 0;
+      }
+      .mock-calendar {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        gap: 6px;
+        margin-bottom: 12px;
+      }
+      .mock-calendar-day {
+        min-height: 52px;
+        padding: 6px;
+        border: 1px solid #d6dde5;
+        background: #fff;
+        font-size: 10px;
+        color: #57606a;
+      }
+      .mock-calendar-day.active {
+        background: #eef3f8;
+        border-color: #8d96a0;
+      }
+      .mock-phone {
+        width: 360px;
+        max-width: 100%;
+        border: 1px solid rgba(110, 118, 129, 0.32);
+        background: #fff;
+        padding: 10px;
+      }
+      .mock-phone-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+      .mock-phone-sheet {
+        margin-top: 10px;
+        border: 1px solid #d6dde5;
+        background: #f7f8fa;
+        padding: 12px;
+      }
+      .lofi-grid {
+        display: grid;
+        gap: 12px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        margin: 14px 0;
+      }
+      .lofi-grid-3 {
+        display: grid;
+        gap: 12px;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        margin: 14px 0;
+      }
+      .lofi-block {
+        border: 1px solid rgba(110, 118, 129, 0.28);
+        background: #fff;
+        padding: 14px;
+      }
+      .lofi-stage {
+        border: 1px solid rgba(110, 118, 129, 0.28);
+        background: #f8fafc;
+        overflow: hidden;
+      }
+      .lofi-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 12px;
+        border-bottom: 1px solid #d6dde5;
+        background: #eef2f6;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+      .lofi-body {
+        padding: 14px;
+      }
+      .lofi-copy-stack {
+        display: grid;
+        gap: 8px;
+      }
+      .lofi-headline {
+        height: 18px;
+        width: 72%;
+        background: #afb8c1;
+      }
+      .lofi-headline.short {
+        width: 48%;
+      }
+      .lofi-bodyline {
+        height: 10px;
+        background: #d0d7de;
+      }
+      .lofi-bodyline.w80 {
+        width: 80%;
+      }
+      .lofi-bodyline.w60 {
+        width: 60%;
+      }
+      .lofi-bodyline.w40 {
+        width: 40%;
+      }
+      .lofi-cta-row {
+        display: flex;
+        gap: 8px;
+        margin-top: 10px;
+      }
+      .lofi-cta {
+        padding: 8px 12px;
+        border: 1px solid #8d96a0;
+        background: #fff;
+        font-size: 11px;
+      }
+      .lofi-hero-split {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 14px;
+        padding: 16px;
+      }
+      .lofi-window {
+        border: 1px solid #d6dde5;
+        background: #fff;
+      }
+      .lofi-window-head {
+        height: 28px;
+        border-bottom: 1px solid #d6dde5;
+        background: #f3f6f9;
+      }
+      .lofi-window-body {
+        padding: 12px;
+      }
+      .lofi-preview-shell {
+        display: grid;
+        grid-template-columns: 44px 160px minmax(0, 1fr);
+        min-height: 220px;
+      }
+      .lofi-mini-rail,
+      .lofi-mini-col,
+      .lofi-mini-main {
+        border-right: 1px solid #d6dde5;
+        min-height: 100%;
+      }
+      .lofi-mini-rail {
+        background: #e9edf2;
+      }
+      .lofi-mini-col {
+        background: #f3f6f9;
+        padding: 10px;
+      }
+      .lofi-mini-main {
+        background: #fff;
+        padding: 10px;
+      }
+      .lofi-mini-main:last-child {
+        border-right: none;
+      }
+      .lofi-chip-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 10px;
+      }
+      .lofi-chip {
+        padding: 6px 8px;
+        border: 1px solid #c6cdd6;
+        background: #f7f8fa;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      .lofi-auth {
+        display: grid;
+        place-items: center;
+        min-height: 320px;
+        background: #f4f7fa;
+        padding: 20px;
+      }
+      .lofi-auth-card {
+        width: min(100%, 360px);
+        border: 1px solid #d6dde5;
+        background: #fff;
+        padding: 18px;
+      }
+      .lofi-field {
+        height: 36px;
+        margin-top: 10px;
+        border: 1px solid #d6dde5;
+        background: #f7f8fa;
+      }
+      .lofi-btn-row {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+      }
+      .lofi-state-shell {
+        display: grid;
+        gap: 10px;
+      }
+      .lofi-state-card {
+        border: 1px solid #d6dde5;
+        background: #fff;
+        padding: 14px;
+      }
+      .lofi-state-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 10px;
+      }
+      .lofi-flow-board {
+        display: grid;
+        gap: 10px;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+      .lofi-flow-col {
+        border: 1px solid #d6dde5;
+        background: #f8fafc;
+        padding: 10px;
+      }
+      .lofi-flow-title {
+        margin: 0 0 8px;
+        color: #57606a;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+      .lofi-node {
+        margin-bottom: 8px;
+        padding: 10px;
+        border: 1px solid #c6cdd6;
+        background: #fff;
+        font-size: 11px;
+      }
+      .lofi-node.primary {
+        background: #eef3f8;
+        border-color: #8d96a0;
+      }
+      .lofi-node:last-child {
+        margin-bottom: 0;
+      }
+      .lofi-plan {
+        display: grid;
+        gap: 10px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .lofi-plan-step {
+        border: 1px solid #d6dde5;
+        background: #fff;
+        padding: 12px;
+        font-size: 12px;
+      }
+      @media (max-width: 900px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+        .grid-3 {
+          grid-template-columns: 1fr;
+        }
+        .toc {
+          grid-template-columns: 1fr;
+        }
+        .mock-shell {
+          grid-template-columns: 44px 180px minmax(0, 1fr);
+        }
+        .mock-detail {
+          display: none;
+        }
+        .lofi-grid,
+        .lofi-grid-3,
+        .lofi-hero-split,
+        .lofi-flow-board,
+        .lofi-plan {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <div class="section">
+        <div class="num">Wireframe Document</div>
+        <h1>Rythm - Full Wireframe Spec</h1>
+        <p class="sub">
+          Low-fi structural spec for the `Tasks-first` shell reframe. This
+          artifact is intentionally grayscale, layout-focused, and future-facing
+          where the current backend has not yet caught up to the planned task
+          model.
+        </p>
+        <div class="callout">
+          <strong>Core direction:</strong> replace the old `Today | Structure |
+          History` shell with a TickTick-inspired workspace: module rail, tasks
+          rail, list column, detail pane.
+        </div>
+        <div class="note">
+          <strong>Why this matters:</strong> the previous slim HTML lost too
+          much of the planning context. This version restores broader spec
+          coverage: route mapping, shell behavior, screen-by-screen wireframes,
+          state coverage, and implementation notes.
+        </div>
+        <h3>Table of contents</h3>
+        <div class="toc">
+          <a href="#gallery">00 - Quick lo-fi gallery</a>
+          <a href="#structure">01 - Tasks-first shell and route mapping</a>
+          <a href="#landing">02 - Landing page</a>
+          <a href="#auth">03 - Auth flow and access states</a>
+          <a href="#today">04 - Tasks / Today</a>
+          <a href="#upcoming">05 - Tasks / Upcoming</a>
+          <a href="#calendar">06 - Tasks / Calendar</a>
+          <a href="#lists">07 - Tasks / Lists</a>
+          <a href="#activity-log">08 - Tasks / Activity Log</a>
+          <a href="#support">09 - Support surfaces</a>
+          <a href="#states">10 - Empty, loading, and error states</a>
+          <a href="#flows">11 - State flow diagrams</a>
+          <a href="#principles">12 - Core UX principles</a>
+          <a href="#next-steps">13 - Next steps and implementation notes</a>
+        </div>
+        <div class="grid">
+          <div class="card">
+            <h3>Foundation</h3>
+            <ul>
+              <li>00 - Quick lo-fi gallery</li>
+              <li>01 - Tasks-first shell and route mapping</li>
+              <li>02 - Landing page</li>
+              <li>03 - Auth flow and access states</li>
+              <li>04 - Tasks / Today</li>
+              <li>05 - Tasks / Upcoming</li>
+              <li>06 - Tasks / Calendar</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>App Core</h3>
+            <ul>
+              <li>07 - Tasks / Lists</li>
+              <li>08 - Tasks / Activity Log</li>
+              <li>09 - Support surfaces</li>
+              <li>10 - Empty, loading, and error states</li>
+              <li>11 - State flow diagrams</li>
+              <li>12 - Core UX principles</li>
+              <li>13 - Next steps and implementation notes</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="section" id="gallery">
+        <div class="num">00</div>
+        <h2>Quick Lo-Fi Gallery</h2>
+        <p class="sub">
+          Ini bagian layout-first. Scan section ini dulu kalau yang kamu cari
+          adalah bentuk wireframe-nya, bukan rationale-nya.
+        </p>
+        <div class="gallery-stack">
+          <div class="mock-card">
+            <h3>Desktop - Tasks / Today</h3>
+            <div class="mock-frame">
+              <div class="mock-shell">
+                <div class="mock-module">
+                  <div class="mock-module-dot"></div>
+                  <div class="mock-module-pill"></div>
+                  <div class="mock-module-dot"></div>
+                </div>
+                <div class="mock-rail">
+                  <div class="mock-rail-title">Tasks</div>
+                  <div class="mock-nav-item active">
+                    <span>Today</span><span>18</span>
+                  </div>
+                  <div class="mock-nav-item">
+                    <span>Upcoming</span><span>12</span>
+                  </div>
+                  <div class="mock-nav-item"><span>Calendar</span></div>
+                  <div class="mock-nav-item"><span>Activity Log</span></div>
+                  <div class="mock-divider"></div>
+                  <div class="mock-rail-title">Lists</div>
+                  <div class="mock-nav-item">
+                    <span>Product</span><span>8</span>
+                  </div>
+                  <div class="mock-nav-item">
+                    <span>Admin</span><span>5</span>
+                  </div>
+                  <div class="mock-divider"></div>
+                  <div class="mock-rail-title">Habit Lists</div>
+                  <div class="mock-nav-item"><span>Daily Rhythm</span></div>
+                  <div class="mock-nav-item"><span>Wellness</span></div>
+                </div>
+                <div class="mock-main">
+                  <div class="mock-topbar">
+                    <div class="mock-title">Today</div>
+                    <div class="mock-toolbar-actions">
+                      <div class="mock-btn-lite">Filter</div>
+                      <div class="mock-btn">Add task</div>
+                    </div>
+                  </div>
+                  <div class="mock-input">+ Add task to "Today"</div>
+                  <div class="mock-section-tag">Overdue</div>
+                  <div class="mock-list">
+                    <div class="mock-row">
+                      <div class="mock-check"></div>
+                      <div>Bangun tidur</div>
+                      <div class="mock-meta">Habit</div>
+                    </div>
+                    <div class="mock-row">
+                      <div class="mock-check"></div>
+                      <div>Inbox zero review</div>
+                      <div class="mock-meta">Product</div>
+                    </div>
+                  </div>
+                  <div class="mock-section-tag">Today</div>
+                  <div class="mock-list">
+                    <div class="mock-row selected">
+                      <div class="mock-check"></div>
+                      <div>Fix onboarding copy</div>
+                      <div class="mock-meta">Product</div>
+                    </div>
+                    <div class="mock-row">
+                      <div class="mock-check"></div>
+                      <div>Review landing outline</div>
+                      <div class="mock-meta">Product</div>
+                    </div>
+                    <div class="mock-row">
+                      <div class="mock-check"></div>
+                      <div>Money review</div>
+                      <div class="mock-meta">Habit</div>
+                    </div>
+                    <div class="mock-row">
+                      <div class="mock-check"></div>
+                      <div>Weekly ops check</div>
+                      <div class="mock-meta">Admin</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="mock-detail">
+                  <div class="mock-title-sm">Fix onboarding copy</div>
+                  <div class="mock-pane-block">
+                    Product list<br />
+                    Due today<br />
+                    One-off task
+                  </div>
+                  <div class="mock-pane-block">
+                    <div class="mock-line w70"></div>
+                    <div class="mock-line"></div>
+                    <div class="mock-line w50"></div>
+                  </div>
+                  <div class="mock-topbar">
+                    <div class="mock-btn">Complete</div>
+                    <div class="mock-btn-lite">Reschedule</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid">
+            <div class="mock-card">
+              <h3>Mobile - Tasks / Today</h3>
+              <div class="mock-phone">
+                <div class="mock-phone-header">
+                  <div class="mock-title-sm">Today</div>
+                  <div class="mock-btn">Add</div>
+                </div>
+                <div class="mock-input">+ Add task</div>
+                <div class="mock-section-tag">Overdue</div>
+                <div class="mock-list">
+                  <div class="mock-row">
+                    <div class="mock-check"></div>
+                    <div>Bangun tidur</div>
+                    <div class="mock-meta">Habit</div>
+                  </div>
+                  <div class="mock-row">
+                    <div class="mock-check"></div>
+                    <div>Fix onboarding copy</div>
+                    <div class="mock-meta">Product</div>
+                  </div>
+                </div>
+                <div class="mock-phone-sheet">
+                  <strong>Selected task</strong><br />
+                  Detail opens as a bottom sheet on mobile.
+                </div>
+              </div>
+            </div>
+            <div class="mock-card">
+              <h3>Desktop - Tasks / Upcoming</h3>
+              <div class="mock-frame">
+                <div class="mock-shell">
+                  <div class="mock-module">
+                    <div class="mock-module-dot"></div>
+                    <div class="mock-module-pill"></div>
+                    <div class="mock-module-dot"></div>
+                  </div>
+                  <div class="mock-rail">
+                    <div class="mock-rail-title">Tasks</div>
+                    <div class="mock-nav-item"><span>Today</span></div>
+                    <div class="mock-nav-item active">
+                      <span>Upcoming</span><span>12</span>
+                    </div>
+                    <div class="mock-nav-item"><span>Calendar</span></div>
+                    <div class="mock-nav-item"><span>Activity Log</span></div>
+                  </div>
+                  <div class="mock-main">
+                    <div class="mock-topbar">
+                      <div class="mock-title">Upcoming</div>
+                      <div class="mock-btn-lite">7-day view</div>
+                    </div>
+                    <div class="mock-section-tag">Thu, Mar 13</div>
+                    <div class="mock-list">
+                      <div class="mock-row">
+                        <div class="mock-check"></div>
+                        <div>Product QA pass</div>
+                        <div class="mock-meta">Product</div>
+                      </div>
+                      <div class="mock-row">
+                        <div class="mock-check"></div>
+                        <div>Money review</div>
+                        <div class="mock-meta">Habit</div>
+                      </div>
+                    </div>
+                    <div class="mock-section-tag">Fri, Mar 14</div>
+                    <div class="mock-list">
+                      <div class="mock-row selected">
+                        <div class="mock-check"></div>
+                        <div>Landing draft review</div>
+                        <div class="mock-meta">Product</div>
+                      </div>
+                      <div class="mock-row">
+                        <div class="mock-check"></div>
+                        <div>Workout plan</div>
+                        <div class="mock-meta">Habit</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mock-detail">
+                    <div class="mock-title-sm">Landing draft review</div>
+                    <div class="mock-pane-block">
+                      Reschedule controls live here on desktop.
+                    </div>
+                    <div class="mock-pane-block">
+                      <div class="mock-line"></div>
+                      <div class="mock-line w70"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mock-card">
+            <h3>Desktop - Tasks / Calendar</h3>
+            <div class="mock-frame">
+              <div class="mock-shell">
+                <div class="mock-module">
+                  <div class="mock-module-dot"></div>
+                  <div class="mock-module-pill"></div>
+                  <div class="mock-module-dot"></div>
+                </div>
+                <div class="mock-rail">
+                  <div class="mock-rail-title">Tasks</div>
+                  <div class="mock-nav-item"><span>Today</span></div>
+                  <div class="mock-nav-item"><span>Upcoming</span></div>
+                  <div class="mock-nav-item active"><span>Calendar</span></div>
+                  <div class="mock-nav-item"><span>Activity Log</span></div>
+                </div>
+                <div class="mock-main">
+                  <div class="mock-topbar">
+                    <div class="mock-title">Calendar</div>
+                    <div class="mock-btn-lite">Month view</div>
+                  </div>
+                  <div class="mock-calendar">
+                    <div class="mock-calendar-day">1</div>
+                    <div class="mock-calendar-day">2</div>
+                    <div class="mock-calendar-day">3</div>
+                    <div class="mock-calendar-day">4</div>
+                    <div class="mock-calendar-day">5</div>
+                    <div class="mock-calendar-day">6</div>
+                    <div class="mock-calendar-day">7</div>
+                    <div class="mock-calendar-day">8</div>
+                    <div class="mock-calendar-day">9</div>
+                    <div class="mock-calendar-day">10</div>
+                    <div class="mock-calendar-day">11</div>
+                    <div class="mock-calendar-day active">12</div>
+                    <div class="mock-calendar-day">13</div>
+                    <div class="mock-calendar-day">14</div>
+                  </div>
+                  <div class="mock-section-tag">Selected day agenda</div>
+                  <div class="mock-list">
+                    <div class="mock-row">
+                      <div class="mock-check"></div>
+                      <div>Salat Subuh</div>
+                      <div class="mock-meta">Habit</div>
+                    </div>
+                    <div class="mock-row selected">
+                      <div class="mock-check"></div>
+                      <div>Fix onboarding copy</div>
+                      <div class="mock-meta">Product</div>
+                    </div>
+                    <div class="mock-row">
+                      <div class="mock-check"></div>
+                      <div>Review outline</div>
+                      <div class="mock-meta">Product</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="mock-detail">
+                  <div class="mock-title-sm">Fix onboarding copy</div>
+                  <div class="mock-pane-block">
+                    Calendar keeps the same row grammar. Only the grid context
+                    changes.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid">
+            <div class="mock-card">
+              <h3>Desktop - Tasks / Lists</h3>
+              <div class="mock-frame">
+                <div class="mock-shell">
+                  <div class="mock-module">
+                    <div class="mock-module-dot"></div>
+                    <div class="mock-module-pill"></div>
+                    <div class="mock-module-dot"></div>
+                  </div>
+                  <div class="mock-rail">
+                    <div class="mock-rail-title">Tasks</div>
+                    <div class="mock-nav-item"><span>Today</span></div>
+                    <div class="mock-nav-item"><span>Upcoming</span></div>
+                    <div class="mock-nav-item"><span>Calendar</span></div>
+                    <div class="mock-nav-item"><span>Activity Log</span></div>
+                    <div class="mock-divider"></div>
+                    <div class="mock-rail-title">Lists</div>
+                    <div class="mock-nav-item active">
+                      <span>Product</span><span>8</span>
+                    </div>
+                    <div class="mock-nav-item">
+                      <span>Admin</span><span>5</span>
+                    </div>
+                    <div class="mock-divider"></div>
+                    <div class="mock-rail-title">Habit Lists</div>
+                    <div class="mock-nav-item"><span>Daily Rhythm</span></div>
+                  </div>
+                  <div class="mock-main">
+                    <div class="mock-topbar">
+                      <div class="mock-title">Product</div>
+                      <div class="mock-btn">Add task</div>
+                    </div>
+                    <div class="mock-list">
+                      <div class="mock-row">
+                        <div class="mock-check"></div>
+                        <div>Fix onboarding copy</div>
+                        <div class="mock-meta">One-off</div>
+                      </div>
+                      <div class="mock-row selected">
+                        <div class="mock-check"></div>
+                        <div>Review landing copy</div>
+                        <div class="mock-meta">Recurring</div>
+                      </div>
+                      <div class="mock-row">
+                        <div class="mock-check"></div>
+                        <div>Refine empty states</div>
+                        <div class="mock-meta">One-off</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mock-detail">
+                    <div class="mock-title-sm">Add or edit task</div>
+                    <div class="mock-pane-block">
+                      <div class="mock-line"></div>
+                      <div class="mock-line w70"></div>
+                      <div class="mock-line w35"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="mock-card">
+              <h3>Desktop - Tasks / Activity Log</h3>
+              <div class="mock-frame">
+                <div class="mock-shell">
+                  <div class="mock-module">
+                    <div class="mock-module-dot"></div>
+                    <div class="mock-module-pill"></div>
+                    <div class="mock-module-dot"></div>
+                  </div>
+                  <div class="mock-rail">
+                    <div class="mock-rail-title">Tasks</div>
+                    <div class="mock-nav-item"><span>Today</span></div>
+                    <div class="mock-nav-item"><span>Upcoming</span></div>
+                    <div class="mock-nav-item"><span>Calendar</span></div>
+                    <div class="mock-nav-item active">
+                      <span>Activity Log</span>
+                    </div>
+                  </div>
+                  <div class="mock-main">
+                    <div class="mock-topbar">
+                      <div class="mock-title">Activity Log</div>
+                      <div class="mock-btn-lite">Filters</div>
+                    </div>
+                    <div class="mock-section-tag">Mar 12, 2026</div>
+                    <div class="mock-list">
+                      <div class="mock-row">
+                        <div class="mock-check"></div>
+                        <div>Salat Subuh</div>
+                        <div class="mock-meta">Habit</div>
+                      </div>
+                      <div class="mock-row selected">
+                        <div class="mock-check"></div>
+                        <div>Fix onboarding copy</div>
+                        <div class="mock-meta">Product</div>
+                      </div>
+                    </div>
+                    <div class="mock-section-tag">Mar 11, 2026</div>
+                    <div class="mock-list">
+                      <div class="mock-row">
+                        <div class="mock-check"></div>
+                        <div>Money review</div>
+                        <div class="mock-meta">Habit</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mock-detail">
+                    <div class="mock-title-sm">Completion detail</div>
+                    <div class="mock-pane-block">
+                      Selected completion stays visible in the feed while note
+                      edit or delete happens here.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="note">
+          <strong>Reading tip:</strong> section `00` is the quickest way to
+          judge the layout. The sections below explain behavior, constraints,
+          and compatibility mapping.
+        </div>
+      </div>
+
+      <div class="section" id="structure">
+        <div class="num">01</div>
+        <h2>Tasks-First Shell and Route Mapping</h2>
+        <p class="sub">
+          `Tasks` is the primary module. `Journal` is visible as a future
+          placeholder, but this phase only designs `Tasks`. Inside `Tasks`,
+          fixed views and list buckets share one second rail.
+        </p>
+        <div class="lofi-grid">
+          <div class="lofi-block">
+            <h3>Desktop shell view</h3>
+            <div class="mock-frame">
+              <div class="mock-shell">
+                <div class="mock-module">
+                  <div class="mock-module-dot"></div>
+                  <div class="mock-module-pill"></div>
+                  <div class="mock-module-dot"></div>
+                </div>
+                <div class="mock-rail">
+                  <div class="mock-rail-title">Tasks</div>
+                  <div class="mock-nav-item active">
+                    <span>Today</span><span>18</span>
+                  </div>
+                  <div class="mock-nav-item">
+                    <span>Upcoming</span><span>12</span>
+                  </div>
+                  <div class="mock-nav-item"><span>Calendar</span></div>
+                  <div class="mock-nav-item"><span>Activity Log</span></div>
+                  <div class="mock-divider"></div>
+                  <div class="mock-rail-title">Lists</div>
+                  <div class="mock-nav-item">
+                    <span>Product</span><span>8</span>
+                  </div>
+                  <div class="mock-nav-item">
+                    <span>Admin</span><span>5</span>
+                  </div>
+                  <div class="mock-divider"></div>
+                  <div class="mock-rail-title">Habit Lists</div>
+                  <div class="mock-nav-item"><span>Daily Rhythm</span></div>
+                </div>
+                <div class="mock-main">
+                  <div class="mock-topbar">
+                    <div class="mock-title">Working surface</div>
+                    <div class="mock-btn-lite">Active view</div>
+                  </div>
+                  <div class="mock-pane-block">
+                    List or agenda column stays dominant. This is the real work
+                    surface.
+                  </div>
+                </div>
+                <div class="mock-detail">
+                  <div class="mock-title-sm">Context pane</div>
+                  <div class="mock-pane-block">
+                    Inspect, edit, note, defer, or confirm destructive actions
+                    here.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="lofi-block">
+            <h3>Mobile shell view</h3>
+            <div class="lofi-stage">
+              <div class="lofi-bar"><span>Tasks</span><span>Today</span></div>
+              <div class="lofi-body">
+                <div class="lofi-state-card">
+                  <div class="lofi-copy-stack">
+                    <div class="lofi-headline short"></div>
+                    <div class="lofi-bodyline w80"></div>
+                    <div class="lofi-bodyline w60"></div>
+                  </div>
+                </div>
+                <div class="lofi-state-card">
+                  <strong>Navigation drawer</strong>
+                  <div class="lofi-chip-row">
+                    <div class="lofi-chip">Today</div>
+                    <div class="lofi-chip">Upcoming</div>
+                    <div class="lofi-chip">Calendar</div>
+                    <div class="lofi-chip">Activity Log</div>
+                    <div class="lofi-chip">Lists</div>
+                    <div class="lofi-chip">Habit Lists</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="grid">
+          <div class="card">
+            <h3>Module Rail</h3>
+            <ul>
+              <li><code>Tasks</code></li>
+              <li><code>Journal</code> placeholder only</li>
+            </ul>
+            <h3>Tasks Rail</h3>
+            <ul>
+              <li><code>Today</code></li>
+              <li><code>Upcoming</code></li>
+              <li><code>Calendar</code></li>
+              <li><code>Activity Log</code></li>
+              <li><code>Lists</code></li>
+              <li><code>Habit Lists</code></li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Compatibility Map</h3>
+            <ul>
+              <li><code>/dashboard</code> -&gt; <code>Tasks / Today</code></li>
+              <li>
+                <code>/history</code> -&gt; <code>Tasks / Activity Log</code>
+              </li>
+              <li><code>/quests</code> -&gt; <code>Tasks / Lists</code></li>
+              <li><code>/categories</code> -&gt; <code>Tasks / Lists</code></li>
+            </ul>
+            <p class="sub">
+              Current categories act as the first stand-in for list containers.
+              No real project entity is implied yet.
+            </p>
+          </div>
+        </div>
+        <h3>Navigation principles</h3>
+        <div class="grid">
+          <div class="card">
+            <ul>
+              <li>The module rail stays intentionally short.</li>
+              <li>Fixed views and list buckets share one tasks rail.</li>
+              <li>
+                `Lists` and `Habit Lists` are context buckets, not peer modules.
+              </li>
+              <li>Identity, sign-out, and scope stay in utility chrome.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <ul>
+              <li>Mobile collapses rails into a drawer or stacked switcher.</li>
+              <li>The list column remains the dominant working surface.</li>
+              <li>
+                Detail stays contextual instead of generating route churn.
+              </li>
+              <li>`Journal` may appear disabled or placeholder-like.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="wire">
+          Desktop shell
+          +----------+----------------+---------------------------------+------------------+
+          | Modules | Tasks | List / Agenda column | Detail pane | | Tasks |
+          Today | selected view content | selected item | | Journal | Upcoming |
+          rows stay dominant | note / edit | | | Calendar | | | | | Activity Log
+          | | | | | Lists | | | | | Habit Lists | | |
+          +----------+----------------+---------------------------------+------------------+
+        </div>
+        <div class="grid">
+          <div class="card">
+            <h3>Working regions</h3>
+            <ul>
+              <li>
+                <strong>Module rail:</strong> product scope and future module
+                switching.
+              </li>
+              <li>
+                <strong>Tasks rail:</strong> fixed task views first, user-owned
+                buckets second.
+              </li>
+              <li>
+                <strong>List column:</strong> the operational center of gravity.
+              </li>
+              <li>
+                <strong>Detail pane:</strong> inspect, edit, reschedule, note,
+                and confirm destructive actions.
+              </li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Mobile shell contract</h3>
+            <ul>
+              <li>Only one rail is visible at a time.</li>
+              <li>The active tasks rail item becomes the page title.</li>
+              <li>List stays full width and detail opens as a bottom sheet.</li>
+              <li>
+                Module and list switching must be reachable in two taps or
+                fewer.
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="note">
+          <strong>Mobile rule:</strong> collapse both rails into a drawer or
+          stacked switcher. Do not invent a second IA for phones.
+        </div>
+        <div class="box">
+          <span class="label">Compatibility note</span>
+          `Upcoming`, `Calendar`, and `Journal` are allowed to stay conceptual
+          at the routing layer for now. The shell needs to be locked before
+          every surface becomes live code.
+        </div>
+      </div>
+
+      <div class="section" id="landing">
+        <div class="num">02</div>
+        <h2>Landing Page</h2>
+        <p class="sub">
+          Landing continues to sell calm daily clarity. It should spotlight the
+          `Tasks` workspace, not every planned future module.
+        </p>
+        <div class="callout">
+          <strong>Landing rule:</strong> show the workspace, then explain why it
+          matters. The preview proves the product model; the copy only makes it
+          believable.
+        </div>
+        <div class="lofi-grid">
+          <div class="lofi-block">
+            <h3>Desktop lo-fi landing</h3>
+            <div class="lofi-stage">
+              <div class="lofi-bar">
+                <span>Rythm</span><span>Start free</span>
+              </div>
+              <div class="lofi-hero-split">
+                <div class="lofi-copy-stack">
+                  <div class="lofi-headline"></div>
+                  <div class="lofi-headline short"></div>
+                  <div class="lofi-bodyline w80"></div>
+                  <div class="lofi-bodyline w60"></div>
+                  <div class="lofi-cta-row">
+                    <div class="lofi-cta">Primary CTA</div>
+                    <div class="lofi-cta">Secondary CTA</div>
+                  </div>
+                  <div class="lofi-chip-row">
+                    <div class="lofi-chip">Calm daily clarity</div>
+                    <div class="lofi-chip">Recurring + due tasks</div>
+                    <div class="lofi-chip">Honest activity log</div>
+                  </div>
+                </div>
+                <div class="lofi-window">
+                  <div class="lofi-window-head"></div>
+                  <div class="lofi-preview-shell">
+                    <div class="lofi-mini-rail"></div>
+                    <div class="lofi-mini-col"></div>
+                    <div class="lofi-mini-main">
+                      <div class="mock-input">Workspace preview</div>
+                      <div class="mock-list">
+                        <div class="mock-row">
+                          <div class="mock-check"></div>
+                          <div>Daily task row</div>
+                          <div class="mock-meta">Habit</div>
+                        </div>
+                        <div class="mock-row">
+                          <div class="mock-check"></div>
+                          <div>One-off task row</div>
+                          <div class="mock-meta">List</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="lofi-block">
+            <h3>Mobile lo-fi landing</h3>
+            <div class="lofi-stage">
+              <div class="lofi-bar"><span>Rythm</span><span>Menu</span></div>
+              <div class="lofi-body">
+                <div class="lofi-copy-stack">
+                  <div class="lofi-headline"></div>
+                  <div class="lofi-headline short"></div>
+                  <div class="lofi-bodyline w80"></div>
+                  <div class="lofi-cta-row">
+                    <div class="lofi-cta">Start free</div>
+                  </div>
+                </div>
+                <div class="lofi-window" style="margin-top: 12px">
+                  <div class="lofi-window-head"></div>
+                  <div class="lofi-window-body">
+                    <div class="mock-input">Tasks workspace preview</div>
+                    <div class="mock-list">
+                      <div class="mock-row">
+                        <div class="mock-check"></div>
+                        <div>Task row</div>
+                        <div class="mock-meta">Today</div>
+                      </div>
+                      <div class="mock-row">
+                        <div class="mock-check"></div>
+                        <div>Task row</div>
+                        <div class="mock-meta">Upcoming</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="grid">
+          <div class="card">
+            <h3>Mobile</h3>
+            <div class="wire">
+              +----------------------------------+ | Rythm |
+              +----------------------------------+ | Build a rhythm you can
+              actually | | keep. | | [Start free] |
+              +----------------------------------+ | Tasks workspace preview |
+              +----------------------------------+ | Calm daily clarity | |
+              Recurring + due tasks | | Honest activity log |
+              +----------------------------------+
+            </div>
+          </div>
+          <div class="card">
+            <h3>Desktop</h3>
+            <div class="wire">
+              +----------------------------------------------------------+ |
+              Rythm [Start free] |
+              +----------------------------------------------------------+ | Big
+              headline + short proof copy |
+              +----------------------------------------------------------+ |
+              Tasks workspace preview |
+              +----------------------------------------------------------+ | 3
+              supporting benefits only |
+              +----------------------------------------------------------+
+            </div>
+          </div>
+        </div>
+        <div class="grid">
+          <div class="card">
+            <h3>Message priorities</h3>
+            <ul>
+              <li>calm daily clarity</li>
+              <li>recurring + due tasks in one workspace</li>
+              <li>honest activity review</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Do not do</h3>
+            <ul>
+              <li>feature-grid sprawl</li>
+              <li>overweight Calendar or Journal promises</li>
+              <li>
+                generic productivity-app copy detached from the UI preview
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="section" id="auth">
+        <div class="num">03</div>
+        <h2>Auth Flow and Access States</h2>
+        <p class="sub">
+          Auth stays single-task. The shell reframe does not change this.
+        </p>
+        <div class="lofi-grid">
+          <div class="lofi-block">
+            <h3>Mobile sign-in block</h3>
+            <div class="lofi-auth">
+              <div class="lofi-auth-card">
+                <div class="lofi-copy-stack">
+                  <div class="lofi-headline short"></div>
+                  <div class="lofi-bodyline w60"></div>
+                </div>
+                <div class="lofi-field"></div>
+                <div class="lofi-field"></div>
+                <div class="lofi-btn-row">
+                  <div class="lofi-cta">Sign in</div>
+                </div>
+                <div class="lofi-bodyline w40" style="margin-top: 12px"></div>
+              </div>
+            </div>
+          </div>
+          <div class="lofi-block">
+            <h3>Desktop sign-in block</h3>
+            <div class="lofi-auth">
+              <div class="lofi-auth-card" style="width: min(100%, 420px)">
+                <div class="lofi-copy-stack">
+                  <div class="lofi-headline"></div>
+                  <div class="lofi-bodyline w60"></div>
+                </div>
+                <div class="lofi-field"></div>
+                <div class="lofi-field"></div>
+                <div class="lofi-btn-row">
+                  <div class="lofi-cta">Sign in</div>
+                  <div class="lofi-cta">Magic link</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="grid">
+          <div class="card">
+            <h3>Mobile Sign In</h3>
+            <div class="wire">
+              +----------------------------------+ | Rythm | | Sign in to
+              continue your rhythm | +----------------------------------+ |
+              Email | | [______________________________] | | Password | |
+              [______________________________] | | [Sign in] | | Forgot
+              password? | +----------------------------------+
+            </div>
+          </div>
+          <div class="card">
+            <h3>Desktop Sign In</h3>
+            <div class="wire">
+              +----------------------------------------------------------+ |
+              centered auth card | | title | | email | | password | | [Sign in]
+              | +----------------------------------------------------------+
+            </div>
+          </div>
+        </div>
+        <div class="note">
+          <strong>Auth rule set:</strong> one task per screen, one primary
+          submit action, short recovery copy, and no supporting panel that
+          visually outweighs the form.
+        </div>
+      </div>
+
+      <div class="section" id="today">
+        <div class="num">04</div>
+        <h2>Tasks / Today</h2>
+        <p class="sub">
+          Today becomes the working surface. It merges due one-off tasks and
+          recurring or habit instances due now into one list.
+        </p>
+        <div class="callout">
+          <strong>First viewport rule:</strong> quick add, overdue, today. Rows
+          first. No KPI wall and no split between to-do and recurring canvases.
+        </div>
+        <div class="lofi-grid">
+          <div class="lofi-block">
+            <h3>Lo-fi layout - desktop</h3>
+            <div class="mock-frame">
+              <div class="mock-shell">
+                <div class="mock-module">
+                  <div class="mock-module-dot"></div>
+                  <div class="mock-module-pill"></div>
+                  <div class="mock-module-dot"></div>
+                </div>
+                <div class="mock-rail">
+                  <div class="mock-rail-title">Tasks</div>
+                  <div class="mock-nav-item active">
+                    <span>Today</span><span>18</span>
+                  </div>
+                  <div class="mock-nav-item"><span>Upcoming</span></div>
+                  <div class="mock-nav-item"><span>Calendar</span></div>
+                  <div class="mock-divider"></div>
+                  <div class="mock-rail-title">Focus lists</div>
+                  <div class="mock-nav-item"><span>Product</span></div>
+                  <div class="mock-nav-item"><span>Daily Rhythm</span></div>
+                </div>
+                <div class="mock-main">
+                  <div class="mock-topbar">
+                    <div class="mock-title">Today</div>
+                    <div class="mock-toolbar-actions">
+                      <div class="mock-btn-lite">Sort</div>
+                      <div class="mock-btn">Add task</div>
+                    </div>
+                  </div>
+                  <div class="mock-input">
+                    + Quick add with optional list / recurrence
+                  </div>
+                  <div class="mock-section-tag">Overdue</div>
+                  <div class="mock-list">
+                    <div class="mock-row">
+                      <div class="mock-check"></div>
+                      <div>Morning reset</div>
+                      <div class="mock-meta">Habit</div>
+                    </div>
+                    <div class="mock-row">
+                      <div class="mock-check"></div>
+                      <div>Fix sign-up issue</div>
+                      <div class="mock-meta">Product</div>
+                    </div>
+                  </div>
+                  <div class="mock-section-tag">Today</div>
+                  <div class="mock-list">
+                    <div class="mock-row selected">
+                      <div class="mock-check"></div>
+                      <div>Refine landing copy</div>
+                      <div class="mock-meta">Product</div>
+                    </div>
+                    <div class="mock-row">
+                      <div class="mock-check"></div>
+                      <div>Money review</div>
+                      <div class="mock-meta">Habit</div>
+                    </div>
+                    <div class="mock-row">
+                      <div class="mock-check"></div>
+                      <div>Review wireframe notes</div>
+                      <div class="mock-meta">Product</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="mock-detail">
+                  <div class="mock-title-sm">Refine landing copy</div>
+                  <div class="mock-pane-block">
+                    List: Product<br />Due: Today<br />Type: One-off
+                  </div>
+                  <div class="mock-pane-block">
+                    <div class="mock-line"></div>
+                    <div class="mock-line w70"></div>
+                    <div class="mock-line w50"></div>
+                  </div>
+                  <div class="mock-btn-row">
+                    <div class="lofi-cta">Complete</div>
+                    <div class="lofi-cta">Reschedule</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="lofi-block">
+            <h3>Lo-fi layout - mobile selected state</h3>
+            <div class="mock-phone">
+              <div class="mock-phone-header">
+                <div class="mock-title-sm">Today</div>
+                <div class="mock-btn">Add</div>
+              </div>
+              <div class="mock-input">+ Add task</div>
+              <div class="mock-section-tag">Today</div>
+              <div class="mock-list">
+                <div class="mock-row selected">
+                  <div class="mock-check"></div>
+                  <div>Refine landing copy</div>
+                  <div class="mock-meta">Product</div>
+                </div>
+                <div class="mock-row">
+                  <div class="mock-check"></div>
+                  <div>Money review</div>
+                  <div class="mock-meta">Habit</div>
+                </div>
+              </div>
+              <div class="mock-phone-sheet">
+                <strong>Task sheet</strong><br />
+                Title, list, note, complete, reschedule.
+              </div>
+            </div>
+          </div>
+        </div>
+        <h3>Daily-use flow</h3>
+        <div class="flow">
+          <div class="flow-step primary">Open Tasks / Today</div>
+          <div class="flow-arrow">-&gt;</div>
+          <div class="flow-step">See overdue and due-today rows</div>
+          <div class="flow-arrow">-&gt;</div>
+          <div class="flow-step">Check, defer, or inspect row</div>
+          <div class="flow-arrow">-&gt;</div>
+          <div class="flow-branch">
+            <div class="flow-branch-item">Continue list</div>
+            <div class="flow-branch-item alt">Open detail sheet or pane</div>
+          </div>
+        </div>
+        <div class="grid">
+          <div class="card">
+            <h3>Mobile</h3>
+            <div class="wire">
+              +----------------------------------+ | Tasks / Today [Add task]| |
+              Tue, Mar 12 | +----------------------------------+ | + Add task to
+              "Today" | +----------------------------------+ | OVERDUE | | [ ]
+              Bangun tidur Habit | | [ ] Inbox zero review Project |
+              +----------------------------------+ | TODAY | | [x] Salat Subuh
+              Habit | | [ ] Fix onboarding copy Project | | [ ] Review outline
+              Project | +----------------------------------+ | Open row ->
+              detail sheet | +----------------------------------+
+            </div>
+          </div>
+          <div class="card">
+            <h3>Desktop</h3>
+            <div class="wire">
+              +----------+----------------+---------------------------------+------------------+
+              | Modules | Tasks | Today | Detail pane | | Tasks | Today | + Add
+              task to "Today" | selected task | | Journal | Upcoming | OVERDUE |
+              notes, defer | | | Calendar | TODAY | metadata | | | Activity Log
+              | mixed rows: habit + due tasks | | | | Lists | | |
+              +----------+----------------+---------------------------------+------------------+
+            </div>
+          </div>
+        </div>
+        <div class="grid">
+          <div class="card">
+            <h3>Today rules</h3>
+            <ul>
+              <li>Rows can represent one-off or recurring instances.</li>
+              <li>
+                Habits are identified by list badge and recurrence metadata.
+              </li>
+              <li>Quick add stays near the top of the list column.</li>
+              <li>Detail remains contextual.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Forbidden patterns</h3>
+            <ul>
+              <li>dashboard KPI wall</li>
+              <li>card-per-task gallery</li>
+              <li>separate habit canvas inside Today</li>
+              <li>detail pane that visually overtakes the list</li>
+            </ul>
+          </div>
+        </div>
+        <h3>Screen B - Selected task</h3>
+        <div class="grid">
+          <div class="card">
+            <div class="wire">
+              +----------------------------------+ | Tasks / Today | | OVERDUE |
+              | [ ] Bangun tidur Habit | | [ ] Inbox zero review Project | |
+              TODAY | | [ ] Fix onboarding copy Project |
+              +----------------------------------+ | Bottom sheet | | Fix
+              onboarding copy | | Product list | | Due today | | Note | |
+              [______________________________] | | [Complete] [Reschedule] |
+              +----------------------------------+
+            </div>
+          </div>
+          <div class="card">
+            <div class="wire">
+              +----------+----------------+---------------------------------+------------------+
+              | Modules | Tasks | Today | Detail pane | | Tasks | Today | [ ]
+              Bangun tidur Habit | Fix onboarding | | Journal | Upcoming | [ ]
+              Inbox zero review Project | list: Product | | | Calendar | [ ] Fix
+              onboarding copy Project | due: Today | | | Activity Log | [ ]
+              Review outline Project | notes, complete | | | Lists | |
+              reschedule |
+              +----------+----------------+---------------------------------+------------------+
+            </div>
+          </div>
+        </div>
+        <div class="flow">
+          <div class="flow-step primary">Quick add at top of Today</div>
+          <div class="flow-arrow">-&gt;</div>
+          <div class="flow-step">Task lands in current Today context</div>
+          <div class="flow-arrow">-&gt;</div>
+          <div class="flow-step">Assign list / recurrence only if needed</div>
+          <div class="flow-arrow">-&gt;</div>
+          <div class="flow-step alt">Return focus to the list</div>
+        </div>
+        <div class="note">
+          Habits are differentiated by list badge and recurrence metadata, not
+          by a separate sub-screen inside Today.
+        </div>
+      </div>
+
+      <div class="section" id="upcoming">
+        <div class="num">05</div>
+        <h2>Tasks / Upcoming</h2>
+        <p class="sub">
+          Upcoming is a short-horizon planning surface. It groups the same mixed
+          task model by date.
+        </p>
+        <div class="callout">
+          <strong>Planning rule:</strong> Upcoming is not a second dashboard and
+          not a management screen. It exists to help users see what is next,
+          then defer, reschedule, or complete.
+        </div>
+        <div class="lofi-grid">
+          <div class="lofi-block">
+            <h3>Lo-fi layout - desktop</h3>
+            <div class="mock-frame">
+              <div class="mock-shell">
+                <div class="mock-module">
+                  <div class="mock-module-dot"></div>
+                  <div class="mock-module-pill"></div>
+                  <div class="mock-module-dot"></div>
+                </div>
+                <div class="mock-rail">
+                  <div class="mock-rail-title">Tasks</div>
+                  <div class="mock-nav-item"><span>Today</span></div>
+                  <div class="mock-nav-item active">
+                    <span>Upcoming</span><span>12</span>
+                  </div>
+                  <div class="mock-nav-item"><span>Calendar</span></div>
+                </div>
+                <div class="mock-main">
+                  <div class="mock-topbar">
+                    <div class="mock-title">Upcoming</div>
+                    <div class="mock-btn-lite">7 days</div>
+                  </div>
+                  <div class="mock-section-tag">Thu, Mar 13</div>
+                  <div class="mock-list">
+                    <div class="mock-row">
+                      <div class="mock-check"></div>
+                      <div>QA pass</div>
+                      <div class="mock-meta">Product</div>
+                    </div>
+                    <div class="mock-row">
+                      <div class="mock-check"></div>
+                      <div>Evening reset</div>
+                      <div class="mock-meta">Habit</div>
+                    </div>
+                  </div>
+                  <div class="mock-section-tag">Fri, Mar 14</div>
+                  <div class="mock-list">
+                    <div class="mock-row selected">
+                      <div class="mock-check"></div>
+                      <div>Landing review</div>
+                      <div class="mock-meta">Product</div>
+                    </div>
+                    <div class="mock-row">
+                      <div class="mock-check"></div>
+                      <div>Workout</div>
+                      <div class="mock-meta">Habit</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="mock-detail">
+                  <div class="mock-title-sm">Landing review</div>
+                  <div class="mock-pane-block">
+                    Reschedule and defer are the primary planning actions here.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="lofi-block">
+            <h3>Lo-fi layout - mobile</h3>
+            <div class="mock-phone">
+              <div class="mock-phone-header">
+                <div class="mock-title-sm">Upcoming</div>
+                <div class="mock-btn-lite">Filter</div>
+              </div>
+              <div class="mock-section-tag">Thu, Mar 13</div>
+              <div class="mock-list">
+                <div class="mock-row">
+                  <div class="mock-check"></div>
+                  <div>QA pass</div>
+                  <div class="mock-meta">Product</div>
+                </div>
+                <div class="mock-row">
+                  <div class="mock-check"></div>
+                  <div>Evening reset</div>
+                  <div class="mock-meta">Habit</div>
+                </div>
+              </div>
+              <div class="mock-phone-sheet">
+                Inline row actions or a compact sheet handle reschedule.
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="flow">
+          <div class="flow-step primary">Open Upcoming</div>
+          <div class="flow-arrow">-&gt;</div>
+          <div class="flow-step">Scan date groups</div>
+          <div class="flow-arrow">-&gt;</div>
+          <div class="flow-step">Inspect or reschedule row</div>
+          <div class="flow-arrow">-&gt;</div>
+          <div class="flow-step alt">Return to list</div>
+        </div>
+        <div class="grid">
+          <div class="card">
+            <h3>Mobile</h3>
+            <div class="wire">
+              +----------------------------------+ | Tasks / Upcoming [Filters]
+              | +----------------------------------+ | Thu, Mar 13 | | [ ]
+              Product QA pass Project | | [ ] Money review Habit |
+              +----------------------------------+ | Fri, Mar 14 | | [ ] Landing
+              page draft Project | +----------------------------------+ | Row
+              actions: defer, reschedule | +----------------------------------+
+            </div>
+          </div>
+          <div class="card">
+            <h3>Desktop</h3>
+            <div class="wire">
+              +----------+----------------+---------------------------------+------------------+
+              | Modules | Tasks | Upcoming | Detail pane | | Tasks | Today |
+              grouped by day | selected item | | Journal | Upcoming | same row
+              grammar as Today | reschedule, defer| | | Calendar | | |
+              +----------+----------------+---------------------------------+------------------+
+            </div>
+          </div>
+        </div>
+        <div class="note">
+          `Upcoming` keeps the same row grammar as `Today`. The only meaningful
+          layout shift is date grouping.
+        </div>
+        <div class="box">
+          <span class="label">Reschedule pattern</span>
+          Rescheduling from `Upcoming` should not open a dedicated route. Use
+          inline row actions on mobile and the right pane on desktop.
+        </div>
+      </div>
+
+      <div class="section" id="calendar">
+        <div class="num">06</div>
+        <h2>Tasks / Calendar</h2>
+        <p class="sub">
+          Calendar is another view on the same task pool. The agenda remains
+          operational; the grid is only the visual anchor.
+        </p>
+        <div class="callout">
+          <strong>Calendar rule:</strong> do not invent a new card system here.
+          The grid is visual context; the agenda keeps the same row grammar as
+          Today and Upcoming.
+        </div>
+        <div class="lofi-grid">
+          <div class="lofi-block">
+            <h3>Lo-fi layout - desktop</h3>
+            <div class="mock-frame">
+              <div class="mock-shell">
+                <div class="mock-module">
+                  <div class="mock-module-dot"></div>
+                  <div class="mock-module-pill"></div>
+                  <div class="mock-module-dot"></div>
+                </div>
+                <div class="mock-rail">
+                  <div class="mock-rail-title">Tasks</div>
+                  <div class="mock-nav-item"><span>Today</span></div>
+                  <div class="mock-nav-item"><span>Upcoming</span></div>
+                  <div class="mock-nav-item active"><span>Calendar</span></div>
+                </div>
+                <div class="mock-main">
+                  <div class="mock-topbar">
+                    <div class="mock-title">Calendar</div>
+                    <div class="mock-btn-lite">Month</div>
+                  </div>
+                  <div class="mock-calendar">
+                    <div class="mock-calendar-day">1</div>
+                    <div class="mock-calendar-day">2</div>
+                    <div class="mock-calendar-day">3</div>
+                    <div class="mock-calendar-day">4</div>
+                    <div class="mock-calendar-day">5</div>
+                    <div class="mock-calendar-day">6</div>
+                    <div class="mock-calendar-day">7</div>
+                    <div class="mock-calendar-day">8</div>
+                    <div class="mock-calendar-day">9</div>
+                    <div class="mock-calendar-day">10</div>
+                    <div class="mock-calendar-day">11</div>
+                    <div class="mock-calendar-day active">12</div>
+                    <div class="mock-calendar-day">13</div>
+                    <div class="mock-calendar-day">14</div>
+                  </div>
+                  <div class="mock-section-tag">Selected day agenda</div>
+                  <div class="mock-list">
+                    <div class="mock-row">
+                      <div class="mock-check"></div>
+                      <div>Morning reset</div>
+                      <div class="mock-meta">Habit</div>
+                    </div>
+                    <div class="mock-row selected">
+                      <div class="mock-check"></div>
+                      <div>Refine landing copy</div>
+                      <div class="mock-meta">Product</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="mock-detail">
+                  <div class="mock-title-sm">Selected day</div>
+                  <div class="mock-pane-block">
+                    Calendar changes the context, not the row design language.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="lofi-block">
+            <h3>Lo-fi layout - mobile</h3>
+            <div class="mock-phone">
+              <div class="mock-phone-header">
+                <div class="mock-title-sm">Calendar</div>
+                <div class="mock-btn-lite">Jump</div>
+              </div>
+              <div class="mock-calendar">
+                <div class="mock-calendar-day">10</div>
+                <div class="mock-calendar-day">11</div>
+                <div class="mock-calendar-day active">12</div>
+                <div class="mock-calendar-day">13</div>
+                <div class="mock-calendar-day">14</div>
+                <div class="mock-calendar-day">15</div>
+                <div class="mock-calendar-day">16</div>
+              </div>
+              <div class="mock-list">
+                <div class="mock-row">
+                  <div class="mock-check"></div>
+                  <div>Morning reset</div>
+                  <div class="mock-meta">Habit</div>
+                </div>
+                <div class="mock-row">
+                  <div class="mock-check"></div>
+                  <div>Refine landing copy</div>
+                  <div class="mock-meta">Product</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="grid">
+          <div class="card">
+            <h3>Mobile</h3>
+            <div class="wire">
+              +----------------------------------+ | Tasks / Calendar [Jump
+              day]| +----------------------------------+ | March 2026 grid | |
+              Su Mo Tu We Th Fr Sa | | .. .. 10 11 [12] 13 14 |
+              +----------------------------------+ | Selected day agenda | | [x]
+              Salat Subuh Habit | | [ ] Fix onboarding copy Project |
+              +----------------------------------+
+            </div>
+          </div>
+          <div class="card">
+            <h3>Desktop</h3>
+            <div class="wire">
+              +----------+----------------+---------------------------------+------------------+
+              | Modules | Tasks | Calendar | Detail pane | | Tasks | Today |
+              month or week grid | selected item | | Journal | Upcoming |
+              selected-day agenda below | edit / inspect | | | Calendar | same
+              row grammar | |
+              +----------+----------------+---------------------------------+------------------+
+            </div>
+          </div>
+        </div>
+        <div class="note">
+          Calendar is allowed to be slightly future-facing in this phase, but
+          its UI contract is already locked: same task language, same contextual
+          detail behavior.
+        </div>
+        <div class="flow">
+          <div class="flow-step primary">Pick day on grid</div>
+          <div class="flow-arrow">-&gt;</div>
+          <div class="flow-step">Agenda below updates</div>
+          <div class="flow-arrow">-&gt;</div>
+          <div class="flow-step">Inspect row in pane or sheet</div>
+          <div class="flow-arrow">-&gt;</div>
+          <div class="flow-step alt">Return to grid-aware planning</div>
+        </div>
+      </div>
+
+      <div class="section" id="lists">
+        <div class="num">07</div>
+        <h2>Tasks / Lists</h2>
+        <p class="sub">
+          Lists is the grouped-work surface. Current categories remain the
+          compatibility layer for list containers.
+        </p>
+        <div class="callout">
+          <strong>Product honesty:</strong> use `Lists` as the label. Do not
+          imply a real project model already exists in the database.
+        </div>
+        <div class="lofi-grid">
+          <div class="lofi-block">
+            <h3>Lo-fi layout - desktop</h3>
+            <div class="mock-frame">
+              <div class="mock-shell">
+                <div class="mock-module">
+                  <div class="mock-module-dot"></div>
+                  <div class="mock-module-pill"></div>
+                  <div class="mock-module-dot"></div>
+                </div>
+                <div class="mock-rail">
+                  <div class="mock-rail-title">Tasks</div>
+                  <div class="mock-nav-item"><span>Today</span></div>
+                  <div class="mock-nav-item"><span>Upcoming</span></div>
+                  <div class="mock-nav-item"><span>Calendar</span></div>
+                  <div class="mock-nav-item"><span>Activity Log</span></div>
+                  <div class="mock-divider"></div>
+                  <div class="mock-rail-title">Lists</div>
+                  <div class="mock-nav-item active">
+                    <span>Product</span><span>8</span>
+                  </div>
+                  <div class="mock-nav-item">
+                    <span>Admin</span><span>5</span>
+                  </div>
+                  <div class="mock-divider"></div>
+                  <div class="mock-rail-title">Habit Lists</div>
+                  <div class="mock-nav-item"><span>Daily Rhythm</span></div>
+                </div>
+                <div class="mock-main">
+                  <div class="mock-topbar">
+                    <div class="mock-title">Product</div>
+                    <div class="mock-btn">Add task</div>
+                  </div>
+                  <div class="mock-list">
+                    <div class="mock-row">
+                      <div class="mock-check"></div>
+                      <div>Refine pricing section</div>
+                      <div class="mock-meta">One-off</div>
+                    </div>
+                    <div class="mock-row selected">
+                      <div class="mock-check"></div>
+                      <div>Review launch notes</div>
+                      <div class="mock-meta">Recurring</div>
+                    </div>
+                    <div class="mock-row">
+                      <div class="mock-check"></div>
+                      <div>Polish FAQ</div>
+                      <div class="mock-meta">One-off</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="mock-detail">
+                  <div class="mock-title-sm">List editor</div>
+                  <div class="mock-pane-block">
+                    Task title<br />List assignment<br />Recurrence or
+                    one-off<br />Delete or save
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="lofi-block">
+            <h3>Lo-fi layout - mobile</h3>
+            <div class="mock-phone">
+              <div class="mock-phone-header">
+                <div class="mock-title-sm">Product</div>
+                <div class="mock-btn">Add</div>
+              </div>
+              <div class="mock-list">
+                <div class="mock-row">
+                  <div class="mock-check"></div>
+                  <div>Refine pricing section</div>
+                  <div class="mock-meta">One-off</div>
+                </div>
+                <div class="mock-row">
+                  <div class="mock-check"></div>
+                  <div>Review launch notes</div>
+                  <div class="mock-meta">Recurring</div>
+                </div>
+              </div>
+              <div class="mock-phone-sheet">
+                Create or edit task without leaving the selected list.
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="flow">
+          <div class="flow-step primary">Select list</div>
+          <div class="flow-arrow">-&gt;</div>
+          <div class="flow-step">See tasks in that list</div>
+          <div class="flow-arrow">-&gt;</div>
+          <div class="flow-step">Open task or list detail</div>
+          <div class="flow-arrow">-&gt;</div>
+          <div class="flow-step alt">Create, rename, or edit contextually</div>
+        </div>
+        <div class="grid">
+          <div class="card">
+            <h3>Mobile</h3>
+            <div class="wire">
+              +----------------------------------+ | Tasks / Lists [Add task]|
+              +----------------------------------+ | Selected list: Product | |
+              category-backed stand-in | +----------------------------------+ |
+              [ ] Fix onboarding copy | | [ ] Review landing copy |
+              +----------------------------------+ | Habit Lists | | Daily
+              Schedule | | Wellness | +----------------------------------+
+            </div>
+          </div>
+          <div class="card">
+            <h3>Desktop</h3>
+            <div class="wire">
+              +----------+----------------+---------------------------------+------------------+
+              | Modules | Tasks | Selected list tasks | List detail | | Tasks |
+              Today | one-off tasks | rename/delete | | Journal | Upcoming |
+              habit tasks when relevant | add task | | | Lists | | |
+              +----------+----------------+---------------------------------+------------------+
+            </div>
+          </div>
+        </div>
+        <div class="grid">
+          <div class="card">
+            <h3>List behavior</h3>
+            <ul>
+              <li>Fixed task views stay above user-owned list buckets.</li>
+              <li>
+                List detail stays contextual instead of opening a new route.
+              </li>
+              <li>
+                `Habit Lists` lives in the rail, not as a separate module.
+              </li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Current data bridge</h3>
+            <ul>
+              <li>categories = list containers</li>
+              <li>quests = recurring task definitions</li>
+              <li>future one-off tasks still need real schema</li>
+            </ul>
+          </div>
+        </div>
+        <h3>Screen B - Create or edit inside Lists</h3>
+        <div class="grid">
+          <div class="card">
+            <div class="wire">
+              +----------------------------------+ | Tasks / Lists | | Selected
+              list: Product | +----------------------------------+ | [ ] Fix
+              onboarding copy | | [ ] Review landing copy | | [ ] Refine empty
+              states | +----------------------------------+ | Bottom sheet | |
+              Add task | | Title | | [______________________________] | | List:
+              Product | | Type: One-off / Recurring | | [Save task] |
+              +----------------------------------+
+            </div>
+          </div>
+          <div class="card">
+            <div class="wire">
+              +----------+----------------+---------------------------------+------------------+
+              | Modules | Tasks | Selected list tasks | Detail pane | | Tasks |
+              Today | [ ] Fix onboarding copy | Add task | | Journal | Upcoming
+              | [ ] Review landing copy | title | | | Lists | [ ] Refine empty
+              states | list assignment | | | Habit Lists | | recurrence |
+              +----------+----------------+---------------------------------+------------------+
+            </div>
+          </div>
+        </div>
+        <div class="flow">
+          <div class="flow-step primary">Select list or habit list</div>
+          <div class="flow-arrow">-&gt;</div>
+          <div class="flow-step">Review rows in that bucket</div>
+          <div class="flow-arrow">-&gt;</div>
+          <div class="flow-step">Add or edit task contextually</div>
+          <div class="flow-arrow">-&gt;</div>
+          <div class="flow-step alt">
+            Return to the same list without route change
+          </div>
+        </div>
+      </div>
+
+      <div class="section" id="activity-log">
+        <div class="num">08</div>
+        <h2>Tasks / Activity Log</h2>
+        <p class="sub">
+          Activity Log absorbs the old history surface. It stays chronological,
+          note-aware, and contextual.
+        </p>
+        <div class="callout">
+          <strong>Correction rule:</strong> note editing and deletion stay
+          attached to the selected completion row. Users should not feel like
+          they left the archive to manage data elsewhere.
+        </div>
+        <div class="lofi-grid">
+          <div class="lofi-block">
+            <h3>Lo-fi layout - desktop</h3>
+            <div class="mock-frame">
+              <div class="mock-shell">
+                <div class="mock-module">
+                  <div class="mock-module-dot"></div>
+                  <div class="mock-module-pill"></div>
+                  <div class="mock-module-dot"></div>
+                </div>
+                <div class="mock-rail">
+                  <div class="mock-rail-title">Tasks</div>
+                  <div class="mock-nav-item"><span>Today</span></div>
+                  <div class="mock-nav-item"><span>Upcoming</span></div>
+                  <div class="mock-nav-item"><span>Calendar</span></div>
+                  <div class="mock-nav-item active">
+                    <span>Activity Log</span>
+                  </div>
+                </div>
+                <div class="mock-main">
+                  <div class="mock-topbar">
+                    <div class="mock-title">Activity Log</div>
+                    <div class="mock-btn-lite">Filters</div>
+                  </div>
+                  <div class="mock-section-tag">Mar 12</div>
+                  <div class="mock-list">
+                    <div class="mock-row">
+                      <div class="mock-check"></div>
+                      <div>Morning reset</div>
+                      <div class="mock-meta">Habit</div>
+                    </div>
+                    <div class="mock-row selected">
+                      <div class="mock-check"></div>
+                      <div>Refine landing copy</div>
+                      <div class="mock-meta">Product</div>
+                    </div>
+                  </div>
+                  <div class="mock-section-tag">Mar 11</div>
+                  <div class="mock-list">
+                    <div class="mock-row">
+                      <div class="mock-check"></div>
+                      <div>Money review</div>
+                      <div class="mock-meta">Habit</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="mock-detail">
+                  <div class="mock-title-sm">Completion detail</div>
+                  <div class="mock-pane-block">
+                    Timestamp<br />Task source<br />Editable note<br />Delete
+                    completion
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="lofi-block">
+            <h3>Lo-fi layout - mobile</h3>
+            <div class="mock-phone">
+              <div class="mock-phone-header">
+                <div class="mock-title-sm">Activity Log</div>
+                <div class="mock-btn-lite">Filter</div>
+              </div>
+              <div class="mock-section-tag">Mar 12</div>
+              <div class="mock-list">
+                <div class="mock-row selected">
+                  <div class="mock-check"></div>
+                  <div>Refine landing copy</div>
+                  <div class="mock-meta">Product</div>
+                </div>
+                <div class="mock-row">
+                  <div class="mock-check"></div>
+                  <div>Morning reset</div>
+                  <div class="mock-meta">Habit</div>
+                </div>
+              </div>
+              <div class="mock-phone-sheet">
+                Selected completion opens note edit and delete in a bottom
+                sheet.
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="flow">
+          <div class="flow-step">Set filters</div>
+          <div class="flow-arrow">-&gt;</div>
+          <div class="flow-step">Review grouped feed</div>
+          <div class="flow-arrow">-&gt;</div>
+          <div class="flow-step">Select completion</div>
+          <div class="flow-arrow">-&gt;</div>
+          <div class="flow-branch">
+            <div class="flow-branch-item">Edit note</div>
+            <div class="flow-branch-item alt">Remove completion</div>
+            <div class="flow-branch-item alt">Load more activity</div>
+          </div>
+        </div>
+        <div class="grid">
+          <div class="card">
+            <h3>Mobile</h3>
+            <div class="wire">
+              +----------------------------------+ | Tasks / Activity Log
+              [Filters] | +----------------------------------+ | MAR 12, 2026 |
+              | 07:10 Salat Subuh Habit | | 09:30 Fix onboarding Project |
+              +----------------------------------+ | MAR 11, 2026 | | 18:10
+              Money review Habit | +----------------------------------+ | Open
+              row -> note / delete | +----------------------------------+
+            </div>
+          </div>
+          <div class="card">
+            <h3>Desktop</h3>
+            <div class="wire">
+              +----------+----------------+---------------------------------+------------------+
+              | Modules | Tasks | Activity Log | Detail pane | | Tasks | Today |
+              grouped by day | note editor | | Journal | Activity Log | compact
+              filters | delete action | | | Lists | same correction flow | |
+              +----------+----------------+---------------------------------+------------------+
+            </div>
+          </div>
+        </div>
+        <div class="note">
+          Empty states in Activity Log must route the user back to `Today` or
+          `Lists`, not to a dead-end archive.
+        </div>
+        <div class="box">
+          <span class="label">Selection rule</span>
+          The selected completion row remains visible in the feed while its note
+          editor or destructive action appears in contextual UI. This keeps the
+          archive trustworthy and scannable.
+        </div>
+      </div>
+
+      <div class="section" id="support">
+        <div class="num">09</div>
+        <h2>Support Surfaces and Secondary Screens</h2>
+        <p class="sub">
+          Support screens stay narrow and service the main task workspace. They
+          should never compete with `Today`, `Upcoming`, `Calendar`, `Lists`, or
+          `Activity Log`.
+        </p>
+        <div class="lofi-grid">
+          <div class="lofi-block">
+            <h3>Offline screen block</h3>
+            <div class="lofi-stage">
+              <div class="lofi-bar">
+                <span>Offline boundary</span><span>Status</span>
+              </div>
+              <div class="lofi-body">
+                <div class="lofi-copy-stack">
+                  <div class="lofi-headline short"></div>
+                  <div class="lofi-bodyline w80"></div>
+                  <div class="lofi-bodyline w60"></div>
+                </div>
+                <div class="lofi-cta-row">
+                  <div class="lofi-cta">Retry app entry</div>
+                  <div class="lofi-cta">Try sign in again</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="lofi-block">
+            <h3>Journal placeholder block</h3>
+            <div class="lofi-stage">
+              <div class="lofi-bar">
+                <span>Modules</span><span>Future</span>
+              </div>
+              <div class="lofi-body">
+                <div class="lofi-chip-row">
+                  <div class="lofi-chip">Tasks</div>
+                  <div class="lofi-chip">Journal</div>
+                </div>
+                <div class="lofi-state-card" style="margin-top: 12px">
+                  Visible in the rail, quiet in tone, and clearly marked as not
+                  yet active.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="grid">
+          <div class="card">
+            <h3>Offline</h3>
+            <div class="wire">
+              +----------------------------------+ | You're offline | | Reads
+              may still show cached UI | | New writes need connection |
+              +----------------------------------+ | [Retry app entry] | | [Try
+              sign in again] | +----------------------------------+
+            </div>
+          </div>
+          <div class="card">
+            <h3>Journal Placeholder</h3>
+            <div class="wire">
+              +----------------------------------+ | Modules | | Tasks | |
+              Journal | +----------------------------------+ | Journal is
+              visible for IA truth | | but remains disabled or labeled | |
+              "Coming later" in this phase. |
+              +----------------------------------+
+            </div>
+          </div>
+        </div>
+        <div class="grid">
+          <div class="card">
+            <h3>Mobile shell drawer</h3>
+            <div class="wire">
+              +----------------------------------+ | [x] Close |
+              +----------------------------------+ | Modules | | Tasks | |
+              Journal | +----------------------------------+ | Views | | Today |
+              | Upcoming | | Calendar | | Activity Log | | Lists | | Habit Lists
+              | +----------------------------------+
+            </div>
+          </div>
+          <div class="card">
+            <h3>Support rules</h3>
+            <ul>
+              <li>
+                Support surfaces explain the boundary, then offer a next action.
+              </li>
+              <li>Placeholder modules stay honest and quiet.</li>
+              <li>
+                Mobile navigation must expose the same structure as desktop.
+              </li>
+              <li>No support surface should introduce a new layout grammar.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="section" id="states">
+        <div class="num">10</div>
+        <h2>Empty, Loading, and Error States</h2>
+        <p class="sub">
+          State coverage is part of the wireframe, not a later QA afterthought.
+          These states define whether the shell still feels usable when there is
+          little or no data.
+        </p>
+        <div class="lofi-grid">
+          <div class="lofi-block">
+            <h3>Empty-state board</h3>
+            <div class="lofi-state-shell">
+              <div class="lofi-state-card">
+                <strong>Today empty</strong>
+                <div class="lofi-bodyline w80" style="margin-top: 8px"></div>
+                <div class="lofi-state-actions">
+                  <div class="lofi-cta">Add task</div>
+                  <div class="lofi-cta">Open Lists</div>
+                </div>
+              </div>
+              <div class="lofi-state-card">
+                <strong>Lists empty</strong>
+                <div class="lofi-bodyline w80" style="margin-top: 8px"></div>
+                <div class="lofi-state-actions">
+                  <div class="lofi-cta">Create list</div>
+                  <div class="lofi-cta">Starter set</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="lofi-block">
+            <h3>Loading and error board</h3>
+            <div class="lofi-state-shell">
+              <div class="lofi-state-card">
+                <strong>Loading</strong>
+                <div class="mock-list" style="margin-top: 10px">
+                  <div class="mock-row">
+                    <div class="mock-check"></div>
+                    <div><div class="mock-line"></div></div>
+                    <div class="mock-meta"></div>
+                  </div>
+                  <div class="mock-row">
+                    <div class="mock-check"></div>
+                    <div><div class="mock-line w70"></div></div>
+                    <div class="mock-meta"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="lofi-state-card">
+                <strong>Error</strong>
+                <div class="lofi-bodyline w80" style="margin-top: 8px"></div>
+                <div class="lofi-state-actions">
+                  <div class="lofi-cta">Retry</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="grid">
+          <div class="card">
+            <h3>Today empty</h3>
+            <div class="wire">
+              +----------------------------------+ | Tasks / Today |
+              +----------------------------------+ | No tasks due today | | Add
+              a task or review your lists | +----------------------------------+
+              | [Add task] [Open Lists] | +----------------------------------+
+            </div>
+          </div>
+          <div class="card">
+            <h3>Lists empty</h3>
+            <div class="wire">
+              +----------------------------------+ | Tasks / Lists |
+              +----------------------------------+ | No lists yet | | Start with
+              one work list and | | one habit list |
+              +----------------------------------+ | [Create list] [Use starter
+              set] | +----------------------------------+
+            </div>
+          </div>
+        </div>
+        <div class="grid">
+          <div class="card">
+            <h3>Activity Log empty</h3>
+            <div class="wire">
+              +----------------------------------+ | Tasks / Activity Log |
+              +----------------------------------+ | No activity yet | |
+              Complete something in Today or | | Upcoming to build your history
+              | +----------------------------------+ | [Go to Today] [Open
+              Lists] | +----------------------------------+
+            </div>
+          </div>
+          <div class="card">
+            <h3>Loading and fetch errors</h3>
+            <ul>
+              <li>Use row-shaped skeletons, not generic card placeholders.</li>
+              <li>
+                Errors name the failed action directly: load Today, load Lists,
+                save note.
+              </li>
+              <li>
+                Recovery action should stay in-context: retry, reopen sheet, or
+                keep editing.
+              </li>
+              <li>
+                Do not dump the user into a blank shell after a fetch failure.
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="grid">
+          <div class="card">
+            <h3>Inline field errors</h3>
+            <ul>
+              <li>Task title required.</li>
+              <li>List assignment required when the flow expects it.</li>
+              <li>Recurrence controls should explain invalid combinations.</li>
+              <li>
+                Messages appear next to the failing field, not only at the top
+                of the sheet.
+              </li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Destructive states</h3>
+            <ul>
+              <li>
+                Delete copy names the exact task or completion being removed.
+              </li>
+              <li>Blocked delete explains the dependency.</li>
+              <li>
+                Destructive confirmation lives in the detail pane or sheet when
+                possible.
+              </li>
+              <li>
+                Successful destructive action should refresh the list in place.
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="section" id="flows">
+        <div class="num">11</div>
+        <h2>State Flow Diagrams</h2>
+        <p class="sub">
+          These flows define the minimum behavioral contract for the Tasks-first
+          shell. They are intentionally simple enough to survive the current
+          backend limits.
+        </p>
+        <div class="lofi-grid">
+          <div class="lofi-block">
+            <h3>Task and due-instance flows</h3>
+            <div class="lofi-flow-board">
+              <div class="lofi-flow-col">
+                <div class="lofi-flow-title">Create</div>
+                <div class="lofi-node primary">Quick add</div>
+                <div class="lofi-node">Detailed add</div>
+              </div>
+              <div class="lofi-flow-col">
+                <div class="lofi-flow-title">Active</div>
+                <div class="lofi-node primary">Task row in Today / Lists</div>
+                <div class="lofi-node">Edit metadata</div>
+              </div>
+              <div class="lofi-flow-col">
+                <div class="lofi-flow-title">Complete</div>
+                <div class="lofi-node primary">Checked instance</div>
+                <div class="lofi-node">Optional note</div>
+              </div>
+              <div class="lofi-flow-col">
+                <div class="lofi-flow-title">Reverse / Remove</div>
+                <div class="lofi-node">Undo check</div>
+                <div class="lofi-node">Delete task</div>
+              </div>
+            </div>
+          </div>
+          <div class="lofi-block">
+            <h3>List and correction flows</h3>
+            <div class="lofi-flow-board">
+              <div class="lofi-flow-col">
+                <div class="lofi-flow-title">List setup</div>
+                <div class="lofi-node primary">Create list</div>
+                <div class="lofi-node">Rename / reorder</div>
+              </div>
+              <div class="lofi-flow-col">
+                <div class="lofi-flow-title">Use list</div>
+                <div class="lofi-node primary">Open selected list</div>
+                <div class="lofi-node">Add / edit task</div>
+              </div>
+              <div class="lofi-flow-col">
+                <div class="lofi-flow-title">Archive</div>
+                <div class="lofi-node primary">Select completion</div>
+                <div class="lofi-node">Edit note</div>
+              </div>
+              <div class="lofi-flow-col">
+                <div class="lofi-flow-title">Resolve</div>
+                <div class="lofi-node">Remove completion</div>
+                <div class="lofi-node">Refresh feed in place</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="grid">
+          <div class="card">
+            <h3>Task lifecycle</h3>
+            <div class="flow">
+              <div class="flow-step primary">Create task</div>
+              <div class="flow-arrow">-&gt;</div>
+              <div class="flow-step">Active task</div>
+              <div class="flow-arrow">-&gt;</div>
+              <div class="flow-branch">
+                <div class="flow-branch-item">Edit metadata</div>
+                <div class="flow-branch-item alt">Delete task</div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <h3>Due-instance lifecycle</h3>
+            <div class="flow">
+              <div class="flow-step primary">Unchecked row</div>
+              <div class="flow-arrow">-&gt;</div>
+              <div class="flow-step">Checked row</div>
+              <div class="flow-arrow">-&gt;</div>
+              <div class="flow-branch">
+                <div class="flow-branch-item">Add or edit note</div>
+                <div class="flow-branch-item alt">Undo check</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="grid">
+          <div class="card">
+            <h3>List lifecycle</h3>
+            <div class="flow">
+              <div class="flow-step primary">Create list</div>
+              <div class="flow-arrow">-&gt;</div>
+              <div class="flow-step">Rename / reorder</div>
+              <div class="flow-arrow">-&gt;</div>
+              <div class="flow-step alt">Delete if clear</div>
+            </div>
+          </div>
+          <div class="card">
+            <h3>Correction lifecycle</h3>
+            <div class="flow">
+              <div class="flow-step primary">Select completion</div>
+              <div class="flow-arrow">-&gt;</div>
+              <div class="flow-branch">
+                <div class="flow-branch-item">Edit note</div>
+                <div class="flow-branch-item alt">Remove completion</div>
+              </div>
+              <div class="flow-arrow">-&gt;</div>
+              <div class="flow-step">Refresh feed in place</div>
+            </div>
+          </div>
+        </div>
+        <div class="box">
+          <span class="label">Behavioral constraint</span>
+          None of these flows should require a full route jump when the user is
+          already in the correct working surface. Use pane or sheet patterns
+          first.
+        </div>
+      </div>
+
+      <div class="section" id="principles">
+        <div class="num">12</div>
+        <h2>Core UX Principles for This App</h2>
+        <p class="sub">
+          The wireframe is only useful if the product-level rules are clear
+          enough to survive implementation details later.
+        </p>
+        <div class="lofi-grid">
+          <div class="lofi-block">
+            <h3>Principle board</h3>
+            <div class="lofi-grid-3">
+              <div class="lofi-state-card">Work before chrome</div>
+              <div class="lofi-state-card">One task language</div>
+              <div class="lofi-state-card">Context-preserving detail</div>
+              <div class="lofi-state-card">Lists over galleries</div>
+              <div class="lofi-state-card">Honest future-facing scope</div>
+              <div class="lofi-state-card">
+                Empty states route back to value
+              </div>
+            </div>
+          </div>
+          <div class="lofi-block">
+            <h3>Rule split</h3>
+            <div class="lofi-state-shell">
+              <div class="lofi-state-card">
+                <strong>Navigation</strong>
+                <div class="lofi-chip-row">
+                  <div class="lofi-chip">Tiny module rail</div>
+                  <div class="lofi-chip">Mixed tasks rail</div>
+                  <div class="lofi-chip">Same IA on mobile</div>
+                </div>
+              </div>
+              <div class="lofi-state-card">
+                <strong>Interaction</strong>
+                <div class="lofi-chip-row">
+                  <div class="lofi-chip">Quick add near top</div>
+                  <div class="lofi-chip">Low-drama selection</div>
+                  <div class="lofi-chip">In-place correction</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="grid">
+          <div class="card">
+            <h3>1. Work before chrome</h3>
+            <p>
+              The first thing users should see is actionable task context, not
+              intro copy, dashboard stats, or setup marketing inside the app
+              shell.
+            </p>
+            <h3>2. One task language</h3>
+            <p>
+              One-off tasks and recurring instances must share one visual
+              grammar so the workspace feels coherent.
+            </p>
+            <h3>3. Context-preserving detail</h3>
+            <p>
+              Inspecting, editing, and correcting should happen in sheets or
+              panes before new routes are introduced.
+            </p>
+          </div>
+          <div class="card">
+            <h3>4. Lists over galleries</h3>
+            <p>
+              Rows and grouped date buckets beat cards for operational task
+              work.
+            </p>
+            <h3>5. Honest future-facing scope</h3>
+            <p>
+              The shell may anticipate richer task models, but labels and copy
+              must not pretend the backend is already there.
+            </p>
+            <h3>6. Empty states route back to value</h3>
+            <p>
+              Every empty state should suggest the next productive step, not
+              just describe absence.
+            </p>
+          </div>
+        </div>
+        <div class="grid">
+          <div class="card">
+            <h3>Navigation rules</h3>
+            <ul>
+              <li>Module rail stays tiny.</li>
+              <li>Tasks rail mixes fixed views and user-owned buckets.</li>
+              <li>Mobile does not get a different information architecture.</li>
+              <li>
+                Calendar and Journal should not overpower the core `Today`
+                workflow.
+              </li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Interaction rules</h3>
+            <ul>
+              <li>
+                Quick add belongs near the top of the active list surface.
+              </li>
+              <li>Row selection should be visually obvious but low-drama.</li>
+              <li>
+                Destructive actions require clarity, not friction theater.
+              </li>
+              <li>
+                Archive correction must preserve the user's place in the feed.
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="section" id="next-steps">
+        <div class="num">13</div>
+        <h2>Next Steps and Implementation Notes</h2>
+        <p class="sub">
+          This section translates the wireframe into a practical build sequence
+          while keeping the current route compatibility intact.
+        </p>
+        <div class="lofi-grid">
+          <div class="lofi-block">
+            <h3>Implementation sequence board</h3>
+            <div class="lofi-plan">
+              <div class="lofi-plan-step">1. Rework app shell</div>
+              <div class="lofi-plan-step">
+                2. Map current routes into Tasks labels
+              </div>
+              <div class="lofi-plan-step">
+                3. Implement Today as merged surface
+              </div>
+              <div class="lofi-plan-step">
+                4. Move History into Activity Log
+              </div>
+              <div class="lofi-plan-step">
+                5. Keep categories as Lists stand-ins
+              </div>
+            </div>
+          </div>
+          <div class="lofi-block">
+            <h3>Open decisions board</h3>
+            <div class="lofi-plan">
+              <div class="lofi-plan-step">One-off task schema</div>
+              <div class="lofi-plan-step">Upcoming horizon depth</div>
+              <div class="lofi-plan-step">Calendar interaction depth</div>
+              <div class="lofi-plan-step">Journal product model</div>
+            </div>
+          </div>
+        </div>
+        <div class="grid">
+          <div class="card">
+            <h3>Recommended order</h3>
+            <ol>
+              <li>
+                Rework the app shell to `module rail + tasks rail + list column
+                + detail pane`.
+              </li>
+              <li>
+                Map existing routes into `Tasks` labels before creating new
+                public route structure.
+              </li>
+              <li>
+                Implement `Today` as the merged recurring-plus-due working
+                surface.
+              </li>
+              <li>Move `History` behavior into `Tasks / Activity Log`.</li>
+              <li>
+                Use categories as `Lists` stand-ins until a real broader task
+                model exists.
+              </li>
+            </ol>
+          </div>
+          <div class="card">
+            <h3>Open decisions before coding deeper</h3>
+            <ul>
+              <li>real schema for one-off tasks and due dates</li>
+              <li>how far `Upcoming` should look ahead by default</li>
+              <li>whether Calendar starts month-first or week-first</li>
+              <li>what Journal actually becomes as a product model</li>
+            </ul>
+          </div>
+        </div>
+        <div class="danger">
+          <strong>Still future-facing:</strong> one-off tasks, due dates,
+          Calendar interaction depth, and Journal data model all need backend
+          definition before full implementation.
+        </div>
+        <div class="success">
+          <strong>Locked now:</strong> shell layout, navigation naming, view
+          hierarchy, row grammar, and compatibility mapping.
+        </div>
+      </div>
+
+      <p class="sub">
+        This document is intentionally low-fi and structurally opinionated. It
+        reduces ambiguity before code changes begin and should stay aligned with
+        <code>DESIGN.md</code> and <code>docs/wireframes.md</code>.
+      </p>
+    </div>
+  </body>
+</html>

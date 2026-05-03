@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rythm - Landing Page Wireframe and Copy Deck</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: #f3efe8;
+      color: #222;
+      font-size: 14px;
+      line-height: 1.58;
+      padding: 32px 16px 80px;
+    }
+    .page { max-width: 1280px; margin: 0 auto; }
+    .section {
+      margin-bottom: 72px;
+      background: #fff;
+      border: 1px solid #ccc;
+      padding: 28px 32px;
+      box-shadow: 0 14px 28px rgba(0,0,0,0.05);
+    }
+    .section-num {
+      display: inline-block;
+      background: #1d1b19;
+      color: #fff;
+      padding: 4px 10px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    h1 { font-size: 26px; font-weight: 800; margin-bottom: 8px; line-height: 1.15; }
+    h2 {
+      font-size: 18px;
+      font-weight: 700;
+      margin: 28px 0 12px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #1d1b19;
+    }
+    h3 {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin: 22px 0 10px;
+      color: #444;
+    }
+    h4 { font-size: 13px; font-weight: 700; margin: 14px 0 6px; }
+    p { margin-bottom: 10px; }
+    .sub { color: #666; font-size: 12px; margin-bottom: 20px; }
+    code {
+      font-family: "Courier New", monospace;
+      background: #f0f0f0;
+      padding: 1px 5px;
+      font-size: 12px;
+      border-radius: 2px;
+    }
+    a { color: #1a4080; }
+    hr { border: none; border-top: 2px dashed #ddd; margin: 24px 0; }
+    ul.clean { list-style: none; padding: 0; }
+    ul.clean li {
+      padding: 6px 0;
+      border-bottom: 1px dashed #ddd;
+      font-size: 12px;
+    }
+    ul.clean li:last-child { border: none; }
+
+    .note, .callout {
+      padding: 12px 16px;
+      margin: 14px 0;
+      font-size: 12px;
+      line-height: 1.6;
+      border-left: 4px solid;
+    }
+    .note {
+      background: #fffbcc;
+      border-color: #d4a017;
+    }
+    .callout {
+      background: #e8f0ff;
+      border-color: #3366cc;
+    }
+
+    .wf {
+      border: 2px solid #1d1b19;
+      background: #fff;
+      margin: 16px 0 4px;
+    }
+    .wf-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #777;
+      margin: 24px 0 6px;
+    }
+    .wf-section {
+      padding: 28px 32px;
+      border-bottom: 1px dashed #999;
+    }
+    .wf-section:last-child { border-bottom: none; }
+
+    .fill {
+      background: #e0e0e0;
+      border: 1px dashed #888;
+    }
+    .img {
+      background: #e0e0e0;
+      border: 1px dashed #888;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #666;
+      font-size: 11px;
+      text-align: center;
+      padding: 12px;
+    }
+
+    .row { display: flex; gap: 16px; }
+    .col { flex: 1; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; }
+
+    .lp-eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: #666;
+    }
+    .lp-h1 {
+      font-size: 38px;
+      font-weight: 800;
+      line-height: 1.08;
+      letter-spacing: -0.01em;
+      margin: 12px 0 14px;
+    }
+    .lp-h2 {
+      font-size: 26px;
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.01em;
+      margin: 8px 0 10px;
+    }
+    .lp-h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin: 6px 0 6px;
+    }
+    .lp-sub {
+      font-size: 15px;
+      color: #444;
+      line-height: 1.55;
+      max-width: 680px;
+    }
+    .lp-body { font-size: 13px; color: #444; line-height: 1.65; }
+    .lp-small { font-size: 11px; color: #666; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 20px;
+      border: 2px solid #1d1b19;
+      background: #fff;
+      font-weight: 600;
+      font-size: 13px;
+      color: #1d1b19;
+      text-decoration: none;
+    }
+    .btn-primary { background: #1d1b19; color: #fff; }
+    .btn-sm { padding: 6px 12px; font-size: 11px; }
+    .btn-lg { padding: 14px 24px; font-size: 14px; }
+
+    .card {
+      background: #fff;
+      border: 1.5px solid #999;
+      padding: 20px;
+    }
+    .card.feature { min-height: 180px; }
+    .card.price { display: flex; flex-direction: column; }
+    .card.price.featured {
+      border: 2.5px solid #1d1b19;
+      position: relative;
+    }
+    .badge {
+      display: inline-block;
+      background: #1d1b19;
+      color: #fff;
+      padding: 3px 8px;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    table.compare, table.asset-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      background: #fff;
+    }
+    table.compare th, table.compare td, table.asset-table th, table.asset-table td {
+      border: 1px solid #999;
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    table.compare th, table.asset-table th {
+      background: #f0f0f0;
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+    table.compare td.yes { font-weight: 700; }
+    table.compare td.no { color: #999; }
+    table.compare td.mid { color: #b48a00; }
+
+    details.faq {
+      border: 1px solid #999;
+      padding: 14px 16px;
+      margin-bottom: 8px;
+      background: #fff;
+      cursor: pointer;
+    }
+    details.faq[open] { background: #fafafa; }
+    details.faq summary {
+      font-weight: 700;
+      font-size: 13px;
+      list-style: none;
+      outline: none;
+    }
+    details.faq summary::marker { display: none; }
+    details.faq summary::before {
+      content: "+";
+      display: inline-block;
+      width: 18px;
+      color: #666;
+    }
+    details.faq[open] summary::before { content: "-"; }
+    details.faq p {
+      margin: 10px 0 0 18px;
+      font-size: 12px;
+      color: #555;
+      line-height: 1.65;
+    }
+
+    .copy-deck {
+      font-family: "Courier New", monospace;
+      font-size: 12px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      background: #fafafa;
+      border: 1px solid #ddd;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    @media (max-width: 960px) {
+      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+      .row { flex-direction: column; }
+      .section { padding: 22px 20px; }
+      .wf-section { padding: 24px 18px; }
+      .lp-h1 { font-size: 30px; }
+      .lp-h2 { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <div class="section">
+      <div class="section-num">Landing Page Brief</div>
+      <h1>Rythm - Landing Page Wireframe and Copy Deck</h1>
+      <p class="sub">
+        Copy-first landing page artifact for Rythm. This is not final visual design; it is a conversion-oriented foundation with structure, positioning, placeholder proof, and real draft copy in place.
+        Placeholder metrics, testimonials, and pricing are intentionally fabricated where data does not exist yet, so the page can be shaped now and tightened later.
+      </p>
+
+      <div class="callout">
+        <strong>Working category:</strong> Rythm should not market itself as "another habit tracker." The sharper angle is:
+        a calm, period-aware system for recurring life commitments. The page should attract people who want structure, but feel alienated by noisy streak apps, generic to-do managers, or journal-heavy systems.
+      </div>
+
+      <div class="grid-2" style="font-size:12px;">
+        <div>
+          <div style="font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:#666; margin-bottom:6px;">What this artifact covers</div>
+          <ul class="clean">
+            <li>Positioning and target audience</li>
+            <li>Section-by-section page outline</li>
+            <li>Full wireframe with marketing copy in place</li>
+            <li>Text-only copy deck for editing later</li>
+            <li>Placeholder pricing and placeholder proof</li>
+            <li>Asset and conversion notes</li>
+          </ul>
+        </div>
+        <div>
+          <div style="font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:#666; margin-bottom:6px;">What this does not lock yet</div>
+          <ul class="clean">
+            <li>Final brand visuals, color system, or illustration style</li>
+            <li>Real pricing research</li>
+            <li>Real testimonials or logos</li>
+            <li>Real analytics benchmarks</li>
+            <li>Production-ready responsive implementation</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" id="strategy">
+      <div class="section-num">01</div>
+      <h1>Marketing Strategy Brief</h1>
+      <p class="sub">
+        The landing page should market relief and clarity, not feature abundance. The pitch is strongest when it feels adult, calm, and specific.
+      </p>
+
+      <h2>Positioning Statement</h2>
+      <div class="callout">
+        <strong>Rythm helps people keep recurring commitments without the noise of a gamified habit app.</strong>
+        It gives them one calm daily view, clear structure for the routines that matter, and enough history to stay honest when life shifts.
+      </div>
+
+      <h2>Target Audience</h2>
+      <h3>Primary - "The habit app dropout"</h3>
+      <p>
+        This person has tried habit trackers, to-do apps, Notion templates, or paper systems. They are not lazy. They are exhausted by tools that either feel childish,
+        overbearing, or too broad to support real daily follow-through.
+      </p>
+      <ul>
+        <li>Often a professional, founder, freelancer, student, or parent juggling multiple recurring commitments.</li>
+        <li>Needs structure, but resists apps that feel like games or dashboards.</li>
+        <li>Wants a short daily ritual, not a second job.</li>
+      </ul>
+
+      <h3>Secondary - "The self-directed operator"</h3>
+      <p>
+        This person wants a personal operating rhythm across work, health, money, and reflection. They care less about motivation and more about consistency.
+      </p>
+
+      <h3>Tertiary - "The reset season user"</h3>
+      <p>
+        Someone rebuilding routines after burnout, a move, a life transition, or a difficult season. They need calm structure more than intensity.
+      </p>
+
+      <h2>The Angle</h2>
+      <ul>
+        <li><strong>Not another habit tracker.</strong> That is the headline-level contrast visitors should feel immediately.</li>
+        <li><strong>Period-aware, not guilt-driven.</strong> Daily, weekly, monthly, and main quests should feel like real rhythm instead of one giant streak game.</li>
+        <li><strong>Quietly structured.</strong> The page should appeal to people who want a serious tool for personal consistency.</li>
+        <li><strong>Enough accountability, not performance theater.</strong> Notes, streaks, and history exist for reflection and correction, not dopamine farming.</li>
+      </ul>
+
+      <h2>Tone of Voice</h2>
+      <div class="grid-3">
+        <div class="card">
+          <h4>What it should sound like</h4>
+          Calm, clear, adult, grounded, supportive, competent.
+        </div>
+        <div class="card">
+          <h4>What it should not sound like</h4>
+          Hype-y, productivity-bro, spiritual fluff, startup-slick, childish, "crush your goals" language.
+        </div>
+        <div class="card">
+          <h4>Copy test</h4>
+          If the sentence sounds like it belongs in a fitness challenge app, rewrite it.
+        </div>
+      </div>
+
+      <h2>The Three-Test Framework</h2>
+      <div class="note">
+        <strong>5-second test:</strong>
+        Does the hero explain what Rythm is and why it exists?
+        The visitor should understand: this is a calmer system for recurring commitments.
+      </div>
+      <div class="note">
+        <strong>30-second test:</strong>
+        Can a visitor understand how it works after one scroll?
+        They should see Today, Structure, History, and the contrast with noisy habit apps.
+      </div>
+      <div class="note">
+        <strong>2-minute test:</strong>
+        Does the page feel credible enough to try?
+        Placeholder proof, comparison table, FAQ, and pricing structure should answer most objections even before real data exists.
+      </div>
+
+      <h2>Conversion Goal</h2>
+      <ul>
+        <li><strong>Primary CTA:</strong> Start free</li>
+        <li><strong>Secondary CTA:</strong> See how it works</li>
+        <li><strong>Tertiary CTA:</strong> Join the early access list / Talk to us later if pricing or roadmap questions matter</li>
+        <li><strong>CTA repetition:</strong> sticky nav, hero, after workflow section, after pricing, final CTA band</li>
+      </ul>
+    </div>
+
+    <div class="section" id="outline">
+      <div class="section-num">02</div>
+      <h1>Page Outline and Section Purpose</h1>
+      <p class="sub">Every section should earn its place. If a section does not increase trust, clarity, or desire, cut it.</p>
+
+      <table class="asset-table">
+        <tr><th style="width:40px;">#</th><th>Section</th><th>Purpose</th><th style="width:140px;">Read time</th></tr>
+        <tr><td>1</td><td>Sticky top nav</td><td>Always-visible primary CTA and anchor navigation</td><td>-</td></tr>
+        <tr><td>2</td><td>Hero</td><td>Pass the 5-second test with clear category framing and product preview</td><td>5s</td></tr>
+        <tr><td>3</td><td>Proof strip</td><td>Immediate trust signal, even with placeholder data structure</td><td>3s</td></tr>
+        <tr><td>4</td><td>Problem framing</td><td>Name the frustration with noisy habit tools and generic task managers</td><td>20s</td></tr>
+        <tr><td>5</td><td>Solution line</td><td>Short emotional release before features</td><td>10s</td></tr>
+        <tr><td>6</td><td>Core features grid</td><td>Show breadth without losing the calm angle</td><td>30s</td></tr>
+        <tr><td>7</td><td>Deep dive: Today</td><td>Show the daily experience that makes the product sticky</td><td>20s</td></tr>
+        <tr><td>8</td><td>Deep dive: Structure</td><td>Show how setup stays manageable instead of chaotic</td><td>20s</td></tr>
+        <tr><td>9</td><td>Deep dive: History</td><td>Show how the system stays honest over time</td><td>20s</td></tr>
+        <tr><td>10</td><td>How it works</td><td>Reduce setup anxiety by showing a simple progression</td><td>20s</td></tr>
+        <tr><td>11</td><td>Comparison table</td><td>Clarify why this is not just a to-do app or habit tracker</td><td>30s</td></tr>
+        <tr><td>12</td><td>Testimonials and metrics</td><td>Credibility anchor before pricing</td><td>30s</td></tr>
+        <tr><td>13</td><td>Pricing</td><td>Give visitors a working value anchor even if final pricing changes</td><td>30s</td></tr>
+        <tr><td>14</td><td>FAQ</td><td>Neutralize objections</td><td>60s</td></tr>
+        <tr><td>15</td><td>Final CTA band</td><td>Close with calm confidence</td><td>5s</td></tr>
+        <tr><td>16</td><td>Footer</td><td>Low-friction support and utility links</td><td>-</td></tr>
+      </table>
+
+      <div class="callout">
+        <strong>Reading path strategy:</strong> the page should still work if a visitor only reads the hero, proof strip, and one feature section.
+        The lower sections exist to reduce risk and increase seriousness, not to dump every detail at once.
+      </div>
+    </div>
+
+    <div class="section" id="wireframe">
+      <div class="section-num">03</div>
+      <h1>Full Wireframe with Copy in Place</h1>
+      <p class="sub">
+        Each block below represents one section of the landing page as it should render. Copy is intentionally written in-place so the structure and the sales argument can be reviewed together.
+        The wireframe is grayscale by design. Color, illustration, and motion can be layered later.
+      </p>
+
+      <div class="wf">
+
+        <div class="wf-label">§1 - Sticky nav</div>
+        <div class="wf-section" style="display:flex; justify-content:space-between; align-items:center; gap:16px;">
+          <div style="font-weight:800; letter-spacing:0.08em; text-transform:uppercase;">Rythm</div>
+          <div style="display:flex; gap:18px; align-items:center; flex-wrap:wrap;">
+            <span style="font-size:11px; opacity:0.85;">Why it works</span>
+            <span style="font-size:11px; opacity:0.85;">How it works</span>
+            <span style="font-size:11px; opacity:0.85;">Pricing</span>
+            <span style="font-size:11px; opacity:0.85;">FAQ</span>
+            <a class="btn btn-sm" href="#">Sign in</a>
+            <a class="btn btn-primary btn-sm" href="#">Start free</a>
+          </div>
+        </div>
+        <div class="note">
+          <strong>Nav behavior:</strong> sticky on scroll. On mobile: collapse to logo + hamburger + visible primary CTA. Do not hide the main CTA behind the menu.
+        </div>
+
+        <div class="wf-label">§2 - Hero</div>
+        <div class="wf-section" style="padding:56px 40px;">
+          <div style="text-align:center; margin-bottom:26px;">
+            <div class="lp-eyebrow">A calmer system for recurring life commitments</div>
+            <div class="lp-h1" style="max-width:980px; margin:16px auto 0; font-size:56px;">
+              Keep your life in rhythm without another noisy habit app.
+            </div>
+          </div>
+
+          <div class="wf" style="margin:0; overflow:visible; background:#f6f2eb;">
+            <div class="wf-section" style="padding:18px 22px; border-bottom:1px dashed #999;">
+              <div style="display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap;">
+                <div style="font-weight:700;">Rythm</div>
+                <div style="display:flex; gap:16px; font-size:11px; color:#666; flex-wrap:wrap;">
+                  <span>Why it works</span>
+                  <span>How it works</span>
+                  <span>Pricing</span>
+                  <span>FAQ</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="wf-section" style="padding:46px 28px 120px; text-align:center; background:#f2f2f2;">
+              <div class="lp-h2" style="max-width:760px; margin:0 auto 12px;">
+                A quieter way to keep recurring commitments clear.
+              </div>
+              <p class="lp-sub" style="margin:0 auto 22px;">
+                Rythm turns recurring goals into period-aware quests, so you can see what matters today, keep short notes when context matters, and review your history without turning your life into a game.
+              </p>
+              <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-bottom:14px;">
+                <a class="btn btn-primary btn-lg" href="#">Start free</a>
+                <a class="btn btn-lg" href="#">See how it works</a>
+              </div>
+              <div class="lp-small">No card needed · Works on desktop and phone · Placeholder pricing until launch</div>
+
+              <div class="img" style="min-height:320px; max-width:760px; margin:38px auto -170px; background:#fff;">
+                [Large hero product preview]<br/>
+                Desktop Today view anchored in the frame,<br/>
+                with grouped checklist, progress strip, and note context visible
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="note">
+          <strong>Hero decisions:</strong>
+          <ul>
+            <li><strong>The layout is now stage-based.</strong> Big headline first, then one framed hero panel that contains nav, support copy, CTA, and product preview.</li>
+            <li><strong>The product shot becomes the anchor.</strong> It should visually overlap the lower edge of the hero stage so the interface feels central, not decorative.</li>
+            <li><strong>We keep the layout pattern, not the purple SaaS styling.</strong> For Rythm, the same composition should stay quieter and more grounded.</li>
+            <li><strong>Secondary CTA remains educational.</strong> Some visitors will not commit from the hero, but they will scroll if the path is obvious.</li>
+          </ul>
+        </div>
+
+        <div class="wf-label">§3 - Proof strip</div>
+        <div class="wf-section" style="padding:24px 40px;">
+          <div class="grid-4">
+            <div class="card"><strong>427</strong><br/><span class="lp-small">early access signups</span></div>
+            <div class="card"><strong>71%</strong><br/><span class="lp-small">week-4 active retention</span></div>
+            <div class="card"><strong>4.8 / 5</strong><br/><span class="lp-small">average beta satisfaction</span></div>
+            <div class="card"><strong>18 countries</strong><br/><span class="lp-small">beta users so far</span></div>
+          </div>
+        </div>
+        <div class="note">
+          <strong>Placeholder proof:</strong> all numbers above are fabricated but directionally plausible. Keep this structure even after you swap in real data. Specific numbers feel more believable than vague claims.
+        </div>
+
+        <div class="wf-label">§4 - Problem framing</div>
+        <div class="wf-section" style="padding:56px 40px;">
+          <div class="lp-eyebrow">The problem</div>
+          <div class="lp-h2">Most personal productivity tools break the moment life stops being neat.</div>
+          <div class="grid-3" style="margin-top:20px;">
+            <div class="card feature">
+              <div class="lp-h3">Habit trackers get loud</div>
+              <p class="lp-body">Streak pressure, badges, and daily guilt loops can make the tool feel childish or exhausting instead of supportive.</p>
+            </div>
+            <div class="card feature">
+              <div class="lp-h3">To-do apps get too broad</div>
+              <p class="lp-body">Everything ends up mixed together, so recurring commitments disappear into a backlog built for tasks, not rhythm.</p>
+            </div>
+            <div class="card feature">
+              <div class="lp-h3">Journals get too manual</div>
+              <p class="lp-body">They are useful for reflection, but they do not help you see today's repeatable commitments at a glance.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="wf-label">§5 - Solution line</div>
+        <div class="wf-section" style="padding:56px 40px; text-align:center;">
+          <div class="lp-h2" style="max-width:760px; margin:0 auto 12px;">
+            Rythm gives you a quieter way to keep promises to yourself.
+          </div>
+          <p class="lp-sub" style="margin:0 auto 20px;">
+            One daily view. Real recurring structure. Enough history to stay honest. No performance theater.
+          </p>
+          <a class="btn" href="#">See the workflow</a>
+        </div>
+        <div class="callout">
+          <strong>Section role:</strong> this is a release valve after the pain section. It should feel calm and confident, not overloaded with bullets.
+        </div>
+
+        <div class="wf-label">§6 - Core features grid</div>
+        <div class="wf-section" style="padding:56px 40px;">
+          <div class="lp-eyebrow">Core features</div>
+          <div class="lp-h2">Everything on the page should support one idea: daily clarity with long-term honesty.</div>
+          <div class="grid-3" style="margin-top:20px;">
+            <div class="card feature">
+              <div class="lp-h3">Today stays clear</div>
+              <p class="lp-body">Open the app and see the current period, your visible progress, and the quests that actually matter right now.</p>
+            </div>
+            <div class="card feature">
+              <div class="lp-h3">Period-aware quests</div>
+              <p class="lp-body">Mix daily, weekly, monthly, and main quests in one calm system instead of forcing everything into one streak model.</p>
+            </div>
+            <div class="card feature">
+              <div class="lp-h3">Life areas</div>
+              <p class="lp-body">Group recurring commitments into categories like Health, Focus, Money, or Spiritual so structure stays human and readable.</p>
+            </div>
+            <div class="card feature">
+              <div class="lp-h3">Notes that matter</div>
+              <p class="lp-body">Attach a short note to a real completion when context matters, without turning the app into a journal.</p>
+            </div>
+            <div class="card feature">
+              <div class="lp-h3">History you can trust</div>
+              <p class="lp-body">Review what actually happened, edit notes, and remove mistaken completions without losing the surrounding context.</p>
+            </div>
+            <div class="card feature">
+              <div class="lp-h3">Mobile-ready rhythm</div>
+              <p class="lp-body">Use the same focused flow on desktop or install it as a PWA on your phone when you need a lighter daily ritual.</p>
+            </div>
+          </div>
+        </div>
+        <div class="note">
+          <strong>Feature naming rule:</strong> every feature headline should be concrete and human. Avoid empty labels like "Productivity management" or "Habit intelligence."
+        </div>
+
+        <div class="wf-label">§7 - Deep dive: Today</div>
+        <div class="wf-section" style="padding:56px 40px;">
+          <div class="row" style="align-items:center;">
+            <div class="col">
+              <div class="lp-eyebrow">Deep dive</div>
+              <div class="lp-h2">Open once. Know what matters.</div>
+              <p class="lp-sub">
+                The Today view is built for the fastest important question in the product: what belongs to this period, and what can I check right now?
+              </p>
+              <ul>
+                <li>Sticky date and current-period context</li>
+                <li>Compact progress strip instead of a KPI dashboard wall</li>
+                <li>Checklist rows grouped by category</li>
+                <li>Notes close to the quest row, not hidden in another route</li>
+              </ul>
+            </div>
+            <div class="col">
+              <div class="img" style="min-height:300px;">
+                [Screenshot: Today view]<br/>
+                Progress strip + grouped checklist + note pane
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="wf-label">§8 - Deep dive: Structure</div>
+        <div class="wf-section" style="padding:56px 40px;">
+          <div class="row" style="align-items:center;">
+            <div class="col">
+              <div class="img" style="min-height:300px;">
+                [Screenshot: Structure surface]<br/>
+                Segmented switch for Quests / Categories + editor sheet
+              </div>
+            </div>
+            <div class="col">
+              <div class="lp-eyebrow">Deep dive</div>
+              <div class="lp-h2">Structure without spreadsheet chaos.</div>
+              <p class="lp-sub">
+                Add quests, group them into life areas, reorder categories, and keep setup close to the list instead of bouncing through admin screens.
+              </p>
+              <ul>
+                <li>Search and filters stay compact</li>
+                <li>Create and edit happen in-context</li>
+                <li>Starter pack helps new users begin fast</li>
+                <li>Delete rules stay explicit when data dependencies exist</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="wf-label">§9 - Deep dive: History</div>
+        <div class="wf-section" style="padding:56px 40px;">
+          <div class="row" style="align-items:center;">
+            <div class="col">
+              <div class="lp-eyebrow">Deep dive</div>
+              <div class="lp-h2">A system you can review without rewriting your life.</div>
+              <p class="lp-sub">
+                History is not there to impress you with analytics. It is there to help you review, correct, and keep the system honest as your real routines change.
+              </p>
+              <ul>
+                <li>Grouped by day, not trapped in a dense table</li>
+                <li>Notes and delete actions stay in the same context</li>
+                <li>Filters exist, but they do not overpower the archive itself</li>
+              </ul>
+            </div>
+            <div class="col">
+              <div class="img" style="min-height:300px;">
+                [Screenshot: History view]<br/>
+                day-grouped feed + note editor + delete confirmation
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="wf-label">§10 - How it works</div>
+        <div class="wf-section" style="padding:56px 40px;">
+          <div class="lp-eyebrow">How it works</div>
+          <div class="lp-h2">You do not need to build a second brain to get value.</div>
+          <div class="grid-3" style="margin-top:20px;">
+            <div class="card">
+              <div class="badge">01</div>
+              <div class="lp-h3" style="margin-top:12px;">Set your structure</div>
+              <p class="lp-body">Create a few life areas, add the recurring quests that matter, and keep the system intentionally small at the beginning.</p>
+            </div>
+            <div class="card">
+              <div class="badge">02</div>
+              <div class="lp-h3" style="margin-top:12px;">Move through today</div>
+              <p class="lp-body">Open Today, check what belongs to this period, and add a note only when context actually matters.</p>
+            </div>
+            <div class="card">
+              <div class="badge">03</div>
+              <div class="lp-h3" style="margin-top:12px;">Keep it honest</div>
+              <p class="lp-body">Review history, edit notes, and remove mistakes when your archive needs correction, not perfection theater.</p>
+            </div>
+          </div>
+          <div style="margin-top:20px;">
+            <a class="btn btn-primary" href="#">Start free</a>
+          </div>
+        </div>
+        <div class="note">
+          <strong>Why this section matters before pricing:</strong> the hidden fear is not only cost. It is also setup weight. If users believe the workflow is calm and short, the price feels easier to accept.
+        </div>
+
+        <div class="wf-label">§11 - Comparison table</div>
+        <div class="wf-section" style="padding:56px 40px;">
+          <div class="lp-eyebrow">Why this category exists</div>
+          <div class="lp-h2">Rythm sits between a habit app, a to-do list, and a journal.</div>
+          <table class="compare" style="margin-top:20px;">
+            <tr>
+              <th>Capability</th>
+              <th>Rythm</th>
+              <th>Habit tracker</th>
+              <th>To-do app</th>
+              <th>Journal / spreadsheet</th>
+            </tr>
+            <tr><td>Period-aware recurring structure</td><td class="yes">Yes</td><td class="mid">Partial</td><td class="no">Weak</td><td class="mid">Manual</td></tr>
+            <tr><td>Calm, non-gamified daily flow</td><td class="yes">Yes</td><td class="no">Often no</td><td class="mid">Neutral</td><td class="yes">Yes</td></tr>
+            <tr><td>Life-area grouping</td><td class="yes">Yes</td><td class="mid">Basic</td><td class="mid">Possible</td><td class="mid">Manual</td></tr>
+            <tr><td>Completion notes tied to real events</td><td class="yes">Yes</td><td class="mid">Rare</td><td class="no">Not core</td><td class="yes">Yes</td></tr>
+            <tr><td>Archive correction without chaos</td><td class="yes">Yes</td><td class="no">Weak</td><td class="mid">Possible</td><td class="mid">Manual</td></tr>
+            <tr><td>Installable mobile-friendly flow</td><td class="yes">Yes</td><td class="yes">Usually</td><td class="yes">Usually</td><td class="no">No</td></tr>
+          </table>
+        </div>
+
+        <div class="wf-label">§12 - Testimonials and metrics</div>
+        <div class="wf-section" style="padding:56px 40px;">
+          <div class="lp-eyebrow">Early proof</div>
+          <div class="lp-h2">People do not need more motivation. They need a system they can keep returning to.</div>
+          <div class="grid-3" style="margin-top:20px;">
+            <div class="card">
+              <p class="lp-body">"I stopped bouncing between Todoist, a habit app, and a notes file. Rythm is the first one that feels quiet enough to keep opening every morning."</p>
+              <p class="lp-small" style="margin-top:12px;"><strong>Maya L.</strong> - Product designer, Singapore</p>
+            </div>
+            <div class="card">
+              <p class="lp-body">"The weekly and monthly cadence makes more sense than forcing everything into a daily streak. It finally feels like a grown-up tool."</p>
+              <p class="lp-small" style="margin-top:12px;"><strong>Arif S.</strong> - Independent consultant, Jakarta</p>
+            </div>
+            <div class="card">
+              <p class="lp-body">"I needed something that could hold health, work, and reflection without turning into a project board. This is the closest I have found."</p>
+              <p class="lp-small" style="margin-top:12px;"><strong>Elena P.</strong> - Startup ops lead, Berlin</p>
+            </div>
+          </div>
+          <div class="grid-3" style="margin-top:20px;">
+            <div class="card"><strong>71%</strong><br/><span class="lp-small">week-4 retention in beta</span></div>
+            <div class="card"><strong>12.4k</strong><br/><span class="lp-small">placeholder completed quests in beta</span></div>
+            <div class="card"><strong>4.8 / 5</strong><br/><span class="lp-small">average beta rating</span></div>
+          </div>
+        </div>
+        <div class="note">
+          <strong>Placeholder data:</strong> all testimonials and metrics above are fabricated but directionally plausible. Replace them with real customers and real numbers later, but keep the structure: specific quote, named person, realistic role, and concrete metric.
+        </div>
+
+        <div class="wf-label">§13 - Pricing</div>
+        <div class="wf-section" style="padding:56px 40px;">
+          <div class="lp-eyebrow">Pricing</div>
+          <div class="lp-h2">Placeholder pricing that gives the product a believable value shape.</div>
+          <p class="lp-sub">This is not final pricing. It is a working foundation so the page can carry a real commercial frame before market research is finished.</p>
+          <div class="grid-3" style="margin-top:20px;">
+            <div class="card price">
+              <div class="lp-h3">Starter</div>
+              <div style="font-size:34px; font-weight:800; margin:10px 0;">$0</div>
+              <div class="lp-small">Free forever</div>
+              <hr/>
+              <ul>
+                <li>Up to 12 active quests</li>
+                <li>Up to 4 categories</li>
+                <li>Daily, weekly, monthly, and main quests</li>
+                <li>Basic streaks</li>
+                <li>Mobile web access</li>
+              </ul>
+              <div style="margin-top:18px;"><a class="btn" href="#">Start free</a></div>
+            </div>
+            <div class="card price featured">
+              <div class="badge" style="margin-bottom:12px;">Recommended</div>
+              <div class="lp-h3">Ritual</div>
+              <div style="font-size:34px; font-weight:800; margin:10px 0;">$8<span style="font-size:16px;">/mo</span></div>
+              <div class="lp-small">Placeholder annual price. $10 monthly equivalent.</div>
+              <hr/>
+              <ul>
+                <li>Unlimited active quests</li>
+                <li>Unlimited categories</li>
+                <li>Full history and note editing</li>
+                <li>Flexible filters and archive review</li>
+                <li>Installable PWA experience</li>
+                <li>Priority feature feedback access</li>
+              </ul>
+              <div style="margin-top:18px;"><a class="btn btn-primary" href="#">Start 14-day trial</a></div>
+            </div>
+            <div class="card price">
+              <div class="lp-h3">Founding</div>
+              <div style="font-size:34px; font-weight:800; margin:10px 0;">$149</div>
+              <div class="lp-small">Placeholder one-time early supporter price</div>
+              <hr/>
+              <ul>
+                <li>Everything in Ritual</li>
+                <li>Locked founding-member pricing</li>
+                <li>Early roadmap access</li>
+                <li>Private feedback channel</li>
+                <li>Priority onboarding support</li>
+              </ul>
+              <div style="margin-top:18px;"><a class="btn" href="#">Become a founding member</a></div>
+            </div>
+          </div>
+        </div>
+        <div class="note">
+          <strong>Pricing anchors:</strong> keep three tiers. The middle plan should be visually featured. A free entry removes friction, while a more committed plan gives serious users a clear next step.
+        </div>
+
+        <div class="wf-label">§14 - FAQ</div>
+        <div class="wf-section" style="padding:56px 40px;">
+          <div class="lp-eyebrow">FAQ</div>
+          <div class="lp-h2">Neutralize the main objections without sounding defensive.</div>
+          <div style="margin-top:20px;">
+            <details class="faq" open>
+              <summary>Is this just another habit tracker?</summary>
+              <p>No. Rythm is built around recurring life commitments, not streak pressure or gamification. It sits closer to a calm personal operating rhythm than a challenge app.</p>
+            </details>
+            <details class="faq">
+              <summary>Can I use it for work and personal routines together?</summary>
+              <p>Yes. The category model is deliberately broad, so you can hold Health, Focus, Finance, Relationships, or Work in one structure without turning it into a project board.</p>
+            </details>
+            <details class="faq">
+              <summary>Do I need to write notes every day?</summary>
+              <p>No. Notes are optional and tied to completions. The product should still feel fast when you only want to check something done and move on.</p>
+            </details>
+            <details class="faq">
+              <summary>Does it work on mobile?</summary>
+              <p>Yes. The product is designed mobile-first and can be installed as a PWA so the daily ritual works on your phone without a separate app stack.</p>
+            </details>
+            <details class="faq">
+              <summary>Does it work offline?</summary>
+              <p>Partially. The shell can reopen offline, but live writes and history updates still need a connection. The landing page should state that honestly.</p>
+            </details>
+            <details class="faq">
+              <summary>Can I import my current habits from another tool?</summary>
+              <p>Not in the current product scope yet. For launch, the strongest path is a quick manual setup or a starter structure. Import can become a roadmap item later.</p>
+            </details>
+            <details class="faq">
+              <summary>Is there a team or household plan?</summary>
+              <p>Not in the current product scope. Rythm is designed as a personal system first. If a shared version matters later, that should be a separate expansion, not a vague promise.</p>
+            </details>
+            <details class="faq">
+              <summary>Can I export my data?</summary>
+              <p>Placeholder answer for now: export should exist on a paid tier, but the exact format and scope can be finalized later.</p>
+            </details>
+            <details class="faq">
+              <summary>What will pricing actually be?</summary>
+              <p>Still being finalized. The pricing section in this document is a placeholder anchor so the page has a believable commercial frame before market validation is complete.</p>
+            </details>
+            <details class="faq">
+              <summary>Who is Rythm not for?</summary>
+              <p>It is probably not for people who want a highly social, gamified, or enterprise-style productivity tool. The product is strongest when the goal is calm personal consistency.</p>
+            </details>
+          </div>
+        </div>
+
+        <div class="wf-label">§15 - Final CTA band</div>
+        <div class="wf-section" style="padding:72px 40px; text-align:center; background:#f0f0f0;">
+          <div class="lp-h2" style="max-width:780px; margin:0 auto 12px;">
+            If you want more structure without more noise, start with a calmer system.
+          </div>
+          <p class="lp-sub" style="margin:0 auto 22px;">
+            The right first impression is not intensity. It is relief.
+          </p>
+          <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+            <a class="btn btn-primary btn-lg" href="#">Start free</a>
+            <a class="btn btn-lg" href="#">See how it works</a>
+          </div>
+        </div>
+
+        <div class="wf-label">§16 - Footer</div>
+        <div class="wf-section" style="padding:40px;">
+          <div class="grid-4">
+            <div>
+              <strong>Rythm</strong><br/>
+              <span class="lp-small">Personal rhythm for recurring life commitments.</span>
+            </div>
+            <div>
+              <strong>Product</strong>
+              <ul class="clean">
+                <li>Why it works</li>
+                <li>Pricing</li>
+                <li>FAQ</li>
+              </ul>
+            </div>
+            <div>
+              <strong>Company</strong>
+              <ul class="clean">
+                <li>About</li>
+                <li>Contact</li>
+                <li>Roadmap</li>
+              </ul>
+            </div>
+            <div>
+              <strong>Legal</strong>
+              <ul class="clean">
+                <li>Privacy</li>
+                <li>Terms</li>
+                <li>Status</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" id="copy-deck">
+      <div class="section-num">04</div>
+      <h1>Copy Deck - Text Only</h1>
+      <p class="sub">
+        Same copy as the wireframe, stripped of layout so it can be edited quickly later.
+      </p>
+
+      <div class="copy-deck"><strong>§1 - Sticky nav</strong>
+Nav items:       Why it works · How it works · Pricing · FAQ
+Secondary CTA:   Sign in
+Primary CTA:     Start free
+
+<em>Mobile: collapse anchors into hamburger, keep Start free visible.</em></div>
+
+      <div class="copy-deck"><strong>§2 - Hero</strong>
+Eyebrow:  A calmer system for recurring life commitments
+
+Layout:
+- Oversized headline centered above the hero stage
+- Framed hero panel below it
+- Nav inside the top of the panel
+- Supporting headline + subhead + two CTAs centered in the panel
+- Large product preview overlapping the lower edge of the panel
+
+Headline:
+Keep your life in rhythm without another noisy habit app.
+
+Subhead:
+Rythm turns recurring goals into period-aware quests, so you can see what matters today,
+keep short notes when context matters, and review your history without turning your life into a game.
+
+Primary CTA:    Start free
+Secondary CTA:  See how it works
+
+Risk reducer:
+No card needed · Works on desktop and phone · Placeholder pricing until launch</div>
+
+      <div class="copy-deck"><strong>§3 - Proof strip</strong>
+427 early access signups
+71% week-4 active retention
+4.8 / 5 average beta satisfaction
+18 countries in beta so far
+
+<em>Placeholder proof. Replace with real data later.</em></div>
+
+      <div class="copy-deck"><strong>§4 - Problem framing</strong>
+Headline:
+Most personal productivity tools break the moment life stops being neat.
+
+Card 1:
+Habit trackers get loud
+Streak pressure, badges, and daily guilt loops can make the tool feel childish or exhausting instead of supportive.
+
+Card 2:
+To-do apps get too broad
+Everything ends up mixed together, so recurring commitments disappear into a backlog built for tasks, not rhythm.
+
+Card 3:
+Journals get too manual
+They are useful for reflection, but they do not help you see today's repeatable commitments at a glance.</div>
+
+      <div class="copy-deck"><strong>§5 - Solution line</strong>
+Headline:
+Rythm gives you a quieter way to keep promises to yourself.
+
+Subhead:
+One daily view. Real recurring structure. Enough history to stay honest. No performance theater.
+
+CTA:
+See the workflow</div>
+
+      <div class="copy-deck"><strong>§6 - Core features grid</strong>
+Today stays clear
+Open the app and see the current period, your visible progress, and the quests that actually matter right now.
+
+Period-aware quests
+Mix daily, weekly, monthly, and main quests in one calm system instead of forcing everything into one streak model.
+
+Life areas
+Group recurring commitments into categories like Health, Focus, Money, or Spiritual so structure stays human and readable.
+
+Notes that matter
+Attach a short note to a real completion when context matters, without turning the app into a journal.
+
+History you can trust
+Review what actually happened, edit notes, and remove mistaken completions without losing the surrounding context.
+
+Mobile-ready rhythm
+Use the same focused flow on desktop or install it as a PWA on your phone when you need a lighter daily ritual.</div>
+
+      <div class="copy-deck"><strong>§7 - Deep dive: Today</strong>
+Headline:
+Open once. Know what matters.
+
+Body:
+The Today view is built for the fastest important question in the product: what belongs to this period, and what can I check right now?
+
+Bullets:
+- Sticky date and current-period context
+- Compact progress strip instead of a KPI dashboard wall
+- Checklist rows grouped by category
+- Notes close to the quest row, not hidden in another route</div>
+
+      <div class="copy-deck"><strong>§8 - Deep dive: Structure</strong>
+Headline:
+Structure without spreadsheet chaos.
+
+Body:
+Add quests, group them into life areas, reorder categories, and keep setup close to the list instead of bouncing through admin screens.</div>
+
+      <div class="copy-deck"><strong>§9 - Deep dive: History</strong>
+Headline:
+A system you can review without rewriting your life.
+
+Body:
+History is not there to impress you with analytics. It is there to help you review, correct, and keep the system honest as your real routines change.</div>
+
+      <div class="copy-deck"><strong>§10 - How it works</strong>
+Step 1:
+Set your structure
+Create a few life areas, add the recurring quests that matter, and keep the system intentionally small at the beginning.
+
+Step 2:
+Move through today
+Open Today, check what belongs to this period, and add a note only when context actually matters.
+
+Step 3:
+Keep it honest
+Review history, edit notes, and remove mistakes when your archive needs correction, not perfection theater.</div>
+
+      <div class="copy-deck"><strong>§11 - Testimonials and metrics</strong>
+Testimonial 1:
+"I stopped bouncing between Todoist, a habit app, and a notes file. Rythm is the first one that feels quiet enough to keep opening every morning."
+- Maya L., Product designer, Singapore
+
+Testimonial 2:
+"The weekly and monthly cadence makes more sense than forcing everything into a daily streak. It finally feels like a grown-up tool."
+- Arif S., Independent consultant, Jakarta
+
+Testimonial 3:
+"I needed something that could hold health, work, and reflection without turning into a project board. This is the closest I have found."
+- Elena P., Startup ops lead, Berlin
+
+Metrics:
+71% week-4 retention
+12.4k placeholder completed quests in beta
+4.8 / 5 average beta rating
+
+<em>Placeholder data. Replace with real proof later.</em></div>
+
+      <div class="copy-deck"><strong>§13 - Pricing</strong>
+Starter
+$0
+Free forever
+- Up to 12 active quests
+- Up to 4 categories
+- Daily, weekly, monthly, and main quests
+- Basic streaks
+- Mobile web access
+CTA: Start free
+
+Ritual
+$8/mo
+Placeholder annual price. $10 monthly equivalent.
+- Unlimited active quests
+- Unlimited categories
+- Full history and note editing
+- Flexible filters and archive review
+- Installable PWA experience
+- Priority feature feedback access
+CTA: Start 14-day trial
+
+Founding
+$149
+Placeholder one-time early supporter price
+- Everything in Ritual
+- Locked founding-member pricing
+- Early roadmap access
+- Private feedback channel
+- Priority onboarding support
+CTA: Become a founding member
+
+<em>All pricing is placeholder.</em></div>
+
+      <div class="copy-deck"><strong>§14 - FAQ</strong>
+Q: Is this just another habit tracker?
+A: No. Rythm is built around recurring life commitments, not streak pressure or gamification.
+
+Q: Can I use it for work and personal routines together?
+A: Yes. The category model is deliberately broad.
+
+Q: Do I need to write notes every day?
+A: No. Notes are optional and tied to completions.
+
+Q: Does it work on mobile?
+A: Yes. It is designed mobile-first and can be installed as a PWA.
+
+Q: Does it work offline?
+A: Partially. The shell can reopen offline, but live writes and history updates still need a connection.
+
+Q: Can I import my current habits from another tool?
+A: Not in the current product scope yet.
+
+Q: Is there a team or household plan?
+A: Not in the current product scope.
+
+Q: Can I export my data?
+A: Placeholder answer for now: export should exist on a paid tier later.
+
+Q: What will pricing actually be?
+A: Still being finalized. Current pricing is a placeholder anchor.
+
+Q: Who is Rythm not for?
+A: It is probably not for people who want a highly social, gamified, or enterprise-style productivity tool.</div>
+
+      <div class="copy-deck"><strong>§15 - Final CTA</strong>
+Headline:
+If you want more structure without more noise, start with a calmer system.
+
+Subhead:
+The right first impression is not intensity. It is relief.
+
+Primary CTA:
+Start free
+
+Secondary CTA:
+See how it works</div>
+    </div>
+
+    <div class="section" id="assets">
+      <div class="section-num">05</div>
+      <h1>Asset and Proof Requirements</h1>
+      <p class="sub">
+        This page can launch with placeholders, but these are the assets that will strengthen it fastest.
+      </p>
+
+      <h3>Priority 1 - Must have for launch</h3>
+      <table class="asset-table">
+        <tr><th>#</th><th>Asset</th><th>Section</th><th>Spec</th><th>Purpose</th></tr>
+        <tr><td>1</td><td>Hero product screenshot or short loop</td><td>Hero</td><td>Real Today view, desktop and mobile variants if possible</td><td>Shows the product as a real system, not an idea</td></tr>
+        <tr><td>2</td><td>Today screenshot</td><td>Deep dive: Today</td><td>Grouped checklist, progress strip, note context visible</td><td>Supports the core value proposition</td></tr>
+        <tr><td>3</td><td>Structure screenshot</td><td>Deep dive: Structure</td><td>Quests and Categories subview visible</td><td>Reduces setup anxiety</td></tr>
+        <tr><td>4</td><td>History screenshot</td><td>Deep dive: History</td><td>Day-grouped archive plus note detail</td><td>Makes the "keep it honest" claim believable</td></tr>
+        <tr><td>5</td><td>Real metrics</td><td>Proof strip / testimonials</td><td>Retention, beta users, satisfaction, or waitlist count</td><td>Replaces fabricated proof fast</td></tr>
+      </table>
+
+      <h3>Priority 2 - Strong upgrades</h3>
+      <table class="asset-table">
+        <tr><th>#</th><th>Asset</th><th>Section</th><th>Notes</th></tr>
+        <tr><td>1</td><td>3 real testimonials</td><td>Testimonials</td><td>Use real names, realistic roles, and specific benefits.</td></tr>
+        <tr><td>2</td><td>Short founder quote</td><td>Problem / solution</td><td>Can help explain why the product exists if social proof is still weak.</td></tr>
+        <tr><td>3</td><td>One polished product walkthrough</td><td>Hero or How it works</td><td>Could replace the secondary CTA target later.</td></tr>
+      </table>
+
+      <div class="note">
+        <strong>Proof priority:</strong> real screenshots matter earlier than polished illustrations. For this product, clarity beats atmosphere.
+      </div>
+    </div>
+
+    <div class="section" id="conversion">
+      <div class="section-num">06</div>
+      <h1>Conversion and Experiment Notes</h1>
+      <p class="sub">
+        This section gives you a working growth lens so the landing page is not just aesthetically coherent, but commercially testable.
+      </p>
+
+      <h3>Launch checklist</h3>
+      <ul>
+        <li>[ ] Primary CTA path is decided: sign-up, waitlist, or early access form</li>
+        <li>[ ] Hero screenshot reflects the final product direction, not the old nav model</li>
+        <li>[ ] Placeholder pricing is either removed before launch or clearly marked as early pricing</li>
+        <li>[ ] At least one real proof signal is available before paid traffic starts</li>
+        <li>[ ] Mobile hero still passes the 5-second test without relying on below-the-fold copy</li>
+      </ul>
+
+      <h3>First experiments to run</h3>
+      <h4>Test 1 - Hero headline angle</h4>
+      <p class="lp-small">
+        Control: "Keep your life in rhythm without another noisy habit app."
+        Variant: "A calmer system for the commitments you want to keep."
+      </p>
+
+      <h4>Test 2 - CTA framing</h4>
+      <p class="lp-small">
+        Control: "Start free"
+        Variant: "Start your calmer system"
+      </p>
+
+      <h4>Test 3 - Pricing visibility</h4>
+      <p class="lp-small">
+        Control: include placeholder pricing
+        Variant: remove pricing section and use early access / waitlist CTA only
+      </p>
+
+      <h4>Test 4 - Problem contrast</h4>
+      <p class="lp-small">
+        Control: direct anti-habit-tracker framing
+        Variant: softer framing against "too much noise"
+      </p>
+
+      <h3>Metrics to monitor</h3>
+      <ul>
+        <li><strong>Primary CTA click-through rate</strong> - does the hero convert interest into action?</li>
+        <li><strong>Scroll depth to pricing</strong> - are visitors staying engaged long enough to weigh the offer?</li>
+        <li><strong>Click-through on "See how it works"</strong> - is the educational CTA doing its job?</li>
+        <li><strong>Sign-up completion rate</strong> - does the promise on the page match the onboarding reality?</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Pragmatic recommendation:</strong> because pricing is still uncertain, the safest live version may be:
+        hero + workflow + screenshots + waitlist or early access CTA first.
+        But this placeholder pricing section is still worth designing now, because it forces the value ladder to become concrete.
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>
