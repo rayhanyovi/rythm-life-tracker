@@ -6,11 +6,11 @@
 
 **Rythm** (deliberately spelled with one `h`) is a personal life-rhythm tracker delivered as an installable Progressive Web App.
 
-In one sentence: *Rythm helps people build a calm daily rhythm by checking off recurring quests and one-time milestones, without gamification or analytics theater.*
+In one sentence: *Rythm helps people build a calm daily rhythm by checking off recurring quests and one-time milestones — structure and honest progress first, light rewards layer in later.*
 
 In one paragraph: Rythm gives a single user a clean, mobile-first surface to define the activities that matter (Daily, Weekly, Monthly, or one-time Main quests), group them into life categories, and check them off for the current period. The app remembers completion per period, computes streaks for recurring quests, and provides a chronological activity log for review and correction. Authentication, data, and PWA installation all work end-to-end.
 
-In a longer paragraph: The product is opinionated about *what it is not*. It is not a habit-tracker game with XP, levels, badges, or social leaderboards. It is not a productivity dashboard with KPI walls and analytics charts. It is not a generic task manager with projects, deadlines, and assignments. Rythm is a quiet ritual tool — closer in feel to Linear, Todoist, or Notion than to Habitica or Strava — designed for adults who want personal structure without performance theater. Every product and design decision should compress toward that stance.
+In a longer paragraph: The product is opinionated about *how* it is built. It is not a productivity dashboard with KPI walls and analytics charts. It is not a generic task manager with projects, deadlines, and assignments. Rythm is a quiet ritual tool — closer in feel to Linear, Todoist, or Notion than to Habitica or Strava — designed for adults who want personal structure without noise. Where gamification is introduced, it stays quiet: XP and badges as honest signals of consistency, never as social pressure, push urgency, or aggressive celebrations. Every product and design decision should compress toward calm, structured, and honest.
 
 ## The Problem It Solves
 
@@ -41,15 +41,15 @@ Rythm should feel:
 - **honest** — never inflate progress, never hide gaps
 - **list-led** — grouped rows beat card galleries
 - **mobile-first** — installable PWA, comfortable on a phone in a single hand
-- **non-gamified** — no XP, no badges, no celebrations
+- **rewards-aware** — gamification is planned, but kept in the same quiet register: XP as a factual counter, badges as milestones, no aggressive animations or social pressure mechanics
 
-If a design or feature decision moves the product toward "looks like a startup admin dashboard" or "feels like a habit-tracker game," it is a wrong-direction signal.
+If a design or feature decision moves the product toward "looks like a startup admin dashboard" or "feels like a push-notification-driven engagement loop," it is a wrong-direction signal.
 
 ## What Makes Rythm Different
 
 | Other category | Rythm's stance |
 |---|---|
-| Gamified habit trackers (Habitica, Streaks) | No XP, no badges, no celebratory animations. Streak is informational, not currency. |
+| Gamified habit trackers (Habitica, Streaks) | Gamification is planned but stays quiet — XP as honest progress signal, badges as milestones, no aggressive animations or social pressure. |
 | Productivity dashboards (Notion templates, Things) | No projects, no deadlines, no sub-tasks. Period-based completion is the only model. |
 | Analytics-heavy trackers (HabitNow, Way of Life) | No charts, no trend graphs, no scoring. Activity log is chronological text. |
 | Generic to-do apps (Todoist, Microsoft To Do) | Recurring is first-class, not bolted on. Period reset is built into the data model. |
@@ -67,7 +67,7 @@ The MVP is largely shipped:
 - **PWA** — manifest, icons, service worker for shell caching, offline fallback page
 - **Deployment posture** — Next.js fullstack on Vercel, Better Auth + Prisma + PostgreSQL-compatible, deployment env checker, Resend integration for auth emails
 
-A live IA pivot is in flight: the sidebar already shows "Tasks-first" labels (`Today`, `Lists`, `Habit Lists`, `Activity Log`) with `Upcoming`, `Calendar`, and `Journal` as disabled placeholders. Underlying routes (`/dashboard`, `/quests`, `/categories`, `/history`) remain on the Quest data model. Whether to commit to Tasks-first or revert to Quest naming is an unsettled product decision tracked in [PRODUCT_PLAN.md](./PRODUCT_PLAN.md#open-strategic-decisions).
+The IA direction is settled: **Tasks-first**. The sidebar already shows `Today`, `Lists`, `Habit Lists`, `Activity Log` with `Upcoming`, `Calendar`, and `Journal` as disabled placeholders. Route renames (`/dashboard` → `/today`, etc.) are scheduled implementation work — the old routes will redirect permanently once renamed. Gamification is now a planned future layer; the schema is additive and the visual treatment will stay within the calm design language.
 
 ## Current Limitations
 

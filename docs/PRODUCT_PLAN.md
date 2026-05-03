@@ -9,36 +9,22 @@ If a feature is not listed in here, it is not on the roadmap. Adding a feature r
 1. Skim **Open Strategic Decisions** — these are unresolved product calls that block implementation. Don't start work that depends on them until they are settled.
 2. Read **Feature Inventory** — the honest current state.
 3. Read **Priority List** — the actionable next slices, with acceptance criteria.
-4. Check **IA-Conditional Roadmap** only if you're working on navigation, sidebar, or new surfaces.
+4. Check **IA Roadmap** only if you're working on navigation, sidebar, route renames, or new surfaces.
 5. Skim **Open Product Questions** at the end — these are not blocking but worth knowing about.
 
 ---
 
 ## Open Strategic Decisions
 
-These three decisions are unresolved. Each blocks specific downstream work. **Do not pick one silently** — surface the question to the user and wait for a decision.
+Decisions 2 and 3 are unresolved. Each blocks specific downstream work. **Do not pick one silently** — surface the question to the user and wait for a decision. Decision 1 is resolved (Tasks-first).
 
 ### 1. IA Direction: Quest Model vs Tasks-First
 
-**Status:** unresolved.
+**Status:** ✅ RESOLVED — **Tasks-first wins.**
 
-**Background:** The original PRD and the canonical schema describe a "Quest" model with routes `/dashboard`, `/quests`, `/categories`, `/history`. A subsequent design pass (preserved in [DESIGN_DIRECTION.md](./DESIGN_DIRECTION.md)) introduced a "Tasks-first" IA with views `Today`, `Upcoming`, `Calendar`, `Activity Log`, `Lists`, `Habit Lists`, plus a future `Journal` module. The app sidebar in [components/app/app-sidebar.tsx](../components/app/app-sidebar.tsx) has already adopted the Tasks-first labels and shows `Upcoming`, `Calendar`, `Journal` as disabled placeholders. Routes still live at the original Quest paths.
+Routes are scheduled to be renamed: `/dashboard` → `/today`, `/quests` → `/lists`, `/categories` → `/habit-lists`, `/history` → `/activity-log`, with permanent redirects from the old paths. The `Upcoming`, `Calendar`, and `Journal` placeholder modules are valid forward roadmap items. See the IA-Conditional Roadmap section below for the implementation sequence.
 
-**Why this matters:** the half-state is a transitional hazard. New UI work has to keep both labelings in mind, copy across screens drifts, and three placeholder modules in the sidebar implicitly promise features that aren't on the priority list.
-
-**Option A — Commit to Tasks-First:**
-- Rename routes (`/dashboard` → `/today`, `/quests` → `/lists`, `/categories` → `/habit-lists`, `/history` → `/activity-log`) with redirects from the old paths.
-- Build `Upcoming` v1 and `Calendar` v1 over the existing completion data (no schema change required for v1).
-- Decide what `Habit Lists` is in the data model — a renamed `Category`, or a new entity that separates recurring containers from one-off task lists.
-- Decide whether `Lists` should eventually hold non-recurring tasks (which would require a real `Task` entity separate from `Quest`).
-- Plan a `Journal` entity if the module is to graduate from placeholder.
-
-**Option B — Revert to Quest Model:**
-- Rename sidebar labels back to `Dashboard`, `Quests`, `Categories`, `History`.
-- Remove the three disabled placeholder modules from the sidebar.
-- Strip Tasks-first language from `DESIGN_DIRECTION.md`; treat the `Today`/`Upcoming`/`Calendar`/`Activity Log` framing as design exploration that did not land.
-
-**Recommendation rule of thumb:** if the user wants the product to grow toward general task management, pick A. If the product should stay narrow to recurring habit/quest tracking, pick B. Either is coherent; the half-state is not.
+The `Habit Lists` data model question (Strategic Decision 3) is now active — resolve it before implementing the route renames.
 
 ---
 
@@ -63,14 +49,14 @@ These three decisions are unresolved. Each blocks specific downstream work. **Do
 
 ### 3. `Habit Lists` Data Model
 
-**Status:** unresolved, conditional on Decision 1.
+**Status:** unresolved — now **implementation-blocking** since Decision 1 resolved to Tasks-first.
 
 **Background:** The sidebar maps the existing `/categories` route to a label called `Habit Lists`. The schema has only one container entity: `Category`. Either:
 
-- **(a)** `Habit Lists` is purely a UI label for `Category` and the schema does not change, or
+- **(a)** `Habit Lists` is purely a UI label for `Category` and the schema does not change — the quickest path.
 - **(b)** `Habit Lists` is a separate concept that holds a curated cadence (e.g., "Morning Routine" containing several Daily quests) and `Category` becomes a different concept (e.g., a life domain like "Health"), requiring a schema split.
 
-If Decision 1 picks Tasks-First, this becomes implementation-blocking. If it picks Quest Model, the question resolves to (a) by default.
+Resolve this before starting the route-rename work, since the rename will also update nav labels and page copy.
 
 ---
 
@@ -144,7 +130,7 @@ Quality gates
 
 ### Partially Complete / In Flight
 
-- **Tasks-first IA migration.** Sidebar labels and disabled placeholders landed; routes and screen titles still use Quest naming; `DESIGN_DIRECTION.md` documents both labelings as parallel until Decision 1 is settled.
+- **IA route renames.** Sidebar labels are already Tasks-first (`Today`, `Lists`, `Habit Lists`, `Activity Log`). Routes still live at old paths (`/dashboard`, `/quests`, `/categories`, `/history`). Rename + redirect work is queued in the IA Roadmap below — resolve Strategic Decision 3 first.
 
 ### Coming Soon (visible but disabled in UI)
 
@@ -157,7 +143,6 @@ Quality gates
 These are deliberate non-goals. Adding any of them without an explicit user decision is a wrong-direction move.
 
 - Analytics, charts, trend graphs, scoring
-- XP, levels, badges, celebrations, streak-as-currency
 - Sub-quests, parent-child quest relationships
 - Social features, sharing, leaderboards, public profiles
 - Team or household collaboration
@@ -247,6 +232,7 @@ These items can be picked up regardless of how the IA decision lands.
 
 ### Later
 
+- **Gamification system** — XP awarded per completion, milestone badges, progression levels. Must stay within the calm design language: no aggressive celebration animations, no streak-as-social-pressure mechanics, no push-notification urgency loops. Visual treatment: XP as a small factual counter (mono text, no glow), badges displayed in a dedicated profile or stats surface, not flooding the main list. Schema additions are entirely additive (new tables alongside existing ones: `user_xp_ledger`, `badges`, `user_level`, `achievement_unlocks`). Design the system explicitly before any implementation work starts.
 - Analytics (deliberately deferred — see Out of Scope; revisit only if the user explicitly reverses that stance)
 - Multi-locale UI
 - Public sharing of streaks
@@ -254,24 +240,15 @@ These items can be picked up regardless of how the IA decision lands.
 
 ---
 
-## IA-Conditional Roadmap
+## IA Roadmap (Tasks-First)
 
-These items are scoped only after Strategic Decision 1 is resolved.
+Strategic Decision 1 is resolved: Tasks-first is canonical. The work below is now approved and actionable.
 
-### If Tasks-First wins
-
-1. **Route renames + redirects.** `/dashboard` → `/today`, `/quests` → `/lists`, `/categories` → `/habit-lists`, `/history` → `/activity-log`. Old paths return permanent redirects. Update `app/manifest.ts`, sidebar, sitemap, copy, and PWA start URL.
-2. **Resolve `Habit Lists` data model** (Strategic Decision 3) before route work starts.
-3. **`Upcoming` v1.** Date-grouped agenda surface over existing completion data. Filters for next 7 / 14 / 30 days. No schema change required for v1 because Daily/Weekly/Monthly quests already imply future periods.
+1. **Resolve `Habit Lists` data model** (Strategic Decision 3) — do this first, before any route or copy changes.
+2. **Route renames + redirects.** `/dashboard` → `/today`, `/quests` → `/lists`, `/categories` → `/habit-lists`, `/history` → `/activity-log`. Old paths return permanent redirects (`308`). Update `app/manifest.ts` start URL, sidebar `href` values, all page title copy, Playwright e2e route references, and the deployment smoke checklist.
+3. **`Upcoming` v1.** Date-grouped agenda surface over existing completion data. Filters for next 7 / 14 / 30 days. No schema change required for v1 — Daily/Weekly/Monthly quests already imply future periods via the period helper.
 4. **`Calendar` v1.** Month grid with selected-day agenda below it. Reuses the `Today` row component for the agenda. No schema change for v1.
-5. **`Journal` foundation.** Decide entity shape (`journal_entries(user_id, date, body, created_at, updated_at)` is a reasonable starting point), build a minimal write surface, leave it disabled in the sidebar until the entity exists.
-
-### If Quest Model wins
-
-1. **Revert sidebar labels** to `Dashboard`, `Quests`, `Categories`, `History`.
-2. **Remove placeholders.** Strip `Upcoming`, `Calendar`, `Journal` from the module/task rails entirely.
-3. **Update `DESIGN_DIRECTION.md`** to remove the Tasks-first IA section and treat the Quest IA as canonical.
-4. **Clean up wireframe artifacts.** Move Tasks-first wireframes to `docs/archive/` so they don't keep informing future work.
+5. **`Journal` foundation.** Decide entity shape (`journal_entries(user_id, date, body, created_at, updated_at)` is a reasonable starting point), build a minimal write surface, then graduate it from disabled to enabled in the sidebar.
 
 ---
 
@@ -292,14 +269,15 @@ These are worth flagging but not gating any current work. If you encounter one w
 
 Pick vertical slices, ship them complete, then move on. Avoid scattering partial migrations across multiple files in parallel.
 
-1. Resolve Strategic Decisions 1 and 2 (this unblocks everything below).
+1. Resolve Strategic Decision 3 (`Habit Lists` data model) — now the only open strategic blocker.
 2. P0.2 (database provider) — pick + migrate.
 3. P0.1 (Resend email) — verify delivery in the deployed environment.
 4. P0.3 (real-device PWA install).
-5. P1.1 (token migration pass on `components/ui`) — biggest visual coherence win.
-6. If Decision 1 picked Tasks-first: route renames, then `Upcoming` v1, then `Calendar` v1.
-7. If Decision 1 picked Quest model: revert sidebar, prune placeholders, clean docs.
+5. IA route renames + redirects (see IA Roadmap above) — unblocked once Decision 3 is settled.
+6. P1.1 (token migration pass on `components/ui`) — biggest visual coherence win.
+7. `Upcoming` v1, then `Calendar` v1.
 8. P1.2 / P1.3 (DnD reorder, mobile gestures) — polish layer.
 9. P2 items as bandwidth allows.
+10. Gamification design pass (schema + visual treatment) before any implementation.
 
 The repo discipline guard expects every source change to ship alongside a `PRODUCT_PLAN.md` (or `to_dos.md` until the guard is updated) edit. Update this doc as you finish each slice.

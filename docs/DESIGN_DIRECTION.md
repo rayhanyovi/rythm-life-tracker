@@ -4,7 +4,7 @@ This is the canonical source of truth for the **product structure**, **informati
 
 > **For agents:** read [PROJECT_OVERVIEW.md](./PROJECT_OVERVIEW.md) before this file. Implement against the rules in this doc; if your change conflicts with what's here, update this doc first and align with the user, then write code.
 
-> **About the IA pivot:** Rythm has two valid IA framings — the original **Quest IA** (matching the routes and schema) and a target **Tasks-first IA** (matching the sidebar labels and the wireframe artifacts). Whether to commit to Tasks-first or revert to Quest IA is an **Open Strategic Decision** tracked in [PRODUCT_PLAN.md](./PRODUCT_PLAN.md#open-strategic-decisions). Until that decision is settled, this doc documents both as parallel valid framings, and any UI work should preserve compatibility with both labelings.
+> **IA direction is settled:** Rythm uses the **Tasks-first IA**. Routes are scheduled to be renamed to match (`/today`, `/lists`, `/habit-lists`, `/activity-log`) with permanent redirects from the old paths — see [PRODUCT_PLAN.md IA Roadmap](./PRODUCT_PLAN.md#ia-roadmap-tasks-first) for the implementation sequence. Until the renames land, code uses the old route paths (`/dashboard`, `/quests`, etc.) but all copy, page titles, and sidebar labels use Tasks-first terminology.
 
 ---
 
@@ -59,77 +59,69 @@ Explicit rejections from the reference:
 | Landing | persuasive, staged, premium, but still calm |
 | Auth | quiet, trustworthy, low-noise |
 | App shell | restrained and supportive |
-| `Today` / `Dashboard` | fast, readable, operational |
+| `Today` | fast, readable, operational |
 | `Upcoming` / `Calendar` | planning-oriented, but still quiet |
-| `Lists` / `Quests` and `Habit Lists` / `Categories` | practical and ordered |
-| `Activity Log` / `History` | sober and corrective, not analytical theater |
+| `Lists` and `Habit Lists` | practical and ordered |
+| `Activity Log` | sober and corrective, not analytical theater |
 
 ---
 
 ## Section 2 — Information Architecture
 
-> Rythm has two parallel IA framings until [PRODUCT_PLAN.md Open Strategic Decision 1](./PRODUCT_PLAN.md#1-ia-direction-quest-model-vs-tasks-first) is resolved. Implement UI to keep both legible.
+The IA is **Tasks-first**. Route renames are scheduled work — see [PRODUCT_PLAN.md IA Roadmap](./PRODUCT_PLAN.md#ia-roadmap-tasks-first). Until renames land, route paths remain at their old values; all copy and labels use Tasks-first terminology.
 
-### Routes (canonical, do not rename without resolving the strategic decision)
+### Routes
 
-| Route | Purpose |
-|---|---|
-| `/` | Public landing (unauthenticated) or redirect to `/dashboard` (authenticated) |
-| `/sign-in`, `/sign-up`, `/forgot-password`, `/reset-password` | Auth surfaces |
-| `/dashboard` | Current-period view |
-| `/quests` | Quest CRUD + management |
-| `/categories` | Category CRUD + reorder |
-| `/history` | Chronological completion log |
-| `/offline` | PWA offline fallback |
-
-### Two IA Framings (sidebar / nav copy)
-
-#### Quest IA (matches schema and original PRD)
-
-```text
-Module Rail            Tasks Rail
-  Dashboard              (none — flat nav)
-  Quests
-  Categories
-  History
-```
-
-#### Tasks-First IA (current sidebar labels + planned future surfaces)
-
-```text
-Module Rail            Tasks Rail
-  Tasks                  Today              → /dashboard
-  Journal (disabled)     Upcoming           (placeholder, no route yet)
-                         Calendar           (placeholder, no route yet)
-                         Activity Log       → /history
-                         ── Task Spaces ──
-                         Lists              → /quests
-                         Habit Lists        → /categories
-```
-
-### Surface Roles (label-agnostic)
-
-| Surface | Today / Dashboard route | Role |
+| Current route | Future route | Purpose |
 |---|---|---|
-| Today / Dashboard | `/dashboard` | Daily-use home — merges due tasks and recurring or habit instances due now |
-| Upcoming | (planned only) | Near-future planning surface for date-grouped work across a short horizon |
-| Calendar | (planned only) | Date-grid planning view over the same task pool |
-| Activity Log / History | `/history` | Completion review, note correction, and deletion flow |
-| Lists / Quests | `/quests` | Quest definitions and management — search, filter, edit |
-| Habit Lists / Categories | `/categories` | Grouping containers — life domains in the Quest IA, recurring containers in the Tasks-first framing |
+| `/` | `/` | Public landing (unauthenticated) or redirect to Today (authenticated) |
+| `/sign-in`, `/sign-up`, `/forgot-password`, `/reset-password` | unchanged | Auth surfaces |
+| `/dashboard` | `/today` | Current-period view |
+| `/quests` | `/lists` | Quest CRUD + management |
+| `/categories` | `/habit-lists` | Category CRUD + reorder |
+| `/history` | `/activity-log` | Chronological completion log |
+| `/offline` | `/offline` | PWA offline fallback |
+| *(planned)* | `/upcoming` | Date-grouped near-future agenda |
+| *(planned)* | `/calendar` | Month grid with selected-day agenda |
+
+Old routes will redirect permanently (`308`) after the rename lands. Update `app/manifest.ts` start URL and PWA metadata at the same time.
+
+### Navigation Structure
+
+```text
+Module Rail        Tasks Rail
+  Tasks              Today              → /dashboard  (→ /today after rename)
+  Journal (disabled) Upcoming           (disabled placeholder)
+                     Calendar           (disabled placeholder)
+                     Activity Log       → /history    (→ /activity-log after rename)
+                     ── Task Spaces ──
+                     Lists              → /quests     (→ /lists after rename)
+                     Habit Lists        → /categories (→ /habit-lists after rename)
+```
+
+### Surface Roles
+
+| Surface | Route | Role |
+|---|---|---|
+| Today | `/dashboard` → `/today` | Daily-use home — recurring habit check-ins due this period |
+| Upcoming | *(planned)* | Near-future planning surface for date-grouped work |
+| Calendar | *(planned)* | Month grid with selected-day agenda |
+| Activity Log | `/history` → `/activity-log` | Completion review, note correction, and deletion |
+| Lists | `/quests` → `/lists` | Quest definitions and management — search, filter, edit |
+| Habit Lists | `/categories` → `/habit-lists` | Grouping containers (life domains or recurring cadence containers) |
 
 ### Navigation Rules
 
-- The module rail stays intentionally short. In the Tasks-first framing it contains only `Tasks` and `Journal`. In the Quest framing the module concept does not apply and the nav is flat.
+- The module rail stays intentionally short: `Tasks` and `Journal` only.
 - Fixed views and list buckets share one rail rather than splitting into more top-level destinations.
-- `Lists` and `Habit Lists` (or `Quests` and `Categories`) live below fixed views and never become peer modules.
+- `Lists` and `Habit Lists` live below fixed views and never become peer modules.
 - User identity, sign-out, and install or account status are utility elements, not primary nav.
-- Mobile collapses the rails into a drawer or stacked switcher rather than inventing a second IA branch.
+- Mobile collapses the rails into a drawer or stacked switcher rather than inventing a second IA.
 - Disabled placeholder modules (`Upcoming`, `Calendar`, `Journal`) must look obviously inactive — do not let them invite clicks that go nowhere.
 
 ### Public And Support Surfaces
 
-These remain outside the authenticated app shell on either IA framing:
+These remain outside the authenticated app shell:
 
 - `Landing`
 - `Sign in`, `Sign up`, `Forgot password`, `Reset password`
@@ -330,7 +322,7 @@ Use shadow to separate layers, not to manufacture excitement.
 
 ### App Layout Rules
 
-- App shell stable: module rail (Tasks-first) or flat nav (Quest IA), task rail (if present), list column, detail pane.
+- App shell structure: module rail, task rail, list column, detail pane.
 - Mobile collapses rails into a drawer or stacked switcher rather than inventing a second IA.
 - App interiors are list-first.
 - Contextual detail belongs in side panes or sheets — not new routes.
@@ -385,7 +377,7 @@ Use shadow to separate layers, not to manufacture excitement.
 
 ## Section 7 — Wireframes
 
-ASCII layouts, mobile-first, with desktop expansion. Both Quest IA and Tasks-first labels are shown where they differ; otherwise the wireframe is shared.
+ASCII layouts, mobile-first, with desktop expansion. Tasks-first labels are canonical. Route paths shown are current values; they will update when the IA route renames land.
 
 ### 7.1 — Authenticated Shell (Mobile Drawer)
 
@@ -414,7 +406,7 @@ Drawer (opened from [≡]):
 +----------------------------------+
 ```
 
-In the Quest IA framing the drawer reads `Dashboard / Quests / Categories / History` as a flat list with no module rail and no disabled placeholders.
+The route paths inside the drawer will update when the route renames land (see IA Roadmap).
 
 ### 7.2 — Authenticated Shell (Desktop)
 
@@ -433,7 +425,7 @@ In the Quest IA framing the drawer reads `Dashboard / Quests / Categories / Hist
 * = disabled placeholder
 ```
 
-In the Quest IA framing, drop the Modules column entirely and use a flat sidebar with `Dashboard / Quests / Categories / History`.
+Rail labels update when route renames land.
 
 ### 7.3 — Today / Dashboard (Mobile)
 
@@ -548,7 +540,7 @@ Calendar is another view on the same task pool. Selected-day agenda uses the sam
 +----------------------------------+
 ```
 
-In the Quest IA framing the page title reads `Quests`.
+Page title is `Lists` (Tasks-first canonical). Route is `/quests` until the rename lands.
 
 ### 7.8 — Habit Lists / Categories (Mobile)
 
@@ -752,8 +744,9 @@ When the visual pass happens, theme metadata should also align:
 - Favor rows and grouped content inside the app.
 - Reach for tokens before adding new visual values.
 - Add new tokens to `app/globals.css` first when a new surface treatment is genuinely needed.
-- Preserve compatibility with both Quest IA and Tasks-first labels until the strategic decision lands.
+- Use Tasks-first labels in all copy, page titles, and sidebar text.
 - Use specific verbs in button copy ("Create quest" beats "Submit").
+- When implementing gamification, keep it quiet: XP as a small mono counter, badges in a dedicated surface (not the main list), no glow, no aggressive animations.
 
 ### Do Not
 
@@ -764,10 +757,10 @@ When the visual pass happens, theme metadata should also align:
 - Use glossy glassmorphism or startup-glow polish.
 - Treat dark mode as the primary personality of the product.
 - Hardcode `hsl(...)`, `oklch(...)`, gradient literals, or shadow literals when a token can represent the value.
-- Add gamification language (XP, level, badge, crown, fire emoji as a streak symbol).
+- Implement gamification with fire emojis, celebration floods, aggressive streak-as-pressure mechanics, or social leaderboard UI — gamification is planned but must stay in the calm register.
 - Build KPI walls or dashboard card galleries.
 - Introduce hover-only interactions on primary paths.
-- Silently rename routes or sidebar labels — that's the strategic decision in [PRODUCT_PLAN.md](./PRODUCT_PLAN.md#open-strategic-decisions).
+- Rename routes without following the IA Roadmap sequence in [PRODUCT_PLAN.md](./PRODUCT_PLAN.md#ia-roadmap-tasks-first) (route rename is planned work with a specific sequence, not a one-off edit).
 
 ---
 
@@ -776,13 +769,13 @@ When the visual pass happens, theme metadata should also align:
 The design system is correctly applied if all of the following are true:
 
 - A landing hero can be built without guessing headline hierarchy, hero composition, CTA styling, or screenshot framing.
-- The authenticated shell can be built without guessing module rail, task rail, list column, or detail pane behavior on either IA framing.
-- `Today`, `Lists`, and `Activity Log` (or `Dashboard`, `Quests`, `History`) can be restyled without guessing fonts, semantic colors, radius, shadows, or density.
+- The authenticated shell can be built without guessing module rail, task rail, list column, or detail pane behavior.
+- `Today`, `Lists`, and `Activity Log` can be restyled without guessing fonts, semantic colors, radius, shadows, or density.
 - The relationship to the visual reference is explicit: composition and type discipline inherited; palette and glossy decoration rejected.
 - The app still reads as a calm ritual tool, not a SaaS admin dashboard.
 - The landing page can be more expressive than the app without looking like a different product.
 - Dark mode remains obviously derived from the light system.
-- Both Quest IA and Tasks-first sidebar labelings still render coherently from the same component code.
+- Any gamification surface (XP counter, badge grid) uses the same quiet slate token palette — no glow, no neon, no outsized celebration states.
 
 ---
 

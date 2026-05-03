@@ -1079,9 +1079,9 @@ The repo `README.md` was the default Next.js boilerplate before this consolidati
 
 The frozen prototype still ships in the repo. Discipline guard blocks edits to it, but it adds clone size and potential confusion. Decide whether to keep it (for future visual reference) or remove it entirely once the design migration in [PRODUCT_PLAN.md P1.1](./PRODUCT_PLAN.md#p11--token-migration-pass-on-componentsui-primitives) is complete.
 
-### IA Half-State
+### IA Route Renames Pending
 
-See [PRODUCT_PLAN.md Open Strategic Decision 1](./PRODUCT_PLAN.md#1-ia-direction-quest-model-vs-tasks-first). Until resolved, every UI change has to consider both labelings.
+The IA direction is settled (Tasks-first). Route renames (`/dashboard` → `/today`, etc.) are approved work but not yet implemented. Until the renames land, route paths remain at their old values. See [PRODUCT_PLAN.md IA Roadmap](./PRODUCT_PLAN.md#ia-roadmap-tasks-first) for the required sequence (resolve `Habit Lists` data model first, then rename in one coordinated commit that also updates `app/manifest.ts`, sidebar `href` values, Playwright e2e route refs, and the deployment smoke checklist).
 
 ### Token Migration On `components/ui` Primitives
 
