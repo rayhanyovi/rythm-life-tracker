@@ -33,7 +33,7 @@ function SelectTrigger({
     <SelectPrimitive.Trigger
       data-slot="select-trigger"
       className={cn(
-        "flex h-12 w-full items-center justify-between gap-3 rounded-2xl border border-border/90 bg-background/80 px-4 py-3 text-left text-sm text-foreground shadow-sm outline-none transition-colors placeholder:text-muted-foreground focus:border-primary focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:opacity-50 data-[placeholder]:text-muted-foreground",
+        "flex h-12 w-full items-center justify-between gap-3 rounded-lg border border-input bg-background px-4 py-3 text-left text-sm text-foreground shadow-xs outline-none transition-[border-color,box-shadow,background-color] duration-[160ms] ease-out placeholder:text-muted-foreground focus:border-primary focus:ring-4 focus:ring-ring/10 disabled:cursor-not-allowed disabled:opacity-50 data-[placeholder]:text-muted-foreground",
         className,
       )}
       {...props}
@@ -58,7 +58,7 @@ function SelectContent({
         data-slot="select-content"
         position={position}
         className={cn(
-          "relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-2xl border border-border bg-popover text-popover-foreground shadow-xl data-[state=open]:animate-in data-[state=closed]:animate-out",
+          "relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-lg border border-border bg-popover text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out",
           position === "popper" &&
             "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
           className,
@@ -103,7 +103,7 @@ function SelectItem({
     <SelectPrimitive.Item
       data-slot="select-item"
       className={cn(
-        "relative flex w-full cursor-default items-center gap-2 rounded-xl py-2.5 pr-8 pl-3 text-sm outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
+        "relative flex w-full cursor-default items-center gap-2 rounded-md py-2.5 pr-8 pl-3 text-sm outline-none transition-[background-color,color] duration-[160ms] ease-out select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
         className,
       )}
       {...props}

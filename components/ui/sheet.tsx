@@ -38,7 +38,7 @@ function SheetOverlay({
   return (
     <DialogPrimitive.Overlay
       className={cn(
-        "fixed inset-0 z-50 bg-foreground/20 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out",
+        "fixed inset-0 z-50 bg-foreground/14 backdrop-blur-[2px] data-[state=open]:animate-in data-[state=closed]:animate-out",
         className,
       )}
       {...props}
@@ -47,16 +47,16 @@ function SheetOverlay({
 }
 
 const sheetVariants = cva(
-  "fixed z-50 flex flex-col gap-4 border-border bg-card p-6 shadow-2xl transition duration-200 ease-out",
+  "fixed z-50 flex flex-col gap-4 border border-border bg-card p-6 shadow-xl transition duration-[240ms] ease-out",
   {
     variants: {
       side: {
-        top: "inset-x-0 top-0 border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top",
+        top: "inset-x-0 top-0 rounded-b-xl data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top",
         bottom:
-          "inset-x-0 bottom-0 border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
-        left: "inset-y-0 left-0 h-full w-[88vw] max-w-sm border-r data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left",
+          "inset-x-0 bottom-0 rounded-t-xl data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
+        left: "inset-y-0 left-0 h-full w-[88vw] max-w-sm rounded-r-xl data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left",
         right:
-          "inset-y-0 right-0 h-full w-[88vw] max-w-sm border-l data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right",
+          "inset-y-0 right-0 h-full w-[88vw] max-w-sm rounded-l-xl data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right",
       },
     },
     defaultVariants: {
@@ -80,7 +80,7 @@ function SheetContent({
         {...props}
       >
         {children}
-        <DialogPrimitive.Close className="absolute top-4 right-4 rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring/40">
+        <DialogPrimitive.Close className="absolute top-4 right-4 rounded-md border border-transparent p-2 text-muted-foreground transition-[background-color,border-color,color,box-shadow] duration-[160ms] ease-out hover:border-border hover:bg-muted hover:text-foreground focus:outline-none focus:ring-4 focus:ring-ring/15">
           <X className="size-4" />
           <span className="sr-only">Close</span>
         </DialogPrimitive.Close>

@@ -1,13 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  useTransition,
-} from "react";
+import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import {
   CircleAlert,
   Loader2,
@@ -17,16 +11,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-import { DetailPanel } from "@/components/app/detail-panel";
-import { DetailStat } from "@/components/app/detail-stat";
 import { EmptyState } from "@/components/app/empty-state";
-import { InteractiveListCard } from "@/components/app/interactive-list-card";
-import { PageIntro } from "@/components/app/page-intro";
-import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-} from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,10 +24,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -51,8 +33,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 
 type QuestType = "DAILY" | "WEEKLY" | "MONTHLY" | "MAIN";
 
@@ -120,7 +110,7 @@ const QUEST_TYPE_LABELS: Record<QuestType, string> = {
   DAILY: "Daily",
   WEEKLY: "Weekly",
   MONTHLY: "Monthly",
-  MAIN: "Main quest",
+  MAIN: "Main",
 };
 
 async function readJson<T>(response: Response) {
@@ -162,6 +152,103 @@ function formatHistoryTime(value: string) {
   }).format(new Date(value));
 }
 
+function DetailStat({
+  label,
+  value,
+}: {
+  label: string;
+  value: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-xl border border-border/80 bg-background/80 px-4 py-3">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+        {label}
+      </p>
+      <div className="mt-2 text-sm font-semibold text-foreground">{value}</div>
+    </div>
+  );
+}
+
+function HistoryDetail({
+  isPending,
+  noteDraft,
+  onChangeNote,
+  onDelete,
+  onSaveNote,
+  item,
+}: {
+  isPending: boolean;
+  noteDraft: string;
+  onChangeNote: (value: string) => void;
+  onDelete: () => void;
+  onSaveNote: () => void;
+  item: HistoryItem;
+}) {
+  return (
+    <div className="space-y-5">
+      <div className="space-y-2">
+        <div className="space-y-1">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            Selected completion
+          </p>
+          <h2 className="text-xl font-semibold tracking-tight text-foreground">
+            {item.questTitle}
+          </h2>
+        </div>
+        <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+          <span>{item.categoryName}</span>
+          <span className="size-1 rounded-full bg-border" />
+          <span>{formatQuestType(item.questType)}</span>
+        </div>
+        <p className="text-sm leading-6 text-muted-foreground">
+          Completed on {formatHistoryDayLabel(item.completedAt)} at{" "}
+          {formatHistoryTime(item.completedAt)}.
+        </p>
+      </div>
+
+      <div className="grid gap-3">
+        <DetailStat label="Period key" value={item.periodKey} />
+        <DetailStat label="Completion ID" value={item.completionId} />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="activity-log-note">Completion note</Label>
+        <Textarea
+          id="activity-log-note"
+          value={noteDraft}
+          onChange={(event) => onChangeNote(event.target.value)}
+          placeholder="Add context that will matter when you review this completion later."
+          disabled={isPending}
+          className="min-h-32"
+        />
+      </div>
+
+      <div className="flex flex-wrap gap-3">
+        <Button
+          onClick={onSaveNote}
+          disabled={isPending || noteDraft === (item.note ?? "")}
+        >
+          {isPending ? (
+            <Loader2 className="size-4 animate-spin" />
+          ) : (
+            <NotebookPen className="size-4" />
+          )}
+          Save note
+        </Button>
+        <Button
+          variant="ghost"
+          className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+          onClick={onDelete}
+          disabled={isPending}
+        >
+          <Trash2 className="size-4" />
+          Remove completion
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export function HistoryScreen() {
   const [items, setItems] = useState<HistoryItem[]>([]);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
@@ -171,17 +258,14 @@ export function HistoryScreen() {
   const [toDate, setToDate] = useState("");
   const [categoryFilterId, setCategoryFilterId] = useState<string | null>(null);
   const [questFilterId, setQuestFilterId] = useState<string | null>(null);
-  const [questTypeFilter, setQuestTypeFilter] = useState<QuestType | null>(
-    null,
-  );
-  const [selectedCompletionId, setSelectedCompletionId] = useState<string | null>(
-    null,
-  );
+  const [questTypeFilter, setQuestTypeFilter] = useState<QuestType | null>(null);
+  const [selectedCompletionId, setSelectedCompletionId] = useState<string | null>(null);
   const [noteDraft, setNoteDraft] = useState("");
   const [isLoadingFilters, setIsLoadingFilters] = useState(true);
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<HistoryItem | null>(null);
+  const [isMobileDetailOpen, setIsMobileDetailOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   const fetchCategories = useCallback(async () => {
@@ -204,7 +288,7 @@ export function HistoryScreen() {
     const payload = await readJson<QuestsPayload>(response);
 
     if (!response.ok || !payload?.quests) {
-      throw new Error(payload?.error ?? "Failed to load quests.");
+      throw new Error(payload?.error ?? "Failed to load tasks.");
     }
 
     return payload.quests;
@@ -214,41 +298,21 @@ export function HistoryScreen() {
     async (cursor?: string | null) => {
       const searchParams = new URLSearchParams();
 
-      if (fromDate) {
-        searchParams.set("from", fromDate);
-      }
-
-      if (toDate) {
-        searchParams.set("to", toDate);
-      }
-
-      if (categoryFilterId) {
-        searchParams.set("categoryId", categoryFilterId);
-      }
-
-      if (questFilterId) {
-        searchParams.set("questId", questFilterId);
-      }
-
-      if (questTypeFilter) {
-        searchParams.set("questType", questTypeFilter);
-      }
-
-      if (cursor) {
-        searchParams.set("cursor", cursor);
-      }
+      if (fromDate) searchParams.set("from", fromDate);
+      if (toDate) searchParams.set("to", toDate);
+      if (categoryFilterId) searchParams.set("categoryId", categoryFilterId);
+      if (questFilterId) searchParams.set("questId", questFilterId);
+      if (questTypeFilter) searchParams.set("questType", questTypeFilter);
+      if (cursor) searchParams.set("cursor", cursor);
 
       const query = searchParams.toString();
-      const response = await fetch(
-        query ? `/api/history?${query}` : "/api/history",
-        {
-          cache: "no-store",
-        },
-      );
+      const response = await fetch(query ? `/api/history?${query}` : "/api/history", {
+        cache: "no-store",
+      });
       const payload = await readJson<HistoryPayload>(response);
 
       if (!response.ok || !payload?.items) {
-        throw new Error(payload?.error ?? "Failed to load history.");
+        throw new Error(payload?.error ?? "Failed to load activity log.");
       }
 
       return {
@@ -278,7 +342,7 @@ export function HistoryScreen() {
           setErrorMessage(
             error instanceof Error
               ? error.message
-              : "Failed to load history filters.",
+              : "Failed to load activity log filters.",
           );
         }
       } finally {
@@ -311,7 +375,7 @@ export function HistoryScreen() {
       } catch (error) {
         if (!cancelled) {
           setErrorMessage(
-            error instanceof Error ? error.message : "Failed to load history.",
+            error instanceof Error ? error.message : "Failed to load activity log.",
           );
         }
       } finally {
@@ -361,9 +425,7 @@ export function HistoryScreen() {
       return null;
     }
 
-    return (
-      items.find((item) => item.completionId === selectedCompletionId) ?? items[0]
-    );
+    return items.find((item) => item.completionId === selectedCompletionId) ?? items[0];
   }, [items, selectedCompletionId]);
 
   useEffect(() => {
@@ -411,6 +473,12 @@ export function HistoryScreen() {
 
   const hasNoItems = !isLoadingHistory && items.length === 0;
 
+  const refreshHistory = async () => {
+    const payload = await fetchHistory();
+    setItems(payload.items);
+    setNextCursor(payload.nextCursor);
+  };
+
   const loadMore = () => {
     if (!nextCursor) {
       return;
@@ -425,16 +493,10 @@ export function HistoryScreen() {
         setNextCursor(payload.nextCursor);
       } catch (error) {
         setErrorMessage(
-          error instanceof Error ? error.message : "Failed to load more history.",
+          error instanceof Error ? error.message : "Failed to load more activity.",
         );
       }
     });
-  };
-
-  const refreshHistory = async () => {
-    const payload = await fetchHistory();
-    setItems(payload.items);
-    setNextCursor(payload.nextCursor);
   };
 
   const handleSaveNote = () => {
@@ -488,7 +550,7 @@ export function HistoryScreen() {
       }
 
       setDeleteTarget(null);
-      toast.success(`Removed "${deleteTarget.questTitle}" from history.`);
+      toast.success(`Removed "${deleteTarget.questTitle}" from activity log.`);
 
       if (selectedCompletionId === deleteTarget.completionId) {
         setSelectedCompletionId(null);
@@ -500,13 +562,114 @@ export function HistoryScreen() {
 
   return (
     <>
-      <Card>
-        <CardContent className="space-y-6 p-6">
-          <PageIntro
-            eyebrow="Completion archive"
-            title="Review notes without opening analytics"
-            description="Filter by time window, quest, category, or recurrence type, then keep note edits and deletion close to the selected completion."
-            actions={
+      <div className="grid gap-5 2xl:grid-cols-[minmax(0,1fr)_21rem]">
+        <div className="min-w-0 space-y-5">
+          <section className="rounded-[1.25rem] border border-border/80 bg-card/92 p-4 shadow-sm sm:p-5">
+            <div className="space-y-3">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                Tasks / Activity Log
+              </p>
+              <div className="space-y-1">
+                <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+                  Activity Log
+                </h1>
+                <p className="max-w-3xl text-sm leading-6 text-muted-foreground">
+                  Review recent completions, filter the archive, and keep note edits or
+                  removal actions close to the selected record.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+              <div className="space-y-2">
+                <Label htmlFor="activity-from">From</Label>
+                <Input
+                  id="activity-from"
+                  type="date"
+                  value={fromDate}
+                  onChange={(event) => setFromDate(event.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="activity-to">To</Label>
+                <Input
+                  id="activity-to"
+                  type="date"
+                  value={toDate}
+                  onChange={(event) => setToDate(event.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="activity-category">List</Label>
+                <Select
+                  value={categoryFilterId ?? ALL_CATEGORY_VALUE}
+                  onValueChange={(value) =>
+                    setCategoryFilterId(value === ALL_CATEGORY_VALUE ? null : value)
+                  }
+                  disabled={isPending || isLoadingFilters}
+                >
+                  <SelectTrigger id="activity-category">
+                    <SelectValue placeholder="All lists" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={ALL_CATEGORY_VALUE}>All lists</SelectItem>
+                    {categories.map((category) => (
+                      <SelectItem key={category.id} value={category.id}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="activity-type">Task type</Label>
+                <Select
+                  value={questTypeFilter ?? ALL_QUEST_TYPE_VALUE}
+                  onValueChange={(value) =>
+                    setQuestTypeFilter(
+                      value === ALL_QUEST_TYPE_VALUE ? null : (value as QuestType),
+                    )
+                  }
+                  disabled={isPending}
+                >
+                  <SelectTrigger id="activity-type">
+                    <SelectValue placeholder="All types" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={ALL_QUEST_TYPE_VALUE}>All types</SelectItem>
+                    {QUEST_TYPES.map((questType) => (
+                      <SelectItem key={questType} value={questType}>
+                        {formatQuestType(questType)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="activity-quest">Task</Label>
+                <Select
+                  value={questFilterId ?? ALL_QUEST_VALUE}
+                  onValueChange={(value) =>
+                    setQuestFilterId(value === ALL_QUEST_VALUE ? null : value)
+                  }
+                  disabled={isPending || isLoadingFilters}
+                >
+                  <SelectTrigger id="activity-quest">
+                    <SelectValue placeholder="All tasks" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={ALL_QUEST_VALUE}>All tasks</SelectItem>
+                    {visibleQuestFilters.map((quest) => (
+                      <SelectItem key={quest.id} value={quest.id}>
+                        {quest.title}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="mt-4 flex flex-wrap gap-3">
               <Button
                 variant="outline"
                 onClick={() => {
@@ -520,204 +683,155 @@ export function HistoryScreen() {
               >
                 Reset filters
               </Button>
-            }
-          />
+              <Button asChild variant="ghost">
+                <Link href="/dashboard">Back to Today</Link>
+              </Button>
+            </div>
+          </section>
 
-          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-            <div className="space-y-2">
-              <Label htmlFor="history-from">From</Label>
-              <Input
-                id="history-from"
-                type="date"
-                value={fromDate}
-                onChange={(event) => setFromDate(event.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="history-to">To</Label>
-              <Input
-                id="history-to"
-                type="date"
-                value={toDate}
-                onChange={(event) => setToDate(event.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="history-category">Category</Label>
-              <Select
-                value={categoryFilterId ?? ALL_CATEGORY_VALUE}
-                onValueChange={(value) =>
-                  setCategoryFilterId(
-                    value === ALL_CATEGORY_VALUE ? null : value,
-                  )
-                }
-                disabled={isPending || isLoadingFilters}
-              >
-                <SelectTrigger id="history-category">
-                  <SelectValue placeholder="All categories" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={ALL_CATEGORY_VALUE}>All categories</SelectItem>
-                  {categories.map((category) => (
-                    <SelectItem key={category.id} value={category.id}>
-                      {category.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="history-quest-type">Quest type</Label>
-              <Select
-                value={questTypeFilter ?? ALL_QUEST_TYPE_VALUE}
-                onValueChange={(value) =>
-                  setQuestTypeFilter(
-                    value === ALL_QUEST_TYPE_VALUE ? null : (value as QuestType),
-                  )
-                }
-                disabled={isPending}
-              >
-                <SelectTrigger id="history-quest-type">
-                  <SelectValue placeholder="All types" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={ALL_QUEST_TYPE_VALUE}>All types</SelectItem>
-                  {QUEST_TYPES.map((questType) => (
-                    <SelectItem key={questType} value={questType}>
-                      {formatQuestType(questType)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="history-quest">Quest</Label>
-              <Select
-                value={questFilterId ?? ALL_QUEST_VALUE}
-                onValueChange={(value) =>
-                  setQuestFilterId(value === ALL_QUEST_VALUE ? null : value)
-                }
-                disabled={isPending || isLoadingFilters}
-              >
-                <SelectTrigger id="history-quest">
-                  <SelectValue placeholder="All quests" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={ALL_QUEST_VALUE}>All quests</SelectItem>
-                  {visibleQuestFilters.map((quest) => (
-                    <SelectItem key={quest.id} value={quest.id}>
-                      {quest.title}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
-        <div className="space-y-4">
           {errorMessage ? (
             <Alert variant="destructive">
               <CircleAlert className="size-4" />
-              <AlertTitle>History update failed</AlertTitle>
+              <AlertTitle>Activity log update failed</AlertTitle>
               <AlertDescription>{errorMessage}</AlertDescription>
             </Alert>
           ) : null}
 
           {isLoadingFilters || isLoadingHistory ? (
-            <div className="space-y-4">
+            <div className="space-y-5">
               {Array.from({ length: 3 }).map((_, index) => (
-                <Card key={index}>
-                  <CardContent className="space-y-3 p-6">
-                    <Skeleton className="h-5 w-48" />
-                    <Skeleton className="h-20 w-full" />
-                  </CardContent>
-                </Card>
+                <section
+                  key={index}
+                  className="overflow-hidden rounded-[1.15rem] border border-border/80 bg-card/95 shadow-sm"
+                >
+                  <div className="border-b border-border/70 px-4 py-3.5">
+                    <Skeleton className="h-3 w-40" />
+                  </div>
+                  <div>
+                    {Array.from({ length: 3 }).map((__, rowIndex) => (
+                      <div
+                        key={rowIndex}
+                        className="grid gap-3 border-b border-border/70 px-4 py-3.5 last:border-b-0 sm:grid-cols-[minmax(0,1fr)_auto]"
+                      >
+                        <div className="space-y-2">
+                          <Skeleton className="h-4 w-44" />
+                          <Skeleton className="h-3 w-28" />
+                        </div>
+                        <Skeleton className="h-8 w-20 rounded-md" />
+                      </div>
+                    ))}
+                  </div>
+                </section>
               ))}
             </div>
           ) : hasNoItems ? (
             <EmptyState
-              title="No history in the current view"
-              description="Complete quests from the dashboard first, or relax the filters if the archive feels too narrow."
+              title="No activity in this view"
+              description="Complete something from Today first, or relax the filters if the archive is too narrow."
               action={
                 <div className="flex flex-wrap gap-3">
                   <Button asChild>
-                    <Link href="/dashboard">Open dashboard</Link>
+                    <Link href="/dashboard">Open Today</Link>
                   </Button>
                   <Button asChild variant="outline">
-                    <Link href="/quests">Manage quests</Link>
+                    <Link href="/quests">Open Lists</Link>
                   </Button>
                 </div>
               }
             />
           ) : (
             <>
-              <div className="space-y-6">
+              <div className="space-y-5">
                 {groupedItems.map((group) => (
-                  <div key={group.dayKey} className="space-y-3">
-                    <p className="text-sm font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                      {group.dayLabel}
-                    </p>
-                    <div className="space-y-3">
-                      {group.items.map((item) => (
-                        <InteractiveListCard
-                          key={item.completionId}
-                          selected={
-                            selectedCompletion?.completionId === item.completionId
-                          }
-                          actions={
-                            <>
+                  <section
+                    key={group.dayKey}
+                    className="overflow-hidden rounded-[1.15rem] border border-border/80 bg-card/95 shadow-sm"
+                  >
+                    <div className="flex items-center justify-between gap-3 border-b border-border/70 bg-muted/30 px-4 py-3.5">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                        {group.dayLabel}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {group.items.length} item{group.items.length === 1 ? "" : "s"}
+                      </p>
+                    </div>
+
+                    <div>
+                      {group.items.map((item) => {
+                        const selected =
+                          selectedCompletion?.completionId === item.completionId;
+
+                        return (
+                          <div
+                            key={item.completionId}
+                            className={cn(
+                              "grid gap-3 border-b border-border/70 px-4 py-3.5 last:border-b-0 sm:grid-cols-[minmax(0,1fr)_auto]",
+                              selected && "bg-accent/30",
+                            )}
+                          >
+                            <button
+                              type="button"
+                              onClick={() => setSelectedCompletionId(item.completionId)}
+                              className="min-w-0 text-left"
+                            >
+                              <div className="flex flex-wrap items-center gap-2">
+                                <p className="truncate text-sm font-medium text-foreground">
+                                  {item.questTitle}
+                                </p>
+                                <span className="rounded-full border border-border bg-background px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                                  {formatQuestType(item.questType)}
+                                </span>
+                                <span className="rounded-full border border-border bg-background px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                                  {item.categoryName}
+                                </span>
+                              </div>
+                              <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+                                <span>{formatHistoryTime(item.completedAt)}</span>
+                                <span className="size-1 rounded-full bg-border" />
+                                <span>Period {item.periodKey}</span>
+                              </div>
+                              <p className="mt-2 text-xs leading-5 text-muted-foreground">
+                                {item.note ?? "No note for this completion."}
+                              </p>
+                            </button>
+
+                            <div className="flex items-center gap-2 sm:justify-self-end">
+                              <Button
+                                size="sm"
+                                variant={selected ? "secondary" : "outline"}
+                                className="hidden h-8 px-3 2xl:inline-flex"
+                                onClick={() => setSelectedCompletionId(item.completionId)}
+                              >
+                                <NotebookPen className="size-4" />
+                                Detail
+                              </Button>
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => setSelectedCompletionId(item.completionId)}
-                                disabled={isPending}
+                                className="h-8 px-3 2xl:hidden"
+                                onClick={() => {
+                                  setSelectedCompletionId(item.completionId);
+                                  setIsMobileDetailOpen(true);
+                                }}
                               >
                                 <NotebookPen className="size-4" />
-                                Note
+                                Detail
                               </Button>
                               <Button
                                 size="sm"
                                 variant="ghost"
-                                className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                                className="h-8 px-3 text-destructive hover:bg-destructive/10 hover:text-destructive"
                                 onClick={() => setDeleteTarget(item)}
-                                disabled={isPending}
                               >
                                 <Trash2 className="size-4" />
                                 Remove
                               </Button>
-                            </>
-                          }
-                        >
-                          <button
-                            type="button"
-                            onClick={() => setSelectedCompletionId(item.completionId)}
-                            className="min-w-0 text-left"
-                          >
-                            <div className="flex flex-wrap items-center gap-2">
-                              <p className="font-medium text-foreground">
-                                {item.questTitle}
-                              </p>
-                              <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
-                                {formatQuestType(item.questType)}
-                              </span>
-                              <span className="rounded-full bg-secondary px-2.5 py-1 text-xs font-medium text-secondary-foreground">
-                                {item.categoryName}
-                              </span>
                             </div>
-                            <p className="mt-2 text-sm text-muted-foreground">
-                              Period {item.periodKey} · {formatHistoryTime(item.completedAt)}
-                            </p>
-                            <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                              {item.note ?? "No note for this completion."}
-                            </p>
-                          </button>
-                        </InteractiveListCard>
-                      ))}
+                          </div>
+                        );
+                      })}
                     </div>
-                  </div>
+                  </section>
                 ))}
               </div>
 
@@ -740,91 +854,63 @@ export function HistoryScreen() {
           )}
         </div>
 
-        <DetailPanel
-          title="Completion detail"
-          description="Keep note editing and delete confirmation close to the selected row so history remains operational, not analytical."
-        >
-            {selectedCompletion ? (
-              <>
-                <div className="space-y-2">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-lg font-semibold text-foreground">
-                      {selectedCompletion.questTitle}
-                    </p>
-                    <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
-                      {formatQuestType(selectedCompletion.questType)}
-                    </span>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    {selectedCompletion.categoryName}
-                  </p>
-                  <p className="text-sm leading-6 text-muted-foreground">
-                    Completed on{" "}
-                    {formatHistoryDayLabel(selectedCompletion.completedAt)} at{" "}
-                    {formatHistoryTime(selectedCompletion.completedAt)}.
-                  </p>
-                </div>
+        <aside className="hidden 2xl:block">
+          <div className="sticky top-4 rounded-[1.25rem] border border-border/80 bg-card/95 p-5 shadow-sm">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              Context pane
+            </p>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+              Keep note editing and delete confirmation attached to the selected
+              completion.
+            </p>
 
-                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
-                  <DetailStat
-                    label="Period key"
-                    value={selectedCompletion.periodKey}
-                  />
-                  <DetailStat
-                    label="Completion id"
-                    value={
-                      <span className="block truncate">
-                        {selectedCompletion.completionId}
-                      </span>
-                    }
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="history-note">Completion note</Label>
-                  <Textarea
-                    id="history-note"
-                    value={noteDraft}
-                    onChange={(event) => setNoteDraft(event.target.value)}
-                    placeholder="Add context that will matter when you review this completion later."
-                    disabled={isPending}
-                  />
-                </div>
-
-                <div className="space-y-3">
-                  <Button
-                    className="w-full"
-                    onClick={handleSaveNote}
-                    disabled={
-                      isPending || noteDraft === (selectedCompletion.note ?? "")
-                    }
-                  >
-                    {isPending ? (
-                      <Loader2 className="size-4 animate-spin" />
-                    ) : (
-                      <NotebookPen className="size-4" />
-                    )}
-                    Save note
-                  </Button>
-                  <Button
-                    className="w-full text-destructive hover:bg-destructive/10 hover:text-destructive"
-                    variant="ghost"
-                    onClick={() => setDeleteTarget(selectedCompletion)}
-                    disabled={isPending}
-                  >
-                    <Trash2 className="size-4" />
-                    Remove completion
-                  </Button>
-                </div>
-              </>
-            ) : (
-              <EmptyState
-                title="Select a completion"
-                description="Choose any history row to inspect the note, period key, and removal action."
-              />
-            )}
-        </DetailPanel>
+            <div className="mt-5">
+              {selectedCompletion ? (
+                <HistoryDetail
+                  item={selectedCompletion}
+                  noteDraft={noteDraft}
+                  onChangeNote={setNoteDraft}
+                  onDelete={() => setDeleteTarget(selectedCompletion)}
+                  onSaveNote={handleSaveNote}
+                  isPending={isPending}
+                />
+              ) : (
+                <EmptyState
+                  title="Select a completion"
+                  description="Choose any row to inspect the note, period key, and remove action without leaving the archive."
+                />
+              )}
+            </div>
+          </div>
+        </aside>
       </div>
+
+      <Sheet open={isMobileDetailOpen} onOpenChange={setIsMobileDetailOpen}>
+        <SheetContent
+          side="bottom"
+          className="max-h-[88vh] overflow-y-auto rounded-t-[1.25rem]"
+        >
+          <SheetHeader>
+            <SheetTitle>Completion detail</SheetTitle>
+            <SheetDescription>
+              Keep archive correction inside the Activity Log flow.
+            </SheetDescription>
+          </SheetHeader>
+
+          {selectedCompletion ? (
+            <div className="mt-5">
+              <HistoryDetail
+                item={selectedCompletion}
+                noteDraft={noteDraft}
+                onChangeNote={setNoteDraft}
+                onDelete={() => setDeleteTarget(selectedCompletion)}
+                onSaveNote={handleSaveNote}
+                isPending={isPending}
+              />
+            </div>
+          ) : null}
+        </SheetContent>
+      </Sheet>
 
       <AlertDialog
         open={Boolean(deleteTarget)}
@@ -838,8 +924,8 @@ export function HistoryScreen() {
           <AlertDialogHeader>
             <AlertDialogTitle>Remove completion</AlertDialogTitle>
             <AlertDialogDescription>
-              Remove &quot;{deleteTarget?.questTitle}&quot; from history only if you
-              want this completion record gone. The quest itself will remain.
+              Remove &quot;{deleteTarget?.questTitle}&quot; from the activity log only if
+              this completion record should be gone. The task itself will remain.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

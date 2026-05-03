@@ -2,10 +2,13 @@
 
 import { useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
-import { Menu, Sparkles } from "lucide-react";
+import { Menu } from "lucide-react";
 
-import { AppSidebar, appNavItems } from "@/components/app/app-sidebar";
-import { SignOutButton } from "@/components/app/sign-out-button";
+import {
+  AppSidebar,
+  appNavItems,
+  isAppNavItemActive,
+} from "@/components/app/app-sidebar";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -27,62 +30,61 @@ export function AppShell({ children, userEmail, userName }: AppShellProps) {
 
   const activeItem = useMemo(() => {
     return (
-      appNavItems.find(
-        (item) => pathname === item.href || pathname.startsWith(`${item.href}/`),
-      ) ?? appNavItems[0]
+      appNavItems.find((item) => isAppNavItemActive(item, pathname)) ??
+      appNavItems[0]
     );
   }, [pathname]);
 
   return (
-    <div className="min-h-screen md:grid md:grid-cols-[18rem_minmax(0,1fr)] md:gap-5 md:p-5">
+    <div className="min-h-screen bg-background md:grid md:grid-cols-[22rem_minmax(0,1fr)] md:gap-4 md:p-4">
       <aside className="hidden md:block">
-        <AppSidebar
-          pathname={pathname}
-          userEmail={userEmail}
-          userName={userName}
-        />
+        <div className="sticky top-4 h-[calc(100vh-2rem)]">
+          <AppSidebar
+            pathname={pathname}
+            userEmail={userEmail}
+            userName={userName}
+          />
+        </div>
       </aside>
 
-      <div className="min-w-0">
-        <header className="sticky top-0 z-20 border-b border-border/75 bg-background/85 backdrop-blur-md md:rounded-[calc(var(--radius)+0.35rem)] md:border md:bg-card/80">
-          <div className="flex items-center justify-between gap-4 px-4 py-3 md:px-6 md:py-4">
-            <div className="flex min-w-0 items-center gap-3">
-              <Button
-                variant="outline"
-                size="icon"
-                className="md:hidden"
-                onClick={() => setMobileOpen(true)}
-              >
-                <Menu className="size-4" />
-                <span className="sr-only">Open navigation</span>
-              </Button>
-              <div className="min-w-0">
-                <p className="text-sm font-semibold uppercase tracking-[0.24em] text-muted-foreground">
-                  {activeItem.label}
-                </p>
-                <p className="truncate text-sm text-muted-foreground">
-                  {activeItem.summary}
-                </p>
-              </div>
+      <div className="min-w-0 md:py-4">
+        <header className="sticky top-0 z-30 border-b border-border/70 bg-background/94 backdrop-blur md:hidden">
+          <div className="flex items-center justify-between gap-4 px-4 py-3.5">
+            <div className="min-w-0">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                Tasks
+              </p>
+              <p className="truncate text-base font-semibold tracking-tight text-foreground">
+                {activeItem.label}
+              </p>
             </div>
-            <div className="hidden items-center gap-2 rounded-full bg-muted/80 px-3 py-2 text-sm text-muted-foreground md:flex">
-              <Sparkles className="size-4 text-accent-foreground" />
-              Personal account session
-            </div>
-            <SignOutButton />
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setMobileOpen(true)}
+            >
+              <Menu className="size-4" />
+              <span className="sr-only">Open workspace navigation</span>
+            </Button>
+          </div>
+          <div className="px-4 pb-3">
+            <p className="text-sm leading-6 text-muted-foreground">
+              {activeItem.summary}
+            </p>
           </div>
         </header>
 
-        <main className="px-4 py-6 md:px-2 md:py-6">{children}</main>
+        <main className="px-4 pt-4 pb-8 md:px-0 md:py-0">{children}</main>
       </div>
 
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-        <SheetContent side="left" className="w-[min(88vw,22rem)] bg-sidebar p-4">
+        <SheetContent side="left" className="w-[min(92vw,24rem)] bg-sidebar p-0">
           <SheetHeader className="sr-only">
-            <SheetTitle>Navigation</SheetTitle>
-            <SheetDescription>Navigate across the Rythm app shell.</SheetDescription>
+            <SheetTitle>Workspace navigation</SheetTitle>
+            <SheetDescription>Switch views and task spaces inside the Rythm app shell.</SheetDescription>
           </SheetHeader>
           <AppSidebar
+            mobile
             pathname={pathname}
             userEmail={userEmail}
             userName={userName}

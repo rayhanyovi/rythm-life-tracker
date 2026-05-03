@@ -15,22 +15,12 @@ import {
   PencilLine,
   Plus,
   Search,
-  Sparkles,
   Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
 
-import { DetailPanel } from "@/components/app/detail-panel";
-import { DetailStat } from "@/components/app/detail-stat";
 import { EmptyState } from "@/components/app/empty-state";
-import { InteractiveListCard } from "@/components/app/interactive-list-card";
-import { MetricCard } from "@/components/app/metric-card";
-import { PageIntro } from "@/components/app/page-intro";
-import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-} from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -42,10 +32,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-} from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -66,6 +52,7 @@ import {
 } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 
 type QuestType = "DAILY" | "WEEKLY" | "MONTHLY" | "MAIN";
 
@@ -122,7 +109,7 @@ const QUEST_TYPE_LABELS: Record<QuestType, string> = {
   DAILY: "Daily",
   WEEKLY: "Weekly",
   MONTHLY: "Monthly",
-  MAIN: "Main quest",
+  MAIN: "Main",
 };
 
 async function readJson<T>(response: Response) {
@@ -167,18 +154,241 @@ function formatTimestamp(value: string) {
   }).format(new Date(value));
 }
 
+function StatusCell({
+  label,
+  value,
+}: {
+  label: string;
+  value: React.ReactNode;
+}) {
+  return (
+    <div className="bg-card px-4 py-3">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+        {label}
+      </p>
+      <p className="mt-2 text-lg font-semibold tracking-tight text-foreground">
+        {value}
+      </p>
+    </div>
+  );
+}
+
+function DetailStat({
+  label,
+  value,
+}: {
+  label: string;
+  value: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-xl border border-border/80 bg-background/80 px-4 py-3">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+        {label}
+      </p>
+      <div className="mt-2 text-sm font-semibold text-foreground">{value}</div>
+    </div>
+  );
+}
+
+function QuestFormFields({
+  categories,
+  formError,
+  formState,
+  isPending,
+  onChange,
+}: {
+  categories: CategoryRecord[];
+  formError: string | null;
+  formState: QuestFormState;
+  isPending: boolean;
+  onChange: (updater: (current: QuestFormState) => QuestFormState) => void;
+}) {
+  return (
+    <div className="space-y-5">
+      {formError ? (
+        <Alert variant="destructive">
+          <CircleAlert className="size-4" />
+          <AlertTitle>Could not save task</AlertTitle>
+          <AlertDescription>{formError}</AlertDescription>
+        </Alert>
+      ) : null}
+
+      <div className="space-y-2">
+        <Label htmlFor="list-task-title">Title</Label>
+        <Input
+          id="list-task-title"
+          value={formState.title}
+          onChange={(event) =>
+            onChange((current) => ({ ...current, title: event.target.value }))
+          }
+          placeholder="Morning review, QA pass, Read 10 pages"
+          disabled={isPending}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="list-task-description">Description</Label>
+        <Textarea
+          id="list-task-description"
+          value={formState.description}
+          onChange={(event) =>
+            onChange((current) => ({
+              ...current,
+              description: event.target.value,
+            }))
+          }
+          placeholder="Optional context for this recurring task."
+          disabled={isPending}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="list-task-category">List</Label>
+        <Select
+          value={formState.categoryId}
+          onValueChange={(value) =>
+            onChange((current) => ({ ...current, categoryId: value }))
+          }
+          disabled={isPending || categories.length === 0}
+        >
+          <SelectTrigger id="list-task-category">
+            <SelectValue placeholder="Choose a list" />
+          </SelectTrigger>
+          <SelectContent>
+            {categories.map((category) => (
+              <SelectItem key={category.id} value={category.id}>
+                {category.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="list-task-type">Type</Label>
+        <Select
+          value={formState.questType}
+          onValueChange={(value) =>
+            onChange((current) => ({ ...current, questType: value as QuestType }))
+          }
+          disabled={isPending}
+        >
+          <SelectTrigger id="list-task-type">
+            <SelectValue placeholder="Choose a recurrence" />
+          </SelectTrigger>
+          <SelectContent>
+            {QUEST_TYPES.map((questType) => (
+              <SelectItem key={questType} value={questType}>
+                {formatQuestType(questType)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label>Status</Label>
+        <label className="flex min-h-11 items-center gap-3 rounded-xl border border-border/80 bg-background/80 px-4 py-3 text-sm shadow-xs">
+          <Checkbox
+            checked={formState.isActive}
+            onCheckedChange={(checked) =>
+              onChange((current) => ({ ...current, isActive: checked === true }))
+            }
+            disabled={isPending}
+          />
+          <span className="font-medium text-foreground">Task is active</span>
+        </label>
+      </div>
+    </div>
+  );
+}
+
+function QuestDetailContent({
+  isPending,
+  onDelete,
+  onEdit,
+  onToggleActive,
+  quest,
+}: {
+  isPending: boolean;
+  onDelete: () => void;
+  onEdit: () => void;
+  onToggleActive: () => void;
+  quest: QuestRecord;
+}) {
+  return (
+    <div className="space-y-5">
+      <div className="space-y-2">
+        <div className="space-y-1">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            Selected task
+          </p>
+          <h2 className="text-xl font-semibold tracking-tight text-foreground">
+            {quest.title}
+          </h2>
+        </div>
+        <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+          <span>{quest.category.name}</span>
+          <span className="size-1 rounded-full bg-border" />
+          <span>{formatQuestType(quest.questType)}</span>
+          {!quest.isActive ? (
+            <>
+              <span className="size-1 rounded-full bg-border" />
+              <span>Inactive</span>
+            </>
+          ) : null}
+        </div>
+        <p className="text-sm leading-6 text-muted-foreground">
+          {quest.description ?? "No description yet."}
+        </p>
+      </div>
+
+      <div className="grid gap-3">
+        <DetailStat label="Created" value={formatTimestamp(quest.createdAt)} />
+        <DetailStat label="Last updated" value={formatTimestamp(quest.updatedAt)} />
+      </div>
+
+      <div className="flex flex-wrap gap-3">
+        <Button onClick={onEdit} disabled={isPending}>
+          <PencilLine className="size-4" />
+          Edit task
+        </Button>
+        <Button variant="outline" onClick={onToggleActive} disabled={isPending}>
+          {quest.isActive ? "Deactivate" : "Activate"}
+        </Button>
+        <Button
+          variant="ghost"
+          className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+          onClick={onDelete}
+          disabled={isPending}
+        >
+          <Trash2 className="size-4" />
+          Delete
+        </Button>
+      </div>
+
+      <Alert>
+        <CircleAlert className="size-4" />
+        <AlertTitle>Deletion is permanent</AlertTitle>
+        <AlertDescription>
+          Deleting a task removes the linked completion history because completions
+          cascade with the task.
+        </AlertDescription>
+      </Alert>
+    </div>
+  );
+}
+
 export function QuestManager() {
   const [quests, setQuests] = useState<QuestRecord[]>([]);
   const [categories, setCategories] = useState<CategoryRecord[]>([]);
   const [searchInput, setSearchInput] = useState("");
   const deferredSearch = useDeferredValue(searchInput);
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
-    null,
-  );
-  const [selectedQuestType, setSelectedQuestType] =
-    useState<QuestType | null>(null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+  const [selectedQuestType, setSelectedQuestType] = useState<QuestType | null>(null);
   const [includeInactive, setIncludeInactive] = useState(false);
   const [selectedQuestId, setSelectedQuestId] = useState<string | null>(null);
+  const [isMobileDetailOpen, setIsMobileDetailOpen] = useState(false);
   const [isLoadingCategories, setIsLoadingCategories] = useState(true);
   const [isLoadingQuests, setIsLoadingQuests] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -198,7 +408,7 @@ export function QuestManager() {
     const payload = await readJson<CategoriesPayload>(response);
 
     if (!response.ok || !payload?.categories) {
-      throw new Error(payload?.error ?? "Failed to load categories.");
+      throw new Error(payload?.error ?? "Failed to load lists.");
     }
 
     return payload.categories;
@@ -214,37 +424,22 @@ export function QuestManager() {
       const search = options?.search ?? deferredSearch.trim();
       const categoryId = options?.categoryId ?? selectedCategoryId;
       const questType = options?.questType ?? selectedQuestType;
-      const nextIncludeInactive =
-        options?.includeInactive ?? includeInactive;
+      const nextIncludeInactive = options?.includeInactive ?? includeInactive;
       const searchParams = new URLSearchParams();
 
-      if (search) {
-        searchParams.set("search", search);
-      }
-
-      if (categoryId) {
-        searchParams.set("categoryId", categoryId);
-      }
-
-      if (questType) {
-        searchParams.set("questType", questType);
-      }
-
-      if (nextIncludeInactive) {
-        searchParams.set("includeInactive", "true");
-      }
+      if (search) searchParams.set("search", search);
+      if (categoryId) searchParams.set("categoryId", categoryId);
+      if (questType) searchParams.set("questType", questType);
+      if (nextIncludeInactive) searchParams.set("includeInactive", "true");
 
       const query = searchParams.toString();
-      const response = await fetch(
-        query ? `/api/quests?${query}` : "/api/quests",
-        {
-          cache: "no-store",
-        },
-      );
+      const response = await fetch(query ? `/api/quests?${query}` : "/api/quests", {
+        cache: "no-store",
+      });
       const payload = await readJson<QuestsPayload>(response);
 
       if (!response.ok || !payload?.quests) {
-        throw new Error(payload?.error ?? "Failed to load quests.");
+        throw new Error(payload?.error ?? "Failed to load tasks.");
       }
 
       return payload.quests;
@@ -266,16 +461,13 @@ export function QuestManager() {
               return current;
             }
 
-            return {
-              ...current,
-              categoryId: nextCategories[0].id,
-            };
+            return { ...current, categoryId: nextCategories[0].id };
           });
         }
       } catch (error) {
         if (!cancelled) {
           setErrorMessage(
-            error instanceof Error ? error.message : "Failed to load categories.",
+            error instanceof Error ? error.message : "Failed to load lists.",
           );
         }
       } finally {
@@ -307,7 +499,7 @@ export function QuestManager() {
       } catch (error) {
         if (!cancelled) {
           setErrorMessage(
-            error instanceof Error ? error.message : "Failed to load quests.",
+            error instanceof Error ? error.message : "Failed to load tasks.",
           );
         }
       } finally {
@@ -341,6 +533,30 @@ export function QuestManager() {
     setSelectedQuestId(selectedQuest.id);
   }, [selectedQuest]);
 
+  const groupedQuests = useMemo(() => {
+    const groups = new Map<
+      string,
+      {
+        categoryId: string;
+        categoryName: string;
+        items: QuestRecord[];
+      }
+    >();
+
+    quests.forEach((quest) => {
+      const existingGroup = groups.get(quest.categoryId) ?? {
+        categoryId: quest.categoryId,
+        categoryName: quest.category.name,
+        items: [],
+      };
+
+      existingGroup.items.push(quest);
+      groups.set(quest.categoryId, existingGroup);
+    });
+
+    return [...groups.values()];
+  }, [quests]);
+
   const stats = useMemo(() => {
     const activeCount = quests.filter((quest) => quest.isActive).length;
 
@@ -352,8 +568,7 @@ export function QuestManager() {
   }, [quests]);
 
   const hasNoCategories = !isLoadingCategories && categories.length === 0;
-  const hasNoVisibleQuests =
-    !isLoadingQuests && !hasNoCategories && quests.length === 0;
+  const hasNoVisibleQuests = !isLoadingQuests && !hasNoCategories && quests.length === 0;
   const hasActiveFilters =
     searchInput.trim().length > 0 ||
     selectedCategoryId !== null ||
@@ -373,7 +588,7 @@ export function QuestManager() {
 
   const openCreateForm = () => {
     if (!categories.length) {
-      setErrorMessage("Create a category first before adding quests.");
+      setErrorMessage("Create a list first before adding tasks.");
       return;
     }
 
@@ -399,7 +614,7 @@ export function QuestManager() {
     }
 
     if (!formState.categoryId) {
-      setFormError("Category is required.");
+      setFormError("List is required.");
       return;
     }
 
@@ -427,13 +642,11 @@ export function QuestManager() {
       const payload = await readJson<QuestMutationPayload>(response);
 
       if (!response.ok || !payload?.quest) {
-        setFormError(payload?.error ?? "Failed to save quest.");
+        setFormError(payload?.error ?? "Failed to save task.");
         return;
       }
 
-      toast.success(
-        isEditing ? `Updated "${title}".` : `Created "${title}".`,
-      );
+      toast.success(isEditing ? `Updated "${title}".` : `Created "${title}".`);
       closeForm();
       setSelectedQuestId(payload.quest.id);
       await refreshQuests();
@@ -456,7 +669,7 @@ export function QuestManager() {
       const payload = await readJson<QuestMutationPayload>(response);
 
       if (!response.ok || !payload?.quest) {
-        setErrorMessage(payload?.error ?? "Failed to update quest status.");
+        setErrorMessage(payload?.error ?? "Failed to update task status.");
         return;
       }
 
@@ -488,12 +701,12 @@ export function QuestManager() {
       const payload = await readJson<DeletePayload>(response);
 
       if (!response.ok && response.status !== 204) {
-        setErrorMessage(payload?.error ?? "Failed to delete quest.");
+        setErrorMessage(payload?.error ?? "Failed to delete task.");
         return;
       }
 
-      setDeleteTarget(null);
       toast.success(`Deleted "${deleteTarget.title}".`);
+      setDeleteTarget(null);
 
       if (selectedQuestId === deleteTarget.id) {
         setSelectedQuestId(null);
@@ -503,395 +716,61 @@ export function QuestManager() {
     });
   };
 
-  const topActions = (
-    <>
-      <Button onClick={openCreateForm} disabled={isPending || hasNoCategories}>
-        <Plus className="size-4" />
-        Add quest
-      </Button>
-    </>
-  );
-
   return (
     <>
-      <Card>
-        <CardContent className="space-y-6 p-6">
-          <PageIntro
-            eyebrow="Management view"
-            title="Keep the quest library clean"
-            description="Search by title or description, keep inactive items optional, and use a dedicated form sheet for create and edit flows."
-            actions={topActions}
-          />
+      <div className="grid gap-5 2xl:grid-cols-[minmax(0,1fr)_21rem]">
+        <div className="min-w-0 space-y-5">
+          <section className="rounded-[1.25rem] border border-border/80 bg-card/92 p-4 shadow-sm sm:p-5">
+            <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+              <div className="space-y-3">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                  Tasks / Lists
+                </p>
+                <div className="space-y-1">
+                  <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+                    Lists
+                  </h1>
+                  <p className="max-w-3xl text-sm leading-6 text-muted-foreground">
+                    Manage recurring task definitions inside the list they belong to.
+                    Search, filter, edit, activate, or remove without leaving the
+                    workspace.
+                  </p>
+                </div>
+              </div>
 
-          <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_16rem_14rem]">
-            <div className="relative">
-              <Search className="absolute top-1/2 left-4 size-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                value={searchInput}
-                onChange={(event) => setSearchInput(event.target.value)}
-                placeholder="Search quests by title or description"
-                className="pl-11"
-              />
-            </div>
-            <Select
-              value={selectedCategoryId ?? ALL_CATEGORY_VALUE}
-              onValueChange={(value) =>
-                setSelectedCategoryId(
-                  value === ALL_CATEGORY_VALUE ? null : value,
-                )
-              }
-              disabled={isPending || isLoadingCategories}
-            >
-              <SelectTrigger aria-label="Filter quests by category">
-                <SelectValue placeholder="All categories" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={ALL_CATEGORY_VALUE}>All categories</SelectItem>
-                {categories.map((category) => (
-                  <SelectItem key={category.id} value={category.id}>
-                    {category.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select
-              value={selectedQuestType ?? ALL_QUEST_TYPE_VALUE}
-              onValueChange={(value) =>
-                setSelectedQuestType(
-                  value === ALL_QUEST_TYPE_VALUE ? null : (value as QuestType),
-                )
-              }
-              disabled={isPending}
-            >
-              <SelectTrigger aria-label="Filter quests by recurrence type">
-                <SelectValue placeholder="All types" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={ALL_QUEST_TYPE_VALUE}>All types</SelectItem>
-                {QUEST_TYPES.map((questType) => (
-                  <SelectItem key={questType} value={questType}>
-                    {formatQuestType(questType)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto]">
-            <label className="flex min-h-12 items-center gap-3 rounded-2xl border border-border/90 bg-background/80 px-4 py-3 text-sm shadow-sm">
-              <Checkbox
-                checked={includeInactive}
-                onCheckedChange={(checked) => setIncludeInactive(checked === true)}
-                disabled={isPending}
-              />
-              <span className="font-medium text-foreground">Show inactive quests</span>
-            </label>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setSearchInput("");
-                setSelectedCategoryId(null);
-                setSelectedQuestType(null);
-                setIncludeInactive(false);
-              }}
-              disabled={!hasActiveFilters || isPending}
-            >
-              Reset filters
-            </Button>
-          </div>
-
-          <div className="grid gap-3 md:grid-cols-3">
-            <MetricCard
-              label="Visible quests"
-              value={isLoadingQuests ? "..." : stats.visible}
-            />
-            <MetricCard
-              label="Active now"
-              value={isLoadingQuests ? "..." : stats.active}
-            />
-            <MetricCard
-              label="Inactive visible"
-              value={isLoadingQuests ? "..." : stats.inactive}
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
-        <div className="space-y-4">
-          {errorMessage ? (
-            <Alert variant="destructive">
-              <CircleAlert className="size-4" />
-              <AlertTitle>Quest update failed</AlertTitle>
-              <AlertDescription>{errorMessage}</AlertDescription>
-            </Alert>
-          ) : null}
-
-          {isLoadingCategories || isLoadingQuests ? (
-            <div className="space-y-4">
-              {Array.from({ length: 4 }).map((_, index) => (
-                <Card key={index}>
-                  <CardContent className="space-y-3 p-6">
-                    <Skeleton className="h-5 w-48" />
-                    <Skeleton className="h-14 w-full" />
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          ) : hasNoCategories ? (
-            <EmptyState
-              title="Create categories before quests"
-              description="Quests always belong to a life area. Set up at least one category first, then come back here to build the recurring list."
-              action={
-                <Button asChild>
-                  <Link href="/categories">Manage categories</Link>
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <Button onClick={openCreateForm} disabled={isPending || hasNoCategories}>
+                  <Plus className="size-4" />
+                  Add task
                 </Button>
-              }
-            />
-          ) : hasNoVisibleQuests ? (
-            <EmptyState
-              title="No quests match the current view"
-              description="Add your first quest or relax the filters if the current management view is too narrow."
-              action={
-                <div className="flex flex-wrap gap-3">
-                  <Button onClick={openCreateForm}>
-                    <Plus className="size-4" />
-                    Add quest
-                  </Button>
-                  <Button asChild variant="outline">
-                    <Link href="/categories">Manage categories</Link>
-                  </Button>
-                </div>
-              }
-            />
-          ) : (
-            <div className="space-y-4">
-              {quests.map((quest) => (
-                <InteractiveListCard
-                  key={quest.id}
-                  selected={selectedQuest?.id === quest.id}
-                  actions={
-                    <>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => openEditForm(quest)}
-                        disabled={isPending}
-                      >
-                        <PencilLine className="size-4" />
-                        Edit
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleToggleActive(quest)}
-                        disabled={isPending}
-                      >
-                        {quest.isActive ? "Deactivate" : "Activate"}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-                        onClick={() => setDeleteTarget(quest)}
-                        disabled={isPending}
-                      >
-                        <Trash2 className="size-4" />
-                        Delete
-                      </Button>
-                    </>
-                  }
-                >
-                  <button
-                    type="button"
-                    onClick={() => setSelectedQuestId(quest.id)}
-                    className="min-w-0 text-left"
-                  >
-                    <div className="flex flex-wrap items-center gap-2">
-                      <p className="font-medium text-foreground">{quest.title}</p>
-                      <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
-                        {formatQuestType(quest.questType)}
-                      </span>
-                      <span className="rounded-full bg-secondary px-2.5 py-1 text-xs font-medium text-secondary-foreground">
-                        {quest.category.name}
-                      </span>
-                      {!quest.isActive ? (
-                        <span className="rounded-full bg-destructive/10 px-2.5 py-1 text-xs font-medium text-destructive">
-                          Inactive
-                        </span>
-                      ) : null}
-                    </div>
-                    <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                      {quest.description ?? "No description for this quest yet."}
-                    </p>
-                    <p className="mt-3 text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                      Updated {formatTimestamp(quest.updatedAt)}
-                    </p>
-                  </button>
-                </InteractiveListCard>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <DetailPanel
-          title="Quest detail"
-          description="Use this side panel to review a quest quickly before editing, deactivating, or hard deleting it."
-        >
-            {selectedQuest ? (
-              <>
-                <div className="space-y-2">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-lg font-semibold text-foreground">
-                      {selectedQuest.title}
-                    </p>
-                    <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
-                      {formatQuestType(selectedQuest.questType)}
-                    </span>
-                    {!selectedQuest.isActive ? (
-                      <span className="rounded-full bg-destructive/10 px-2.5 py-1 text-xs font-medium text-destructive">
-                        Inactive
-                      </span>
-                    ) : null}
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    {selectedQuest.category.name}
-                  </p>
-                  <p className="text-sm leading-6 text-muted-foreground">
-                    {selectedQuest.description ?? "No description yet."}
-                  </p>
-                </div>
-
-                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
-                  <DetailStat
-                    label="Created"
-                    value={formatTimestamp(selectedQuest.createdAt)}
-                  />
-                  <DetailStat
-                    label="Last updated"
-                    value={formatTimestamp(selectedQuest.updatedAt)}
-                  />
-                </div>
-
-                <div className="space-y-3">
-                  <Button
-                    className="w-full"
-                    variant="outline"
-                    onClick={() => openEditForm(selectedQuest)}
-                    disabled={isPending}
-                  >
-                    <PencilLine className="size-4" />
-                    Edit quest
-                  </Button>
-                  <Button
-                    className="w-full"
-                    variant="outline"
-                    onClick={() => handleToggleActive(selectedQuest)}
-                    disabled={isPending}
-                  >
-                    {selectedQuest.isActive ? "Deactivate quest" : "Activate quest"}
-                  </Button>
-                  <Button
-                    className="w-full text-destructive hover:bg-destructive/10 hover:text-destructive"
-                    variant="ghost"
-                    onClick={() => setDeleteTarget(selectedQuest)}
-                    disabled={isPending}
-                  >
-                    <Trash2 className="size-4" />
-                    Delete quest
-                  </Button>
-                </div>
-
-                <Alert>
-                  <Sparkles className="size-4" />
-                  <AlertTitle>Deletion is permanent</AlertTitle>
-                  <AlertDescription>
-                    Hard delete removes the quest and its completion history from
-                    the database because completions cascade with the quest.
-                  </AlertDescription>
-                </Alert>
-              </>
-            ) : (
-              <EmptyState
-                title="Select a quest"
-                description="Choose any row to review its metadata and access quick management actions."
-              />
-            )}
-        </DetailPanel>
-      </div>
-
-      <Sheet
-        open={Boolean(formMode)}
-        onOpenChange={(open) => !open && closeForm()}
-      >
-        <SheetContent className="w-[92vw] max-w-xl gap-6">
-          <SheetHeader>
-            <SheetTitle>
-              {formMode === "edit" ? "Edit quest" : "Create quest"}
-            </SheetTitle>
-            <SheetDescription>
-              Keep the form lightweight. Every quest belongs to a category and
-              uses a single recurrence type.
-            </SheetDescription>
-          </SheetHeader>
-
-          <div className="space-y-5 overflow-y-auto pr-1">
-            {formError ? (
-              <Alert variant="destructive">
-                <CircleAlert className="size-4" />
-                <AlertTitle>Could not save quest</AlertTitle>
-                <AlertDescription>{formError}</AlertDescription>
-              </Alert>
-            ) : null}
-
-            <div className="space-y-2">
-              <Label htmlFor="quest-title">Title</Label>
-              <Input
-                id="quest-title"
-                value={formState.title}
-                onChange={(event) =>
-                  setFormState((current) => ({
-                    ...current,
-                    title: event.target.value,
-                  }))
-                }
-                placeholder="Morning prayer, Deep work block, Read 10 pages"
-                disabled={isPending}
-              />
+                <Button asChild variant="outline">
+                  <Link href="/categories">Open Habit Lists</Link>
+                </Button>
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="quest-description">Description</Label>
-              <Textarea
-                id="quest-description"
-                value={formState.description}
-                onChange={(event) =>
-                  setFormState((current) => ({
-                    ...current,
-                    description: event.target.value,
-                  }))
-                }
-                placeholder="Optional context to clarify the ritual or desired outcome."
-                disabled={isPending}
-              />
-            </div>
-
-            <div className="space-y-3">
-              <Label htmlFor="quest-category">Category</Label>
+            <div className="mt-5 grid gap-3 lg:grid-cols-[minmax(0,1fr)_16rem_14rem]">
+              <div className="relative">
+                <Search className="absolute top-1/2 left-4 size-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  value={searchInput}
+                  onChange={(event) => setSearchInput(event.target.value)}
+                  placeholder="Search tasks by title or description"
+                  className="pl-11"
+                />
+              </div>
               <Select
-                value={formState.categoryId}
+                value={selectedCategoryId ?? ALL_CATEGORY_VALUE}
                 onValueChange={(value) =>
-                  setFormState((current) => ({
-                    ...current,
-                    categoryId: value,
-                  }))
+                  setSelectedCategoryId(value === ALL_CATEGORY_VALUE ? null : value)
                 }
-                disabled={isPending || categories.length === 0}
+                disabled={isPending || isLoadingCategories}
               >
-                <SelectTrigger id="quest-category">
-                  <SelectValue placeholder="Choose a category" />
+                <SelectTrigger aria-label="Filter tasks by list">
+                  <SelectValue placeholder="All lists" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value={ALL_CATEGORY_VALUE}>All lists</SelectItem>
                   {categories.map((category) => (
                     <SelectItem key={category.id} value={category.id}>
                       {category.name}
@@ -899,24 +778,20 @@ export function QuestManager() {
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-
-            <div className="space-y-3">
-              <Label htmlFor="quest-type">Quest type</Label>
               <Select
-                value={formState.questType}
+                value={selectedQuestType ?? ALL_QUEST_TYPE_VALUE}
                 onValueChange={(value) =>
-                  setFormState((current) => ({
-                    ...current,
-                    questType: value as QuestType,
-                  }))
+                  setSelectedQuestType(
+                    value === ALL_QUEST_TYPE_VALUE ? null : (value as QuestType),
+                  )
                 }
                 disabled={isPending}
               >
-                <SelectTrigger id="quest-type">
-                  <SelectValue placeholder="Choose a recurrence" />
+                <SelectTrigger aria-label="Filter tasks by type">
+                  <SelectValue placeholder="All types" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value={ALL_QUEST_TYPE_VALUE}>All types</SelectItem>
                   {QUEST_TYPES.map((questType) => (
                     <SelectItem key={questType} value={questType}>
                       {formatQuestType(questType)}
@@ -926,33 +801,250 @@ export function QuestManager() {
               </Select>
             </div>
 
-            <div className="space-y-3">
-              <Label htmlFor="quest-active">Status</Label>
-              <label className="flex min-h-12 items-center gap-3 rounded-2xl border border-border/90 bg-background/80 px-4 py-3 text-sm shadow-sm">
+            <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto]">
+              <label className="flex min-h-11 items-center gap-3 rounded-xl border border-border/80 bg-background/80 px-4 py-3 text-sm shadow-xs">
                 <Checkbox
-                  id="quest-active"
-                  checked={formState.isActive}
-                  onCheckedChange={(checked) =>
-                    setFormState((current) => ({
-                      ...current,
-                      isActive: checked === true,
-                    }))
-                  }
+                  checked={includeInactive}
+                  onCheckedChange={(checked) => setIncludeInactive(checked === true)}
                   disabled={isPending}
                 />
-                <span className="font-medium text-foreground">Quest is active</span>
+                <span className="font-medium text-foreground">Show inactive tasks</span>
               </label>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setSearchInput("");
+                  setSelectedCategoryId(null);
+                  setSelectedQuestType(null);
+                  setIncludeInactive(false);
+                }}
+                disabled={!hasActiveFilters || isPending}
+              >
+                Reset filters
+              </Button>
             </div>
+
+            <div className="mt-4 grid gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-3">
+              <StatusCell label="Visible tasks" value={isLoadingQuests ? "..." : stats.visible} />
+              <StatusCell label="Active" value={isLoadingQuests ? "..." : stats.active} />
+              <StatusCell label="Inactive" value={isLoadingQuests ? "..." : stats.inactive} />
+            </div>
+          </section>
+
+          {errorMessage ? (
+            <Alert variant="destructive">
+              <CircleAlert className="size-4" />
+              <AlertTitle>Lists update failed</AlertTitle>
+              <AlertDescription>{errorMessage}</AlertDescription>
+            </Alert>
+          ) : null}
+
+          {isLoadingCategories || isLoadingQuests ? (
+            <div className="space-y-5">
+              {Array.from({ length: 3 }).map((_, index) => (
+                <section
+                  key={index}
+                  className="overflow-hidden rounded-[1.15rem] border border-border/80 bg-card/95 shadow-sm"
+                >
+                  <div className="border-b border-border/70 px-4 py-3.5">
+                    <Skeleton className="h-3 w-32" />
+                  </div>
+                  <div>
+                    {Array.from({ length: 3 }).map((__, rowIndex) => (
+                      <div
+                        key={rowIndex}
+                        className="grid gap-3 border-b border-border/70 px-4 py-3.5 last:border-b-0 sm:grid-cols-[minmax(0,1fr)_auto]"
+                      >
+                        <div className="space-y-2">
+                          <Skeleton className="h-4 w-40" />
+                          <Skeleton className="h-3 w-28" />
+                        </div>
+                        <Skeleton className="h-8 w-20 rounded-md" />
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              ))}
+            </div>
+          ) : hasNoCategories ? (
+            <EmptyState
+              title="Create lists before tasks"
+              description="Tasks always belong to a list container. Set up at least one habit list first, then come back here to build the recurring library."
+              action={
+                <Button asChild>
+                  <Link href="/categories">Manage Habit Lists</Link>
+                </Button>
+              }
+            />
+          ) : hasNoVisibleQuests ? (
+            <EmptyState
+              title="No tasks match the current view"
+              description="Add your first task or relax the filters if this list view is too narrow."
+              action={
+                <div className="flex flex-wrap gap-3">
+                  <Button onClick={openCreateForm}>
+                    <Plus className="size-4" />
+                    Add task
+                  </Button>
+                  <Button asChild variant="outline">
+                    <Link href="/categories">Open Habit Lists</Link>
+                  </Button>
+                </div>
+              }
+            />
+          ) : (
+            <div className="space-y-5">
+              {groupedQuests.map((group) => (
+                <section
+                  key={group.categoryId}
+                  className="overflow-hidden rounded-[1.15rem] border border-border/80 bg-card/95 shadow-sm"
+                >
+                  <div className="flex items-center justify-between gap-3 border-b border-border/70 bg-muted/30 px-4 py-3.5">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                      {group.categoryName}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {group.items.length} task{group.items.length === 1 ? "" : "s"}
+                    </p>
+                  </div>
+
+                  <div>
+                    {group.items.map((quest) => {
+                      const selected = selectedQuest?.id === quest.id;
+
+                      return (
+                        <div
+                          key={quest.id}
+                          className={cn(
+                            "grid gap-3 border-b border-border/70 px-4 py-3.5 last:border-b-0 sm:grid-cols-[minmax(0,1fr)_auto]",
+                            selected && "bg-accent/30",
+                          )}
+                        >
+                          <button
+                            type="button"
+                            onClick={() => setSelectedQuestId(quest.id)}
+                            className="min-w-0 text-left"
+                          >
+                            <div className="flex flex-wrap items-center gap-2">
+                              <p className="truncate text-sm font-medium text-foreground">
+                                {quest.title}
+                              </p>
+                              <span className="rounded-full border border-border bg-background px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                                {formatQuestType(quest.questType)}
+                              </span>
+                              {!quest.isActive ? (
+                                <span className="rounded-full border border-border bg-background px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                                  Inactive
+                                </span>
+                              ) : null}
+                            </div>
+                            <p className="mt-2 text-xs leading-5 text-muted-foreground">
+                              {quest.description ?? "No description yet."}
+                            </p>
+                          </button>
+
+                          <div className="flex items-center gap-2 sm:justify-self-end">
+                            <Button
+                              size="sm"
+                              variant={selected ? "secondary" : "outline"}
+                              className="hidden h-8 px-3 2xl:inline-flex"
+                              onClick={() => setSelectedQuestId(quest.id)}
+                            >
+                              Detail
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-8 px-3 2xl:hidden"
+                              onClick={() => {
+                                setSelectedQuestId(quest.id);
+                                setIsMobileDetailOpen(true);
+                              }}
+                            >
+                              Detail
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-8 px-3"
+                              onClick={() => openEditForm(quest)}
+                            >
+                              <PencilLine className="size-4" />
+                              Edit
+                            </Button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </section>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <aside className="hidden 2xl:block">
+          <div className="sticky top-4 rounded-[1.25rem] border border-border/80 bg-card/95 p-5 shadow-sm">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              Context pane
+            </p>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+              Review the selected task, then edit, deactivate, or delete without
+              leaving the list surface.
+            </p>
+
+            <div className="mt-5">
+              {selectedQuest ? (
+                <QuestDetailContent
+                  quest={selectedQuest}
+                  onEdit={() => openEditForm(selectedQuest)}
+                  onToggleActive={() => handleToggleActive(selectedQuest)}
+                  onDelete={() => setDeleteTarget(selectedQuest)}
+                  isPending={isPending}
+                />
+              ) : (
+                <EmptyState
+                  title="Select a task"
+                  description="Choose any row to review metadata and keep actions close to the active list."
+                />
+              )}
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      <Sheet
+        open={Boolean(formMode)}
+        onOpenChange={(open) => {
+          if (!open) {
+            closeForm();
+          }
+        }}
+      >
+        <SheetContent className="w-[92vw] max-w-xl gap-6">
+          <SheetHeader>
+            <SheetTitle>{formMode === "edit" ? "Edit task" : "Create task"}</SheetTitle>
+            <SheetDescription>
+              Keep the editor lightweight. Every task belongs to one list and uses a
+              single cadence.
+            </SheetDescription>
+          </SheetHeader>
+
+          <div className="overflow-y-auto pr-1">
+            <QuestFormFields
+              categories={categories}
+              formError={formError}
+              formState={formState}
+              isPending={isPending}
+              onChange={(updater) => setFormState((current) => updater(current))}
+            />
           </div>
 
           <SheetFooter>
             <Button variant="outline" onClick={closeForm} disabled={isPending}>
               Cancel
             </Button>
-            <Button
-              onClick={handleSaveQuest}
-              disabled={isPending || hasNoCategories}
-            >
+            <Button onClick={handleSaveQuest} disabled={isPending || hasNoCategories}>
               {isPending ? (
                 <Loader2 className="size-4 animate-spin" />
               ) : formMode === "edit" ? (
@@ -960,9 +1052,38 @@ export function QuestManager() {
               ) : (
                 <Plus className="size-4" />
               )}
-              {formMode === "edit" ? "Save changes" : "Create quest"}
+              {formMode === "edit" ? "Save changes" : "Create task"}
             </Button>
           </SheetFooter>
+        </SheetContent>
+      </Sheet>
+
+      <Sheet open={isMobileDetailOpen} onOpenChange={setIsMobileDetailOpen}>
+        <SheetContent
+          side="bottom"
+          className="max-h-[88vh] overflow-y-auto rounded-t-[1.25rem]"
+        >
+          <SheetHeader>
+            <SheetTitle>Task detail</SheetTitle>
+            <SheetDescription>
+              Review the selected task and open the editor without leaving Lists.
+            </SheetDescription>
+          </SheetHeader>
+
+          {selectedQuest ? (
+            <div className="mt-5">
+              <QuestDetailContent
+                quest={selectedQuest}
+                onEdit={() => {
+                  setIsMobileDetailOpen(false);
+                  openEditForm(selectedQuest);
+                }}
+                onToggleActive={() => handleToggleActive(selectedQuest)}
+                onDelete={() => setDeleteTarget(selectedQuest)}
+                isPending={isPending}
+              />
+            </div>
+          ) : null}
         </SheetContent>
       </Sheet>
 
@@ -976,7 +1097,7 @@ export function QuestManager() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete quest</AlertDialogTitle>
+            <AlertDialogTitle>Delete task</AlertDialogTitle>
             <AlertDialogDescription>
               Delete &quot;{deleteTarget?.title}&quot; only if you accept losing the
               linked completion history as well. This action cannot be undone.

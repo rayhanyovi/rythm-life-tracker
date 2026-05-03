@@ -1,38 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  useTransition,
-} from "react";
+import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import {
   CheckCircle2,
   Circle,
-  Flame,
   Loader2,
   NotebookPen,
-  RefreshCcw,
+  Plus,
+  RefreshCw,
 } from "lucide-react";
 import { toast } from "sonner";
 
-import { DetailPanel } from "@/components/app/detail-panel";
-import { DetailStat } from "@/components/app/detail-stat";
 import { EmptyState } from "@/components/app/empty-state";
-import { InteractiveListCard } from "@/components/app/interactive-list-card";
-import { MetricCard } from "@/components/app/metric-card";
-import { PageIntro } from "@/components/app/page-intro";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import {
@@ -42,8 +24,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 
 type CategoryOption = {
   id: string;
@@ -81,6 +71,15 @@ type CategoriesPayload = {
   error?: string;
 };
 
+type QuestDetailContentProps = {
+  isPending: boolean;
+  noteDraft: string;
+  onChangeNote: (value: string) => void;
+  onClearNote: () => void;
+  onSaveNote: () => void;
+  quest: DashboardQuestItem;
+};
+
 const ALL_CATEGORY_VALUE = "__all__";
 
 async function readJson<T>(response: Response) {
@@ -96,9 +95,8 @@ function formatDashboardDate(value: string) {
 
   return new Intl.DateTimeFormat("en-US", {
     weekday: "long",
-    month: "long",
+    month: "short",
     day: "numeric",
-    year: "numeric",
   }).format(date);
 }
 
@@ -111,10 +109,158 @@ function formatQuestType(value: DashboardQuestItem["questType"]) {
     case "MONTHLY":
       return "Monthly";
     case "MAIN":
-      return "Main quest";
+      return "Main";
     default:
       return value;
   }
+}
+
+function formatStreakLabel(quest: DashboardQuestItem) {
+  const streak = quest.streak ?? 0;
+
+  if (quest.questType === "MAIN") {
+    return streak > 0 ? `${streak} period streak` : "Primary focus";
+  }
+
+  if (!streak) {
+    return `${formatQuestType(quest.questType)} cadence`;
+  }
+
+  const unit =
+    quest.questType === "DAILY"
+      ? "day"
+      : quest.questType === "WEEKLY"
+        ? "week"
+        : "month";
+
+  return `${streak} ${unit} streak`;
+}
+
+function formatQuestSelectionHint(quest: DashboardQuestItem) {
+  return quest.isCompletedNow
+    ? "Completed in the active period"
+    : "Open in the active period";
+}
+
+function DetailStat({
+  label,
+  value,
+}: {
+  label: string;
+  value: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-xl border border-border/80 bg-background/80 px-4 py-3">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+        {label}
+      </p>
+      <p className="mt-2 text-sm font-semibold text-foreground">{value}</p>
+    </div>
+  );
+}
+
+function StatusCell({
+  label,
+  value,
+}: {
+  label: string;
+  value: React.ReactNode;
+}) {
+  return (
+    <div className="bg-card px-4 py-3">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+        {label}
+      </p>
+      <p className="mt-2 text-lg font-semibold tracking-tight text-foreground">
+        {value}
+      </p>
+    </div>
+  );
+}
+
+function QuestDetailContent({
+  isPending,
+  noteDraft,
+  onChangeNote,
+  onClearNote,
+  onSaveNote,
+  quest,
+}: QuestDetailContentProps) {
+  const canEditNote = quest.isCompletedNow;
+  const hasNoteDraft = noteDraft.trim().length > 0;
+
+  return (
+    <div className="space-y-5">
+      <div className="space-y-2">
+        <div className="space-y-1">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            Selected task
+          </p>
+          <h2 className="text-xl font-semibold tracking-tight text-foreground">
+            {quest.title}
+          </h2>
+        </div>
+        <p className="text-sm leading-6 text-muted-foreground">
+          {quest.categoryName} | {formatQuestType(quest.questType)}
+        </p>
+        {quest.description ? (
+          <p className="text-sm leading-6 text-muted-foreground">
+            {quest.description}
+          </p>
+        ) : null}
+      </div>
+
+      <div className="grid gap-3">
+        <DetailStat label="Status" value={formatQuestSelectionHint(quest)} />
+        <DetailStat label="Streak" value={formatStreakLabel(quest)} />
+        <DetailStat label="Period key" value={quest.currentPeriodKey} />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="today-note">Current period note</Label>
+        <Textarea
+          id="today-note"
+          value={noteDraft}
+          onChange={(event) => onChangeNote(event.target.value)}
+          placeholder={
+            canEditNote
+              ? "Add a short note for this completion."
+              : "Complete the task first to attach a note to this period."
+          }
+          disabled={isPending || !canEditNote}
+          className="min-h-32"
+        />
+        <p className="text-xs leading-5 text-muted-foreground">
+          Notes stay attached to the current completion, not to the task definition.
+        </p>
+      </div>
+
+      <div className="flex flex-wrap gap-3">
+        <Button
+          onClick={onSaveNote}
+          disabled={
+            isPending ||
+            !canEditNote ||
+            noteDraft.trim() === (quest.note ?? "")
+          }
+        >
+          {isPending ? (
+            <Loader2 className="size-4 animate-spin" />
+          ) : (
+            <NotebookPen className="size-4" />
+          )}
+          Save note
+        </Button>
+        <Button
+          variant="outline"
+          onClick={onClearNote}
+          disabled={isPending || !canEditNote || !hasNoteDraft}
+        >
+          Clear note
+        </Button>
+      </div>
+    </div>
+  );
 }
 
 export function DashboardScreen() {
@@ -126,6 +272,7 @@ export function DashboardScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [noteDraft, setNoteDraft] = useState("");
+  const [isMobileDetailOpen, setIsMobileDetailOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   const loadDashboard = useCallback(
@@ -151,7 +298,7 @@ export function DashboardScreen() {
       const payload = await readJson<DashboardPayload>(response);
 
       if (!response.ok || !payload) {
-        throw new Error(payload?.error ?? "Failed to load dashboard.");
+        throw new Error(payload?.error ?? "Failed to load today.");
       }
 
       setDashboard(payload);
@@ -171,6 +318,7 @@ export function DashboardScreen() {
 
     setCategories(payload.categories);
   }, []);
+
   useEffect(() => {
     let cancelled = false;
 
@@ -180,7 +328,7 @@ export function DashboardScreen() {
       } catch (error) {
         if (!cancelled) {
           setErrorMessage(
-            error instanceof Error ? error.message : "Failed to load dashboard.",
+            error instanceof Error ? error.message : "Failed to load today.",
           );
         }
       } finally {
@@ -199,6 +347,10 @@ export function DashboardScreen() {
 
   const questItems = useMemo(() => {
     return dashboard?.categories.flatMap((category) => category.items) ?? [];
+  }, [dashboard]);
+
+  const visibleCategories = useMemo(() => {
+    return dashboard?.categories.filter((category) => category.items.length > 0) ?? [];
   }, [dashboard]);
 
   const selectedQuest = useMemo(() => {
@@ -228,9 +380,9 @@ export function DashboardScreen() {
     }, 0);
 
     return {
-      totalItems: questItems.length,
-      completedItems,
       bestStreak,
+      completedItems,
+      totalItems: questItems.length,
     };
   }, [questItems]);
 
@@ -245,7 +397,7 @@ export function DashboardScreen() {
         await loadDashboard(nextState);
       } catch (error) {
         setErrorMessage(
-          error instanceof Error ? error.message : "Failed to refresh dashboard.",
+          error instanceof Error ? error.message : "Failed to refresh today.",
         );
       }
     });
@@ -268,7 +420,7 @@ export function DashboardScreen() {
       const payload = await readJson<{ error?: string }>(response);
 
       if (!response.ok && response.status !== 204) {
-        setErrorMessage(payload?.error ?? "Failed to update quest completion.");
+        setErrorMessage(payload?.error ?? "Failed to update task completion.");
         return;
       }
 
@@ -281,7 +433,7 @@ export function DashboardScreen() {
     });
   };
 
-  const handleSaveNote = () => {
+  const persistNote = (nextNote: string | null) => {
     if (!selectedQuest?.completionId) {
       return;
     }
@@ -297,7 +449,7 @@ export function DashboardScreen() {
             "content-type": "application/json",
           },
           body: JSON.stringify({
-            note: noteDraft.trim() ? noteDraft.trim() : null,
+            note: nextNote,
           }),
         },
       );
@@ -308,38 +460,122 @@ export function DashboardScreen() {
         return;
       }
 
-      toast.success(`Saved note for "${selectedQuest.title}".`);
+      toast.success(
+        nextNote
+          ? `Saved note for "${selectedQuest.title}".`
+          : `Cleared note for "${selectedQuest.title}".`,
+      );
       await loadDashboard();
     });
   };
 
+  const handleSaveNote = () => {
+    persistNote(noteDraft.trim() ? noteDraft.trim() : null);
+  };
+
+  const handleClearNote = () => {
+    setNoteDraft("");
+    persistNote(null);
+  };
+
+  const openMobileDetail = (questId: string) => {
+    setSelectedQuestId(questId);
+    setIsMobileDetailOpen(true);
+  };
+
   const hasNoItems = !isLoading && !questItems.length;
+  const canResetFilters = Boolean(selectedCategoryId || includeInactive);
+  const currentDateLabel = dashboard ? formatDashboardDate(dashboard.date) : "Loading today";
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
-      <div className="space-y-6">
-        <Card>
-          <CardContent className="flex flex-col gap-5 p-6">
-            <PageIntro
-              eyebrow="Current period"
-              title={dashboard ? formatDashboardDate(dashboard.date) : "Loading..."}
-              description="Stay on the current period. Complete recurring quests quickly, then use the detail panel to keep a short note when it matters."
-              actions={
-                <>
-                <Button variant="outline" onClick={() => refreshDashboard()} disabled={isPending}>
-                  {isPending ? <Loader2 className="size-4 animate-spin" /> : <RefreshCcw className="size-4" />}
+    <>
+      <div className="grid gap-5 2xl:grid-cols-[minmax(0,1fr)_20rem]">
+        <div className="min-w-0 space-y-5">
+          <section className="rounded-[1.25rem] border border-border/80 bg-card/92 p-4 shadow-sm sm:p-5">
+            <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+              <div className="space-y-2">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                  Tasks / Today
+                </p>
+                <div className="space-y-1">
+                  <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+                    Today
+                  </h1>
+                  <p className="text-base text-foreground/90">{currentDateLabel}</p>
+                </div>
+                <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
+                  Due work and recurring rhythm live in one list. Check, inspect, or
+                  correct without leaving the flow.
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <Button
+                  variant="outline"
+                  onClick={() => refreshDashboard()}
+                  disabled={isPending || isLoading}
+                >
+                  {isPending ? (
+                    <Loader2 className="size-4 animate-spin" />
+                  ) : (
+                    <RefreshCw className="size-4" />
+                  )}
                   Refresh
                 </Button>
                 <Button asChild>
-                  <Link href="/quests">Manage quests</Link>
+                  <Link href="/quests">
+                    <Plus className="size-4" />
+                    Add task
+                  </Link>
                 </Button>
-                </>
-              }
-            />
+              </div>
+            </div>
 
-            <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_16rem_auto]">
+            <div className="mt-5 grid gap-3 xl:grid-cols-[minmax(0,1.5fr)_minmax(16rem,0.9fr)]">
+              <Button
+                asChild
+                variant="outline"
+                className="h-auto justify-between rounded-xl border-border/80 px-4 py-3 text-left"
+              >
+                <Link href="/quests">
+                  <span className="flex items-center gap-3 text-sm text-muted-foreground">
+                    <Plus className="size-4" />
+                    Add task to Today
+                  </span>
+                  <span className="text-xs font-medium text-foreground">
+                    Opens Lists
+                  </span>
+                </Link>
+              </Button>
+
+              <div className="rounded-xl border border-border/80 bg-background/80 px-4 py-3">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                  Current rhythm
+                </p>
+                <p className="mt-2 text-sm font-semibold text-foreground">
+                  Daily checklist first. Notes stay contextual.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-3 grid gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-3">
+              <StatusCell
+                label="Visible tasks"
+                value={isLoading ? "..." : stats.totalItems}
+              />
+              <StatusCell
+                label="Completed now"
+                value={isLoading ? "..." : stats.completedItems}
+              />
+              <StatusCell
+                label="Best streak"
+                value={isLoading ? "..." : stats.bestStreak}
+              />
+            </div>
+
+            <div className="mt-4 grid gap-3 xl:grid-cols-[minmax(0,1fr)_15rem_auto] xl:items-end">
               <div className="space-y-2">
-                <Label htmlFor="dashboard-category-filter">Category</Label>
+                <Label htmlFor="today-category-filter">Filter by list</Label>
                 <Select
                   value={selectedCategoryId ?? ALL_CATEGORY_VALUE}
                   onValueChange={(value) => {
@@ -351,11 +587,11 @@ export function DashboardScreen() {
                   }}
                   disabled={isPending || isLoading}
                 >
-                  <SelectTrigger id="dashboard-category-filter">
-                    <SelectValue placeholder="All categories" />
+                  <SelectTrigger id="today-category-filter">
+                    <SelectValue placeholder="All lists" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value={ALL_CATEGORY_VALUE}>All categories</SelectItem>
+                    <SelectItem value={ALL_CATEGORY_VALUE}>All lists</SelectItem>
                     {categories.map((category) => (
                       <SelectItem key={category.id} value={category.id}>
                         {category.name}
@@ -365,8 +601,9 @@ export function DashboardScreen() {
                 </Select>
               </div>
 
-              <div className="flex items-end">
-                <label className="flex min-h-12 w-full items-center gap-3 rounded-2xl border border-border/90 bg-background/80 px-4 py-3 text-sm shadow-sm">
+              <div className="space-y-2">
+                <Label>Inactive</Label>
+                <label className="flex min-h-11 items-center gap-3 rounded-xl border border-border/80 bg-background/80 px-4 py-3 text-sm shadow-xs">
                   <Checkbox
                     checked={includeInactive}
                     onCheckedChange={(checked) => {
@@ -377,242 +614,253 @@ export function DashboardScreen() {
                     }}
                     disabled={isPending}
                   />
-                  <span className="font-medium text-foreground">Show inactive quests</span>
+                  <span className="font-medium text-foreground">
+                    Show inactive
+                  </span>
                 </label>
               </div>
 
-              <div className="flex items-end">
-                <Button
-                  variant="outline"
-                  className="w-full lg:w-auto"
-                  onClick={() => {
-                    setSelectedCategoryId(null);
-                    setIncludeInactive(false);
-                    refreshDashboard({
-                      categoryId: null,
-                      includeInactive: false,
-                    });
-                  }}
-                  disabled={isPending || (!selectedCategoryId && !includeInactive)}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setSelectedCategoryId(null);
+                  setIncludeInactive(false);
+                  refreshDashboard({
+                    categoryId: null,
+                    includeInactive: false,
+                  });
+                }}
+                disabled={isPending || !canResetFilters}
+                className="justify-self-start xl:justify-self-end"
+              >
+                Reset filters
+              </Button>
+            </div>
+          </section>
+
+          {errorMessage ? (
+            <Alert variant="destructive">
+              <Circle className="size-4" />
+              <AlertTitle>Today update failed</AlertTitle>
+              <AlertDescription>{errorMessage}</AlertDescription>
+            </Alert>
+          ) : null}
+
+          {isLoading ? (
+            <div className="space-y-4">
+              {Array.from({ length: 3 }).map((_, index) => (
+                <section
+                  key={index}
+                  className="overflow-hidden rounded-[1.15rem] border border-border/80 bg-card/95 shadow-sm"
                 >
-                  Reset filters
-                </Button>
-              </div>
-            </div>
-
-            <div className="grid gap-3 md:grid-cols-3">
-              <MetricCard
-                label="Visible quests"
-                value={isLoading ? "..." : stats.totalItems}
-              />
-              <MetricCard
-                label="Completed now"
-                value={isLoading ? "..." : stats.completedItems}
-              />
-              <MetricCard
-                label="Best live streak"
-                value={isLoading ? "..." : stats.bestStreak}
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        {errorMessage ? (
-          <Alert variant="destructive">
-            <Circle className="size-4" />
-            <AlertTitle>Dashboard update failed</AlertTitle>
-            <AlertDescription>{errorMessage}</AlertDescription>
-          </Alert>
-        ) : null}
-
-        {isLoading ? (
-          <div className="space-y-4">
-            {Array.from({ length: 3 }).map((_, index) => (
-              <Card key={index}>
-                <CardContent className="space-y-3 p-6">
-                  <Skeleton className="h-5 w-40" />
-                  <Skeleton className="h-20 w-full" />
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        ) : hasNoItems ? (
-          <EmptyState
-            title="No quests in the current view"
-            description="Create quests first, or adjust the category and inactive filters to bring items into the current dashboard."
-            action={
-              <div className="flex flex-wrap gap-3">
-                <Button asChild>
-                  <Link href="/quests">Open quests</Link>
-                </Button>
-                <Button asChild variant="outline">
-                  <Link href="/categories">Manage categories</Link>
-                </Button>
-              </div>
-            }
-          />
-        ) : (
-          <div className="space-y-4">
-            {dashboard?.categories.map((category) => (
-              <Card key={category.categoryId}>
-                <CardHeader className="pb-4">
-                  <CardTitle className="text-base">{category.categoryName}</CardTitle>
-                  <CardDescription>
-                    {category.items.length} quest{category.items.length === 1 ? "" : "s"} in
-                    the active view.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3 pt-0">
-                  {category.items.map((quest) => (
-                    <InteractiveListCard
-                      key={quest.questId}
-                      selected={selectedQuest?.questId === quest.questId}
-                      cardClassName="transition-colors"
-                      leading={
-                        <button
-                          type="button"
-                          onClick={() => handleToggleQuest(quest)}
-                          disabled={isPending}
-                          className="flex size-10 items-center justify-center rounded-full border border-border/70 bg-background text-foreground transition-colors hover:bg-muted disabled:opacity-50"
-                        >
-                          {quest.isCompletedNow ? (
-                            <CheckCircle2 className="size-5 text-primary" />
-                          ) : (
-                            <Circle className="size-5 text-muted-foreground" />
-                          )}
-                          <span className="sr-only">
-                            {quest.isCompletedNow ? "Uncheck quest" : "Check quest"}
-                          </span>
-                        </button>
-                      }
-                      actions={
-                        <>
-                          <div className="inline-flex items-center gap-1 rounded-full bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground">
-                            <Flame className="size-3.5 text-foreground" />
-                            {quest.streak ?? "-"}
-                          </div>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => setSelectedQuestId(quest.questId)}
-                          >
-                            <NotebookPen className="size-4" />
-                            Note
-                          </Button>
-                        </>
-                      }
-                    >
-                      <button
-                        type="button"
-                        onClick={() => setSelectedQuestId(quest.questId)}
-                        className="min-w-0 text-left"
+                  <div className="flex items-center justify-between border-b border-border/70 px-4 py-3.5">
+                    <Skeleton className="h-3 w-28" />
+                    <Skeleton className="h-3 w-14" />
+                  </div>
+                  <div>
+                    {Array.from({ length: 3 }).map((__, rowIndex) => (
+                      <div
+                        key={rowIndex}
+                        className="grid gap-3 border-b border-border/70 px-4 py-3.5 last:border-b-0 sm:grid-cols-[auto_minmax(0,1fr)_auto]"
                       >
-                        <div className="flex flex-wrap items-center gap-2">
-                          <p className="font-medium text-foreground">{quest.title}</p>
-                          <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
-                            {formatQuestType(quest.questType)}
-                          </span>
-                          {!quest.isActive ? (
-                            <span className="rounded-full bg-secondary px-2.5 py-1 text-xs font-medium text-secondary-foreground">
-                              Inactive
-                            </span>
-                          ) : null}
+                        <Skeleton className="size-8 rounded-full" />
+                        <div className="space-y-2">
+                          <Skeleton className="h-4 w-44" />
+                          <Skeleton className="h-3 w-32" />
                         </div>
-                        <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                          {quest.description ?? "No description for this quest yet."}
-                        </p>
-                        {quest.note ? (
-                          <p className="mt-2 text-sm text-foreground/80">
-                            Current note: {quest.note}
-                          </p>
-                        ) : null}
-                      </button>
-                    </InteractiveListCard>
-                  ))}
-                </CardContent>
-              </Card>
-            ))}
+                        <Skeleton className="h-8 w-20 rounded-md" />
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              ))}
+            </div>
+          ) : hasNoItems ? (
+            <EmptyState
+              title="No tasks in this view"
+              description="Today is empty right now. Add a task or broaden the filters to bring more work into the current surface."
+              action={
+                <div className="flex flex-wrap gap-3">
+                  <Button asChild>
+                    <Link href="/quests">Open Lists</Link>
+                  </Button>
+                  <Button asChild variant="outline">
+                    <Link href="/categories">Open Habit Lists</Link>
+                  </Button>
+                </div>
+              }
+            />
+          ) : (
+            <div className="space-y-4">
+              {visibleCategories.map((category) => (
+                <section
+                  key={category.categoryId}
+                  className="overflow-hidden rounded-[1.15rem] border border-border/80 bg-card/95 shadow-sm"
+                >
+                  <div className="flex items-center justify-between gap-3 border-b border-border/70 bg-muted/30 px-4 py-3.5">
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                        {category.categoryName}
+                      </p>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {category.items.length} task
+                      {category.items.length === 1 ? "" : "s"}
+                    </p>
+                  </div>
+
+                  <div>
+                    {category.items.map((quest) => {
+                      const selected = selectedQuest?.questId === quest.questId;
+
+                      return (
+                        <div
+                          key={quest.questId}
+                          className={cn(
+                            "grid gap-3 border-b border-border/70 px-4 py-3.5 last:border-b-0 sm:grid-cols-[auto_minmax(0,1fr)_auto]",
+                            selected && "bg-accent/30",
+                          )}
+                        >
+                          <button
+                            type="button"
+                            onClick={() => handleToggleQuest(quest)}
+                            disabled={isPending}
+                            className="flex size-8 items-center justify-center rounded-full border border-border bg-background text-foreground transition-[background-color,border-color,color] duration-[160ms] ease-out hover:bg-muted disabled:opacity-50"
+                          >
+                            {quest.isCompletedNow ? (
+                              <CheckCircle2 className="size-4 text-primary" />
+                            ) : (
+                              <Circle className="size-4 text-muted-foreground" />
+                            )}
+                            <span className="sr-only">
+                              {quest.isCompletedNow ? "Uncheck task" : "Check task"}
+                            </span>
+                          </button>
+
+                          <div className="min-w-0">
+                            <button
+                              type="button"
+                              onClick={() => setSelectedQuestId(quest.questId)}
+                              className="block w-full text-left"
+                            >
+                              <div className="flex flex-wrap items-center gap-2">
+                                <p className="truncate text-sm font-medium text-foreground">
+                                  {quest.title}
+                                </p>
+                                {!quest.isActive ? (
+                                  <span className="rounded-full border border-border bg-background px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                                    Inactive
+                                  </span>
+                                ) : null}
+                              </div>
+                            </button>
+
+                            <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+                              <span>{formatQuestType(quest.questType)}</span>
+                              <span className="size-1 rounded-full bg-border" />
+                              <span>{formatStreakLabel(quest)}</span>
+                              {quest.isCompletedNow ? (
+                                <>
+                                  <span className="size-1 rounded-full bg-border" />
+                                  <span>Completed now</span>
+                                </>
+                              ) : null}
+                            </div>
+
+                            {quest.note ? (
+                              <p className="mt-2 truncate text-xs leading-5 text-muted-foreground">
+                                Note: {quest.note}
+                              </p>
+                            ) : null}
+                          </div>
+
+                          <div className="flex items-center gap-2 sm:justify-self-end">
+                            <Button
+                              size="sm"
+                              variant={selected ? "secondary" : "outline"}
+                              className="hidden h-8 px-3 xl:inline-flex"
+                              onClick={() => setSelectedQuestId(quest.questId)}
+                            >
+                              <NotebookPen className="size-4" />
+                              Detail
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-8 px-3 xl:hidden"
+                              onClick={() => openMobileDetail(quest.questId)}
+                            >
+                              <NotebookPen className="size-4" />
+                              Detail
+                            </Button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </section>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <aside className="hidden 2xl:block">
+          <div className="sticky top-4 rounded-[1.25rem] border border-border/80 bg-card/95 p-5 shadow-sm">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              Context pane
+            </p>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+              Keep inspection, note editing, and correction close to the checklist.
+            </p>
+
+            <div className="mt-5">
+              {selectedQuest ? (
+                <QuestDetailContent
+                  quest={selectedQuest}
+                  noteDraft={noteDraft}
+                  onChangeNote={setNoteDraft}
+                  onClearNote={handleClearNote}
+                  onSaveNote={handleSaveNote}
+                  isPending={isPending}
+                />
+              ) : (
+                <EmptyState
+                  title="Select a task"
+                  description="Pick any row to inspect the current period and keep note editing inside the Today flow."
+                />
+              )}
+            </div>
           </div>
-        )}
+        </aside>
       </div>
 
-      <DetailPanel
-        title="Quest detail"
-        description="Keep note editing close to the dashboard. Notes are stored on the active period completion, not on the quest definition itself."
-      >
+      <Sheet open={isMobileDetailOpen} onOpenChange={setIsMobileDetailOpen}>
+        <SheetContent
+          side="bottom"
+          className="max-h-[88vh] overflow-y-auto rounded-t-[1.25rem]"
+        >
+          <SheetHeader>
+            <SheetTitle>Task detail</SheetTitle>
+            <SheetDescription>
+              Keep note editing and period context inside Today.
+            </SheetDescription>
+          </SheetHeader>
+
           {selectedQuest ? (
-            <>
-              <div className="space-y-3">
-                <div className="space-y-1">
-                  <p className="text-lg font-semibold text-foreground">
-                    {selectedQuest.title}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {selectedQuest.categoryName} · {formatQuestType(selectedQuest.questType)}
-                  </p>
-                </div>
-                <p className="text-sm leading-6 text-muted-foreground">
-                  {selectedQuest.description ?? "No description yet."}
-                </p>
-              </div>
-
-              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
-                <DetailStat
-                  label="Current streak"
-                  value={
-                    <span className="text-2xl font-semibold">
-                      {selectedQuest.streak ?? "-"}
-                    </span>
-                  }
-                />
-                <DetailStat
-                  label="Current period"
-                  value={selectedQuest.currentPeriodKey}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="dashboard-note">Current period note</Label>
-                <Textarea
-                  id="dashboard-note"
-                  value={noteDraft}
-                  onChange={(event) => setNoteDraft(event.target.value)}
-                  placeholder={
-                    selectedQuest.isCompletedNow
-                      ? "Add a short note for this completion."
-                      : "Complete the quest first to attach a note to this period."
-                  }
-                  disabled={isPending || !selectedQuest.isCompletedNow}
-                />
-                <div className="flex gap-3">
-                  <Button
-                    onClick={handleSaveNote}
-                    disabled={
-                      isPending ||
-                      !selectedQuest.isCompletedNow ||
-                      noteDraft === (selectedQuest.note ?? "")
-                    }
-                  >
-                    {isPending ? <Loader2 className="size-4 animate-spin" /> : <NotebookPen className="size-4" />}
-                    Save note
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => setNoteDraft(selectedQuest.note ?? "")}
-                    disabled={isPending || noteDraft === (selectedQuest.note ?? "")}
-                  >
-                    Reset
-                  </Button>
-                </div>
-              </div>
-            </>
-          ) : (
-            <EmptyState
-              title="Select a quest"
-              description="Pick any dashboard row to inspect its current streak and edit the note for the active period."
-            />
-          )}
-      </DetailPanel>
-    </div>
+            <div className="mt-5">
+              <QuestDetailContent
+                quest={selectedQuest}
+                noteDraft={noteDraft}
+                onChangeNote={setNoteDraft}
+                onClearNote={handleClearNote}
+                onSaveNote={handleSaveNote}
+                isPending={isPending}
+              />
+            </div>
+          ) : null}
+        </SheetContent>
+      </Sheet>
+    </>
   );
 }

@@ -1,8 +1,16 @@
 import type { LucideIcon } from "lucide-react";
 
 export type AppNavItem = {
-  href: string;
+  aliases?: string[];
+  badge?: number | string;
+  disabled?: boolean;
+  href?: string;
   label: string;
   summary: string;
   icon: LucideIcon;
+};
+
+export type AppNavGroup = {
+  label: string;
+  items: AppNavItem[];
 };

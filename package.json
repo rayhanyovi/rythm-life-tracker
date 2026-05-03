@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "npm run db:prepare",
     "dev": "next dev",
     "postinstall": "prisma generate",
     "build": "next build",
@@ -14,6 +15,7 @@
     "lint": "eslint",
     "verify": "npm run env:check && npm run prisma:validate && npm run test && npm run lint && npm run build",
     "verify:e2e": "npm run test:e2e",
+    "db:prepare": "npm run prisma:generate && npm run prisma:migrate:deploy",
     "env:check": "node --import tsx scripts/check-env.ts",
     "env:check:deployment": "node --import tsx scripts/check-env.ts --deployment",
     "qa:layout": "node --import tsx scripts/capture-layout-review.ts",
