@@ -4,6 +4,15 @@ Append-only log of completed work slices. Every agent should add an entry when a
 
 ---
 
+## 2026-05-03 - Landing Page Polish Pass
+
+- Polished [components/marketing/landing-page.tsx](../components/marketing/landing-page.tsx) while preserving the documented landing sequence from [docs/landing-page.html](./landing-page.html).
+- Improved hero responsiveness with `svh`, removed the forced heading class, enlarged CTA hit areas, and kept the product preview anchored at the bottom of the first screen.
+- Replaced the inert mobile hamburger button with a CSS-only mobile navigation dropdown while keeping the primary CTA visible.
+- Cleaned the hero product mock by fixing the encoded streak marker, tightening the responsive app-preview grid, and adding an accessible product-preview label.
+- Added section scroll offsets, stronger section-label tracking, proof/table/FAQ polish, and footer link hover states.
+- Verified with `npx eslint components/marketing/landing-page.tsx` and an HTTP check against `http://localhost:3000` returning status `200`.
+
 ## 2026-05-03 - Landing Comparison Key Fix
 
 - Fixed duplicate React keys in the landing comparison table in [components/marketing/landing-page.tsx](../components/marketing/landing-page.tsx) by keying table cells with row label and column index instead of repeated cell text.

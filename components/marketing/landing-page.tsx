@@ -252,7 +252,7 @@ const faqItems = [
 
 function SectionLabel({ children }: { children: ReactNode }) {
   return (
-    <p className="text-xs font-semibold uppercase text-muted-foreground">
+    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
       {children}
     </p>
   );
@@ -268,7 +268,10 @@ function LandingSection({
   id?: string;
 }) {
   return (
-    <section id={id} className={`border-t border-border/70 py-16 ${className}`}>
+    <section
+      id={id}
+      className={`scroll-mt-24 border-t border-border/70 py-20 sm:py-24 ${className}`}
+    >
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         {children}
       </div>
@@ -285,7 +288,7 @@ function CardBox({
 }) {
   return (
     <div
-      className={`landing-card border border-border/70 p-5 shadow-sm [border-radius:var(--radius-lg)] ${className}`}
+      className={`landing-card border border-border/70 p-5 shadow-sm backdrop-blur-[1px] [border-radius:var(--radius-lg)] ${className}`}
     >
       {children}
     </div>
@@ -344,7 +347,7 @@ export function LandingPage() {
           <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
             <Link
               href="/"
-              className="text-sm font-extrabold uppercase text-foreground"
+              className="text-sm font-extrabold uppercase tracking-[0.18em] text-foreground"
             >
               Rythm
             </Link>
@@ -354,7 +357,7 @@ export function LandingPage() {
                 <a
                   key={item.href}
                   href={item.href}
-                  className="hover:text-foreground"
+                  className="transition-colors hover:text-foreground"
                 >
                   {item.label}
                 </a>
@@ -368,31 +371,46 @@ export function LandingPage() {
               <Button asChild size="sm">
                 <Link href="/sign-up">Start free</Link>
               </Button>
-              <Button
-                aria-label="Open navigation"
-                className="md:hidden"
-                size="icon"
-                variant="ghost"
-              >
-                <Menu className="size-4" />
-              </Button>
+              <details className="group relative md:hidden">
+                <summary
+                  aria-label="Open navigation"
+                  className="flex size-9 cursor-pointer list-none items-center justify-center border border-border bg-background text-foreground shadow-sm [border-radius:var(--radius-sm)] [&::-webkit-details-marker]:hidden"
+                >
+                  <Menu className="size-4" />
+                </summary>
+                <div className="landing-card absolute right-0 mt-3 grid w-48 gap-1 border border-border/70 p-2 text-sm shadow-lg [border-radius:var(--radius-md)]">
+                  {navItems.map((item) => (
+                    <a
+                      key={item.href}
+                      href={item.href}
+                      className="px-3 py-2 text-muted-foreground transition-colors hover:text-foreground"
+                    >
+                      {item.label}
+                    </a>
+                  ))}
+                </div>
+              </details>
             </div>
           </div>
         </header>
 
-        <section className="flex min-h-[calc(100vh-73px)] px-4 pt-10 sm:px-6 lg:px-8">
-          <div className="mx-auto flex w-full max-w-7xl flex-col text-center gap-16">
-            <div className="py-10">
-              <h1 className="mx-auto max-w-5xl !text-5xl font-extrabold leading-tight text-foreground sm:text-4xl">
+        <section className="flex min-h-[calc(100svh-73px)] px-4 pt-8 sm:px-6 lg:px-8">
+          <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 text-center sm:gap-10">
+            <div className="landing-enter mx-auto max-w-5xl py-8 sm:py-10">
+              <h1 className="mx-auto max-w-5xl text-3xl font-extrabold leading-tight text-foreground sm:text-4xl lg:text-5xl">
                 A quieter way to keep recurring commitments clear.
               </h1>
-              <p className="mx-auto mt-4 max-w-4xl text-base leading-8 text-foreground/85">
+              <p className="mx-auto mt-4 max-w-4xl text-base leading-8 text-foreground/85 sm:text-lg">
                 Rythm turns recurring goals into period-aware quests, so you can
                 see what matters today, keep short notes when context matters,
                 and review your history without turning your life into a game.
               </p>
               <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
-                <Button asChild className="px-8 text-lg" size="lg">
+                <Button
+                  asChild
+                  className="h-14 px-8 text-base font-bold sm:text-lg"
+                  size="lg"
+                >
                   <Link href="/sign-up">
                     Start free
                     <ArrowRight className="size-5" />
@@ -400,7 +418,7 @@ export function LandingPage() {
                 </Button>
                 <Button
                   asChild
-                  className="px-8 text-lg"
+                  className="h-14 px-8 text-base font-bold sm:text-lg"
                   size="lg"
                   variant="outline"
                 >
@@ -413,7 +431,10 @@ export function LandingPage() {
               </p>
             </div>
 
-            <div className="mx-auto flex flex-col text-left max-w-6xl flex-1 w-full overflow-hidden border border-border/70 bg-card shadow-xl rounded-t-lg h-full">
+            <div
+              aria-label="Product preview"
+              className="landing-enter mx-auto mt-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col overflow-hidden border-x border-t border-border/70 bg-card text-left shadow-xl rounded-t-lg"
+            >
               <div className="flex items-center justify-between border-b border-border/70 px-4 py-3">
                 <div className="flex items-center gap-2">
                   <span className="size-2.5 rounded-full bg-primary/80" />
@@ -425,7 +446,7 @@ export function LandingPage() {
                 </p>
               </div>
 
-              <div className="grid min-h-[18rem] md:min-h-[21rem] lg:grid-cols-[12rem_1fr_16rem] !h-full">
+              <div className="grid min-h-[18rem] flex-1 md:min-h-[21rem] md:grid-cols-[1fr_16rem] lg:grid-cols-[12rem_1fr_16rem]">
                 <aside className="hidden border-r border-border/70 bg-muted/45 p-4 lg:block">
                   <p className="text-xs font-semibold uppercase text-muted-foreground">
                     Tasks
@@ -466,7 +487,7 @@ export function LandingPage() {
                   </div>
                 </aside>
 
-                <div className="border-r border-border/70 bg-background p-4">
+                <div className="bg-background p-4 md:border-r md:border-border/70">
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div>
                       <p className="text-xs font-semibold uppercase text-muted-foreground">
@@ -503,7 +524,7 @@ export function LandingPage() {
                           done: true,
                           meta: "Habit list: Health / Daily / streak 7",
                           status: "Done",
-                          title: "Morning stretch",
+                          title: "Hydrate before coffee",
                         },
                         {
                           done: false,
@@ -565,7 +586,7 @@ export function LandingPage() {
                     <p className="text-xs font-semibold uppercase text-muted-foreground">
                       Current streak
                     </p>
-                    <p className="mt-2 text-3xl font-bold"> 🔥 12</p>
+                    <p className="mt-2 text-3xl font-bold">12 days</p>
                   </div>
                 </aside>
               </div>
@@ -574,7 +595,10 @@ export function LandingPage() {
         </section>
 
         <LandingSection>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div
+            aria-label="Early proof metrics"
+            className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
+          >
             {proofStats.map((stat) => (
               <CardBox key={stat.label}>
                 <p className="text-3xl font-extrabold">{stat.value}</p>
@@ -740,21 +764,23 @@ export function LandingPage() {
           <h2 className="mt-3 max-w-4xl text-4xl font-extrabold leading-tight">
             Rythm sits between a habit app, a to-do list, and a journal.
           </h2>
-          <div className="mt-8 overflow-x-auto border border-border/70 bg-background/80 [border-radius:var(--radius-lg)]">
+          <div className="mt-8 overflow-x-auto border border-border/70 bg-background/80 shadow-sm [border-radius:var(--radius-lg)]">
             <table className="w-full min-w-[760px] border-collapse text-left text-sm">
               <thead className="bg-muted/70 text-xs uppercase text-muted-foreground">
                 <tr>
-                  <th className="border-b border-border px-4 py-3">
+                  <th className="border-b border-border px-4 py-3" scope="col">
                     Capability
                   </th>
-                  <th className="border-b border-border px-4 py-3">Rythm</th>
-                  <th className="border-b border-border px-4 py-3">
+                  <th className="border-b border-border px-4 py-3" scope="col">
+                    Rythm
+                  </th>
+                  <th className="border-b border-border px-4 py-3" scope="col">
                     Habit tracker
                   </th>
-                  <th className="border-b border-border px-4 py-3">
+                  <th className="border-b border-border px-4 py-3" scope="col">
                     To-do app
                   </th>
-                  <th className="border-b border-border px-4 py-3">
+                  <th className="border-b border-border px-4 py-3" scope="col">
                     Journal / spreadsheet
                   </th>
                 </tr>
@@ -867,11 +893,17 @@ export function LandingPage() {
             {faqItems.map((item, index) => (
               <details
                 key={item.question}
-                className="landing-card border border-border/70 px-5 py-4 shadow-sm [border-radius:var(--radius-lg)]"
+                className="group landing-card border border-border/70 px-5 py-4 shadow-sm [border-radius:var(--radius-lg)]"
                 open={index === 0}
               >
-                <summary className="cursor-pointer list-none text-base font-bold">
-                  {item.question}
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-base font-bold [&::-webkit-details-marker]:hidden">
+                  <span>{item.question}</span>
+                  <span className="text-muted-foreground group-open:hidden">
+                    +
+                  </span>
+                  <span className="hidden text-muted-foreground group-open:inline">
+                    -
+                  </span>
                 </summary>
                 <p className="mt-4 max-w-4xl text-sm leading-7 text-muted-foreground">
                   {item.answer}
@@ -910,9 +942,15 @@ export function LandingPage() {
             <div>
               <p className="font-bold">Product</p>
               <div className="mt-3 grid gap-2 text-muted-foreground">
-                <a href="#why">Why it works</a>
-                <a href="#pricing">Pricing</a>
-                <a href="#faq">FAQ</a>
+                <a className="hover:text-foreground" href="#why">
+                  Why it works
+                </a>
+                <a className="hover:text-foreground" href="#pricing">
+                  Pricing
+                </a>
+                <a className="hover:text-foreground" href="#faq">
+                  FAQ
+                </a>
               </div>
             </div>
             <div>
