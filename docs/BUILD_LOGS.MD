@@ -4,6 +4,25 @@ Append-only log of completed work slices. Every agent should add an entry when a
 
 ---
 
+## 2026-05-04 - Landing Page Visual Audit + Polish Pass
+
+- Replaced all three `ScreenPlaceholder` skeleton boxes (grey rectangles + "Screenshot coming" text) with real app mockups: `TodayMockup`, `StructureMockup`, `HistoryMockup`. Each shows actual app content — checklist rows, category lists, day-grouped log — using the same visual language as the hero preview.
+- Changed proof stats from 4 individual cards to a single bordered container with a 2×2 divided grid on mobile and 4-up on desktop. Numbers are now the focus, not the card chrome.
+- Added icon containers to feature cards (9×9px bordered box with `bg-background`) replacing bare floating icons. Also removed `min-h-48` / `min-h-44` from feature and problem cards to let content determine height naturally.
+- Reduced section padding from `py-20 sm:py-24` to `py-16 sm:py-20` across all sections, tightening the overall page rhythm.
+- Added benefit pills to the pivot section ("Calm daily view", "Honest streaks", "Quiet XP", "Life-area structure", "Editable log") to give the transition more visual substance.
+- Verified visually via preview screenshots; build still clean (`npm run lint && npm run build` pass).
+
+## 2026-05-03 - Landing Page Full Rewrite + Verify Pass
+
+- Rewrote [components/marketing/landing-page.tsx](../components/marketing/landing-page.tsx) to apply a clear design voice: `font-semibold` headings, correct copy in all section titles (no wireframe planning notes left as page headings), and gamification-aware content throughout.
+- Added the "Does Rythm have gamification?" FAQ entry and a "Progress rewards (XP, badges)" row in the comparison table (both absent in the previous version), consistent with the gamification direction settled in the docs.
+- Showed XP in the hero app shell mock (480 XP, "Next milestone: 500") and in the detail pane, giving the landing page a concrete preview of the quiet-gamification posture.
+- Replaced the "Mobile-ready rhythm" features card with a "Quiet progress" card (Trophy icon) so the features grid introduces the XP concept in its natural reading order.
+- Used `<details>/<summary>` HTML for the mobile nav dropdown and FAQ accordion — keeps the component a pure server component (no `"use client"` needed).
+- Fixed two pre-existing issues in [components/categories/category-manager.tsx](../components/categories/category-manager.tsx): added missing `Skeleton` import and added missing `category` field to `CategoriesPayload` type (the POST response shape).
+- Verified: `npm run verify` passes cleanly — 34/34 unit tests pass, ESLint clean, TypeScript clean, production build succeeds with 18 routes generated.
+
 ## 2026-05-03 - Landing Page Polish Pass
 
 - Polished [components/marketing/landing-page.tsx](../components/marketing/landing-page.tsx) while preserving the documented landing sequence from [docs/landing-page.html](./landing-page.html).
