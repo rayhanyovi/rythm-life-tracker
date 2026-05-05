@@ -78,7 +78,7 @@ These are honest constraints to be aware of, not bugs:
 - **No offline mutation queue.** The PWA caches the shell and serves an offline fallback page, but writes require a live connection.
 - **English-only UI.** Copy is intentionally English; localization is not on the near-term roadmap.
 - **No analytics.** This is a product stance, not a missing feature. Charts and trend lines are explicitly out of scope.
-- **Database provider not finalized.** The schema is portable across PostgreSQL-compatible providers; the actual production provider has not been chosen yet.
+- **Deployment env still needs validation.** Neon is the chosen database provider and the baseline migration is applied, but Vercel preview/production env vars and real email/PWA smoke checks still need to be verified.
 
 ## Where To Go Next
 

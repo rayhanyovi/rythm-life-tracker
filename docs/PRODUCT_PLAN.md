@@ -16,7 +16,7 @@ If a feature is not listed in here, it is not on the roadmap. Adding a feature r
 
 ## Open Strategic Decisions
 
-Decisions 2 and 3 are unresolved. Each blocks specific downstream work. **Do not pick one silently** — surface the question to the user and wait for a decision. Decision 1 is resolved (Tasks-first).
+All three strategic decisions are now resolved (1 fully, 2 fully, 3 tentatively). Decision 3 is marked with an owner uncertainty note — re-confirm before implementing the schema split.
 
 ### 1. IA Direction: Quest Model vs Tasks-First
 
@@ -30,33 +30,21 @@ The `Habit Lists` data model question (Strategic Decision 3) is now active — r
 
 ### 2. Database Provider
 
-**Status:** unresolved.
+**Status:** ✅ RESOLVED — **Neon.**
 
-**Background:** The schema is fully portable across PostgreSQL-compatible providers. Local development uses a Dockerized Postgres. Production has not been provisioned.
-
-**Shortlist** (full comparison in [TECHNICAL_PLAN.md](./TECHNICAL_PLAN.md#database-provider-options)):
-
-- **Prisma Postgres** — fastest path; tight Vercel + Prisma integration; preview URLs auto-wired.
-- **Neon** — strong per-branch preview database story; serverless Postgres; slightly more setup for Prisma direct/pool URLs.
-- **Supabase Postgres** — full Postgres with dashboard and ecosystem optionality; we don't use Supabase Auth or RLS so most of the value is unrealized.
-- **Managed PostgreSQL (generic)** — vendor-neutral, more operational effort, weakest preview-environment story.
-
-**Recommendation:** Prisma Postgres if the team wants the shortest path; Neon if per-branch preview databases are valuable. Defer Supabase and self-managed unless there is a specific reason.
-
-**Blocks:** real production deployment, performance/quota planning, real `prisma migrate deploy` against production.
+Neon (serverless Postgres) is the chosen provider. Baseline migration applied 2026-05-04. See [TECHNICAL_PLAN.md Section 12](./TECHNICAL_PLAN.md#12-database-provider) for connection setup, Vercel env config, and local dev instructions.
 
 ---
 
 ### 3. `Habit Lists` Data Model
 
-**Status:** unresolved — now **implementation-blocking** since Decision 1 resolved to Tasks-first.
+**Status:** ✅ RESOLVED (tentatively) — **separate entity, but owner is unsure — revisit before implementing.**
 
-**Background:** The sidebar maps the existing `/categories` route to a label called `Habit Lists`. The schema has only one container entity: `Category`. Either:
+**Decision:** Treat `Habit Lists` as a new entity distinct from `Category`. `Category` becomes a life-domain container (e.g. Health, Finance) and `HabitList` becomes a curated cadence group (e.g. "Morning Routine", "Evening Wind-down") that holds recurring quests. This avoids a future migration if the concepts diverge; a `HabitList` table that turns out to be unnecessary is easier to remove than a `Category` table that needs to be split.
 
-- **(a)** `Habit Lists` is purely a UI label for `Category` and the schema does not change — the quickest path.
-- **(b)** `Habit Lists` is a separate concept that holds a curated cadence (e.g., "Morning Routine" containing several Daily quests) and `Category` becomes a different concept (e.g., a life domain like "Health"), requiring a schema split.
+**Owner's note:** *"I don't know about this — just make it separate to be safe. I can remove it if it's unnecessary or use it if it's useful."* Do not implement the schema split without first re-confirming this decision with the owner, since it requires a new table, a data migration for existing quests, and updates to all category-linked API routes.
 
-Resolve this before starting the route-rename work, since the rename will also update nav labels and page copy.
+**Blocks:** IA route renames (Step 1 of the IA Roadmap).
 
 ---
 
@@ -126,7 +114,7 @@ Quality gates
 - Unit tests in `tests/` for period helpers, streak calculation, payload validators
 - Playwright e2e suite (`npm run test:e2e`) covering auth layout, authenticated shell, dashboard, quests, categories, history, PWA installability, offline fallback
 - Manual screenshot review (`npm run qa:layout`)
-- Repo discipline guard (`npm run discipline:check`) blocks edits in `quest-companion/` and edits without `docs/to_dos.md` updates *(this guard will need to be updated to reference `PRODUCT_PLAN.md` instead — see Recommended Refactors in [TECHNICAL_PLAN.md](./TECHNICAL_PLAN.md#known-technical-debt))*
+- Repo discipline guard (`npm run discipline:check`) blocks edits in `quest-companion/` and source edits without `docs/PRODUCT_PLAN.md` updates.
 
 ### Partially Complete / In Flight
 
@@ -171,14 +159,7 @@ These items can be picked up regardless of how the IA decision lands.
 
 #### P0.2 — Pick a database provider and migrate
 
-- **Why:** the only major undone item from the original delivery checklist. Cannot meaningfully test production without a real DB.
-- **Acceptance:**
-  - One of Prisma Postgres / Neon / Supabase Postgres / managed PG is chosen and provisioned.
-  - `DATABASE_URL` and (if applicable) `DIRECT_URL` are set in Vercel preview and production.
-  - `npm run prisma:migrate:deploy` runs cleanly against the chosen DB.
-  - The deployment smoke checklist (sign up → create category → create quest → check it → see in history → uncheck → sign out) passes against the deployed URL.
-- **Dependencies:** Strategic Decision 2.
-- **Risks:** Provider-specific connection limits or pooling behavior may force `DIRECT_URL` configuration.
+**Status: ✅ DONE** — Neon provisioned, baseline migration applied 2026-05-04. `DATABASE_URL` (pooled) and `DIRECT_URL` (direct) are set in `.env.local`. Still need to set both in Vercel env vars for preview and production, and run the deployment smoke checklist against a deployed URL.
 
 #### P0.3 — Real-device PWA install validation
 
@@ -194,14 +175,15 @@ These items can be picked up regardless of how the IA decision lands.
 
 #### P1.1 — Token migration pass on `components/ui` primitives
 
-- **Why:** the design tokens in [app/globals.css](../app/globals.css) are already in the new slate / cool-premium family with the new radius scale (8 / 12 / 14 / 20px), but several primitives still default to older shapes (e.g., `rounded-full` on base `Button`, `rounded-2xl` on `Input` and `Select`). [DESIGN_DIRECTION.md](./DESIGN_DIRECTION.md) explicitly calls for moving away from full-pill defaults.
-- **Acceptance:**
-  - `Button` base no longer defaults to fully pill-shaped. Pill remains available for explicit semantic uses (badges, segmented controls).
-  - `Input`, `Select`, `Textarea` align to the `--radius-lg` (14px) family unless they have a specific reason to differ.
-  - `Sheet` close affordances follow the new rounded-rectangle system rather than default pill cues.
-  - No regressions in `npm run qa:layout` screenshots; visual review confirms the calmer, more architectural feel described in `DESIGN_DIRECTION.md`.
-- **Dependencies:** none.
-- **Risks:** Cascading visual side-effects on screens that relied on old shapes.
+**Status: ✅ DONE** — Completed 2026-05-04.
+
+- `Button` base: `rounded-md` (12px) → `rounded-sm` (8px) per the design rule "small controls = 8px". Icon variant updated to match. Full-pill (`rounded-full`) is still available for semantic uses (badges, circular avatar buttons, dots).
+- `Input`, `Select`, `Textarea`: already used `rounded-lg` (14px = `--radius-lg`) — no changes needed.
+- `Sheet` close button: `rounded-md` → `rounded-sm` — consistent with the button family.
+- `auth-card.tsx` icon box: `rounded-2xl` (un-tokenized Tailwind default) → `rounded-xl` (20px = `--radius-xl`).
+- All `rounded-full` usages reviewed: retained where semantic (circular check/uncheck button, avatar circles, dot separators, pill badges). Removed where incidental.
+- `prisma.config.ts` `directUrl` handling: Prisma 7 requires `directUrl` in `prisma.config.ts`, not `schema.prisma`. The TS type lags; worked around with a spread cast (`...({ directUrl: getDirectUrl() } as Record<string, string>)`). See `prisma.config.ts` comment for context.
+- Verified: `npm run verify` passes (34/34 tests, ESLint clean, TS clean, production build).
 
 #### P1.2 — Drag-and-drop category reordering
 
@@ -269,15 +251,16 @@ These are worth flagging but not gating any current work. If you encounter one w
 
 Pick vertical slices, ship them complete, then move on. Avoid scattering partial migrations across multiple files in parallel.
 
-1. Resolve Strategic Decision 3 (`Habit Lists` data model) — now the only open strategic blocker.
-2. P0.2 (database provider) — pick + migrate.
-3. P0.1 (Resend email) — verify delivery in the deployed environment.
-4. P0.3 (real-device PWA install).
-5. IA route renames + redirects (see IA Roadmap above) — unblocked once Decision 3 is settled.
-6. P1.1 (token migration pass on `components/ui`) — biggest visual coherence win.
-7. `Upcoming` v1, then `Calendar` v1.
-8. P1.2 / P1.3 (DnD reorder, mobile gestures) — polish layer.
-9. P2 items as bandwidth allows.
-10. Gamification design pass (schema + visual treatment) before any implementation.
+1. ~~Resolve Strategic Decision 3~~ — resolved (tentatively, separate entity; re-confirm before schema work).
+2. ~~P0.2 (database provider)~~ — ✅ done (Neon, migration applied).
+3. **P0.1 (Resend email)** — set Vercel env vars (`AUTH_EMAIL_FROM`, `RESEND_API_KEY`), deploy, verify email delivery end-to-end.
+4. **P0.3 (real-device PWA install)** — depends on P0.1 + a deployed URL with working auth + DB.
+5. **Set Vercel env vars** — `DATABASE_URL`, `DIRECT_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL` must be set in Vercel before any preview/production deploy is usable.
+6. **IA route renames + redirects** — unblocked once Decision 3 schema work is done.
+7. ~~P1.1 (token migration pass on `components/ui`)~~ — ✅ done (button/sheet/auth-card radius tokens aligned).
+8. `Upcoming` v1, then `Calendar` v1.
+9. P1.2 / P1.3 (DnD reorder, mobile gestures) — polish layer.
+10. P2 items as bandwidth allows.
+11. Gamification design pass (schema + visual treatment) before any implementation.
 
-The repo discipline guard expects every source change to ship alongside a `PRODUCT_PLAN.md` (or `to_dos.md` until the guard is updated) edit. Update this doc as you finish each slice.
+The repo discipline guard expects every source change to ship alongside a `PRODUCT_PLAN.md` edit. Update this doc as you finish each slice.

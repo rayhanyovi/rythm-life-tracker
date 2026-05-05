@@ -32,7 +32,7 @@ This is the canonical technical reference for Rythm. Architecture, schema, API c
 - **UI:** React 19 + TypeScript 5 + Tailwind CSS 4 + shadcn/ui primitives
 - **Auth:** Better Auth (`better-auth` + `@better-auth/prisma-adapter`)
 - **ORM:** Prisma 7 (`@prisma/client` + `@prisma/adapter-pg` + `pg`)
-- **Database:** PostgreSQL-compatible (provider not yet finalized — see [Section 12](#12-database-provider-options))
+- **Database:** Neon (serverless Postgres) — see [Section 12](#12-database-provider-options)
 - **Testing:** `node:test` + `tsx` for unit tests; `@playwright/test` for browser smoke
 - **PWA:** custom `app/manifest.ts` + service worker registered from `components/pwa/pwa-register.tsx`
 
@@ -563,7 +563,7 @@ Better Auth ([`better-auth`](../node_modules/better-auth)) configured in [lib/au
 ### Repo Boundaries
 
 - Implement in the **root Next.js app**, never in `quest-companion/`. The discipline guard ([scripts/check-repo-discipline.ts](../scripts/check-repo-discipline.ts)) enforces this.
-- The discipline guard also expects every source change to ship with a tracker update. **Currently it watches `docs/to_dos.md`** — when the docs consolidation lands this needs to be updated to watch `docs/PRODUCT_PLAN.md`. See [Section 15](#15-known-technical-debt).
+- The discipline guard also expects every source change to ship with a tracker update in `docs/PRODUCT_PLAN.md`.
 
 ### Commits
 
@@ -634,7 +634,7 @@ DATABASE_URL=postgresql://postgres:postgres@db:5432/rythm?schema=public
 
 #### `DIRECT_URL`
 
-Direct connection string for providers that separate pooled vs direct (e.g., Supabase, some Neon configurations). Not used by current Prisma config; kept open for future provider choice.
+Direct (non-pooled) connection string for Neon. Required because `DATABASE_URL` points at Neon's PgBouncer pooler, which cannot execute DDL (migrations). `prisma.config.ts` passes this to the Prisma CLI for `prisma migrate deploy`. The app's `@prisma/adapter-pg` client uses `DATABASE_URL` (pooled). Both must be set in every deployed environment.
 
 #### `NEXT_PUBLIC_APP_TIMEZONE`
 
@@ -902,61 +902,39 @@ PWA smoke (after the data smoke passes):
 
 ---
 
-## 12. Database Provider Options
+## 12. Database Provider
 
-### Constraints
+**✅ RESOLVED — Neon.**
 
-- Fullstack Next.js on Vercel.
-- Better Auth (no Supabase Auth).
-- Prisma ORM.
-- PostgreSQL-compatible.
-- MVP needs stability for CRUD + migrations + simple deploy more than feature surface.
+Neon (serverless Postgres) is the chosen provider. Baseline migration was applied on 2026-05-04.
 
-### Shortlist
+### Connection Setup
 
-#### Option A — Prisma Postgres
+Neon separates two connection endpoints that must both be configured:
 
-| Pros | Cons |
-|---|---|
-| Tightest Vercel + Prisma integration; preview URLs auto-wire `DATABASE_URL` | Higher lock-in to Prisma's hosted experience |
-| Fastest path for MVP | Backup, observability, pricing at scale need real validation |
-| Closest to current tooling baseline | |
+| Variable | Endpoint | Used by |
+|---|---|---|
+| `DATABASE_URL` | Pooled (`*-pooler.*.neon.tech`) | `@prisma/adapter-pg` in the app runtime |
+| `DIRECT_URL` | Direct (`*.neon.tech`, no `-pooler`) | Prisma CLI for `prisma migrate deploy` |
 
-Risk for Rythm: low for MVP.
+`prisma.config.ts` reads both via `getDatabaseUrl()` and `getDirectUrl()` from `lib/env.ts`.
 
-#### Option B — Neon
+The pooler (PgBouncer in transaction mode) cannot execute DDL. Always use `DIRECT_URL` for migrations.
 
-| Pros | Cons |
-|---|---|
-| Per-branch preview databases are first-class | Requires careful pooled vs direct URL setup with Prisma |
-| Vercel integration supports preview branches | More operational decisions vs. Prisma Postgres if you only want one DB |
-| Stays neutral Postgres | |
+### Vercel Env Setup
 
-Risk for Rythm: low to medium. Best fit if branch previews are valuable.
+Set both variables in Vercel for every environment (preview + production):
 
-#### Option C — Supabase Postgres (database only)
+```
+DATABASE_URL=postgresql://neondb_owner:<password>@<branch>-pooler.<region>.neon.tech/neondb?sslmode=require
+DIRECT_URL=postgresql://neondb_owner:<password>@<branch>.<region>.neon.tech/neondb?sslmode=require
+```
 
-| Pros | Cons |
-|---|---|
-| Full Postgres + dashboard + extensions + backups | We don't use Supabase Auth or RLS, so most of the platform value is unrealized |
-| Future-optionality if Supabase ecosystem becomes useful | Prisma + Supabase needs explicit pooler vs direct config |
+Neon's Vercel integration can auto-wire per-branch `DATABASE_URL` for preview deployments. If enabled, also configure `DIRECT_URL` as the direct connection for the matching branch.
 
-Risk for Rythm: medium. Worth considering only if a future need for Supabase ecosystem features is concrete.
+### Local Development
 
-#### Option D — Managed PostgreSQL (generic) Or Self-Managed
-
-| Pros | Cons |
-|---|---|
-| Lowest vendor lock-in | Preview DB workflow, pooling, branching all DIY |
-| Full control | Highest operational effort for an MVP |
-
-Risk for Rythm: medium to high for current phase. Most reasonable later if compliance or networking forces it.
-
-### Recommendation
-
-**Default: Prisma Postgres** for fastest path. **Pick Neon** only if per-branch preview databases are explicitly valuable to the team. Defer Supabase Postgres and managed PG unless there's a specific reason.
-
-This decision is unresolved — see [PRODUCT_PLAN.md Open Strategic Decision 2](./PRODUCT_PLAN.md#2-database-provider).
+`.env.local` currently points to the Neon database. To switch to a local Docker Postgres instead, comment out the Neon lines and uncomment the local fallback line in `.env.local`. The `getDatabaseUrl()` function falls back to `postgresql://postgres:postgres@localhost:5432/rythm` if `DATABASE_URL` is unset and the runtime is not Vercel.
 
 ---
 
@@ -1027,7 +1005,7 @@ npm run discipline:check
 Currently enforces:
 
 - No source changes inside `quest-companion/`.
-- Source changes must include a tracker update (currently `docs/to_dos.md` — needs updating to `docs/PRODUCT_PLAN.md`; see [Section 15](#15-known-technical-debt)).
+- Source changes must include a tracker update in `docs/PRODUCT_PLAN.md`.
 
 ### CI
 
@@ -1065,12 +1043,6 @@ The deployment smoke flow lives in [Section 11](#11-deployment).
 
 In rough priority order. None of these are blocking the current MVP, but each is worth picking up at the right time.
 
-### Discipline Guard References Old Tracker
-
-[`scripts/check-repo-discipline.ts`](../scripts/check-repo-discipline.ts) currently expects edits to ship with `docs/to_dos.md` updates. With `to_dos.md` removed, the guard should track `docs/PRODUCT_PLAN.md` instead.
-
-**Fix:** update the script to match. **Cost:** ~5 minutes. **Risk:** low. **Why deferred from this doc consolidation:** the user's instruction was documentation-only.
-
 ### Default Boilerplate `README.md`
 
 The repo `README.md` was the default Next.js boilerplate before this consolidation pass and is now a Rythm-specific landing card with a doc map.
@@ -1083,18 +1055,6 @@ The frozen prototype still ships in the repo. Discipline guard blocks edits to i
 
 The IA direction is settled (Tasks-first). Route renames (`/dashboard` → `/today`, etc.) are approved work but not yet implemented. Until the renames land, route paths remain at their old values. See [PRODUCT_PLAN.md IA Roadmap](./PRODUCT_PLAN.md#ia-roadmap-tasks-first) for the required sequence (resolve `Habit Lists` data model first, then rename in one coordinated commit that also updates `app/manifest.ts`, sidebar `href` values, Playwright e2e route refs, and the deployment smoke checklist).
 
-### Token Migration On `components/ui` Primitives
-
-Tokens already updated in `app/globals.css`, but several primitives still default to old shapes (full pill, `rounded-2xl`). See [DESIGN_DIRECTION.md Section 12](./DESIGN_DIRECTION.md#section-12--token-mapping-and-component-touchpoints) and [PRODUCT_PLAN.md P1.1](./PRODUCT_PLAN.md#p11--token-migration-pass-on-componentsui-primitives).
-
-### Marketing Component Still On Old System
-
-[`components/marketing/landing-page.tsx`](../components/marketing/landing-page.tsx) still expresses the older warm-system pill-heavy language. Should align to the slate tokens and rectangle shapes during the same migration pass.
-
 ### `lib/session.ts` Seam Underused
 
 The `sessionApi` indirection exists specifically so route tests can swap session sources, but most route handlers still call `auth.api.getSession` directly. Migrating handlers to consistently use `sessionApi` would make the in-memory smoke tests more reliable.
-
-### No Provider Final Decision
-
-See [Section 12](#12-database-provider-options) and [PRODUCT_PLAN.md Open Strategic Decision 2](./PRODUCT_PLAN.md#2-database-provider).
