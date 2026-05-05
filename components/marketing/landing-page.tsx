@@ -117,14 +117,15 @@ const workflowSteps = [
   },
 ];
 
+/* prettier-ignore */
 const comparisonRows: [string, string, string, string, string][] = [
-  ["Period-aware recurring structure", "Yes", "Partial", "Weak", "Manual"],
-  ["Low-noise, non-pressurizing daily flow", "Yes", "Often no", "Neutral", "Yes"],
-  ["Life-area grouping", "Yes", "Basic", "Possible", "Manual"],
-  ["Completion notes", "Yes", "Rare", "Not core", "Yes"],
-  ["Honest activity log", "Yes", "Weak", "Possible", "Manual"],
-  ["Progress rewards (XP, badges)", "Yes — quiet", "Often aggressive", "No", "No"],
-  ["Installable mobile PWA", "Yes", "Usually", "Usually", "No"],
+  ["Period-aware recurring structure",       "Yes",        "Partial",          "Weak",     "Manual"],
+  ["Low-noise, non-pressurizing daily flow", "Yes",        "Often no",         "Neutral",  "Yes"],
+  ["Life-area grouping",                     "Yes",        "Basic",            "Possible", "Manual"],
+  ["Completion notes",                       "Yes",        "Rare",             "Not core", "Yes"],
+  ["Honest activity log",                    "Yes",        "Weak",             "Possible", "Manual"],
+  ["Progress rewards (XP, badges)",          "Yes — quiet","Often aggressive", "No",       "No"],
+  ["Installable mobile PWA",                 "Yes",        "Usually",          "Usually",  "No"],
 ];
 
 const testimonials = [
@@ -262,10 +263,7 @@ function Section({
   children: ReactNode;
 }) {
   return (
-    <section
-      id={id}
-      className={`scroll-mt-20 border-t border-border/70 py-16 sm:py-20 ${className}`}
-    >
+    <section id={id} className={`scroll-mt-20 py-16 sm:py-20 ${className}`}>
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         {children}
       </div>
@@ -306,15 +304,22 @@ function CheckList({ items }: { items: string[] }) {
 
 function TodayMockup() {
   const items = [
-    { done: true, title: "Morning stretch", meta: "Fitness · Daily · streak 12" },
-    { done: true, title: "Hydrate before coffee", meta: "Health · Daily · streak 7" },
+    {
+      done: true,
+      title: "Morning stretch",
+      meta: "Fitness · Daily · streak 12",
+    },
+    {
+      done: true,
+      title: "Hydrate before coffee",
+      meta: "Health · Daily · streak 7",
+    },
     { done: false, title: "Money review", meta: "Finance · Weekly" },
     { done: false, title: "Check savings rate", meta: "Finance · Monthly" },
   ];
   return (
     <div className="landing-card overflow-hidden border border-border/70 shadow-md [border-radius:var(--radius-xl)]">
       <div className="landing-mini-panel m-3 overflow-hidden border border-border/60 [border-radius:var(--radius-lg)]">
-        {/* Header */}
         <div className="flex items-start justify-between border-b border-border/60 bg-background px-4 py-3">
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
@@ -335,7 +340,6 @@ function TodayMockup() {
             </div>
           </div>
         </div>
-        {/* Rows */}
         {items.map((item, i) => (
           <div
             key={item.title}
@@ -384,16 +388,19 @@ function StructureMockup() {
   return (
     <div className="landing-card overflow-hidden border border-border/70 shadow-md [border-radius:var(--radius-xl)]">
       <div className="landing-mini-panel m-3 overflow-hidden border border-border/60 [border-radius:var(--radius-lg)]">
-        {/* Header */}
         <div className="border-b border-border/60 bg-background px-4 py-3">
           <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
             Habit Lists
           </p>
-          <p className="mt-0.5 text-sm font-semibold">3 habit lists · 9 quests</p>
+          <p className="mt-0.5 text-sm font-semibold">
+            3 habit lists · 9 quests
+          </p>
         </div>
-        {/* Category rows */}
         {categories.map((cat, i) => (
-          <div key={cat.name} className={i > 0 ? "border-t border-border/60" : ""}>
+          <div
+            key={cat.name}
+            className={i > 0 ? "border-t border-border/60" : ""}
+          >
             <div className="flex items-center justify-between bg-background px-4 py-3">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-semibold">{cat.name}</span>
@@ -426,21 +433,23 @@ function HistoryMockup() {
   return (
     <div className="landing-card overflow-hidden border border-border/70 shadow-md [border-radius:var(--radius-xl)]">
       <div className="landing-mini-panel m-3 overflow-hidden border border-border/60 [border-radius:var(--radius-lg)]">
-        {/* Header */}
         <div className="border-b border-border/60 bg-background px-4 py-3">
           <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
             Activity Log
           </p>
           <p className="mt-0.5 text-sm font-semibold">March 2025</p>
         </div>
-        {/* Day 1 */}
         <div className="bg-muted/40 px-4 py-2">
           <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
             Tuesday, Mar 12
           </p>
         </div>
         {[
-          { title: "Morning stretch", meta: "Fitness · Daily", note: "Felt harder, still done." },
+          {
+            title: "Morning stretch",
+            meta: "Fitness · Daily",
+            note: "Felt harder, still done.",
+          },
           { title: "Hydrate before coffee", meta: "Health · Daily", note: "" },
         ].map((item, i) => (
           <div
@@ -457,11 +466,12 @@ function HistoryMockup() {
                   </p>
                 )}
               </div>
-              <span className="shrink-0 text-[10px] font-medium text-primary">Done</span>
+              <span className="shrink-0 text-[10px] font-medium text-primary">
+                Done
+              </span>
             </div>
           </div>
         ))}
-        {/* Day 2 */}
         <div className="border-t border-border/60 bg-muted/40 px-4 py-2">
           <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
             Monday, Mar 11
@@ -480,7 +490,9 @@ function HistoryMockup() {
                 <p className="text-xs font-medium">{item.title}</p>
                 <p className="text-[10px] text-muted-foreground">{item.meta}</p>
               </div>
-              <span className="shrink-0 text-[10px] font-medium text-primary">Done</span>
+              <span className="shrink-0 text-[10px] font-medium text-primary">
+                Done
+              </span>
             </div>
           </div>
         ))}
@@ -841,7 +853,9 @@ export function LandingPage() {
                   <div className="flex size-9 items-center justify-center border border-border/60 bg-background [border-radius:var(--radius-sm)]">
                     <Icon className="size-4 text-primary" />
                   </div>
-                  <h3 className="mt-4 text-lg font-semibold">{feature.title}</h3>
+                  <h3 className="mt-4 text-lg font-semibold">
+                    {feature.title}
+                  </h3>
                   <p className="mt-3 text-sm leading-7 text-muted-foreground">
                     {feature.body}
                   </p>

@@ -80,7 +80,7 @@ export function AuthCard({
     <Card className="w-full max-w-md">
       <CardHeader className="space-y-4">
         <div className="flex items-center gap-3">
-          <div className="flex size-11 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm">
+          <div className="flex size-11 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
             <Compass className="size-5" />
           </div>
           <div>

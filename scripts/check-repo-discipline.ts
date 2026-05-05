@@ -17,6 +17,17 @@ const IGNORED_CHANGED_FILES = [
   "docs/RYTHM - PRD + BRD + TRD.txt",
   "docs/Rythm PRD + BRD + TRD .txt",
 ];
+const REQUIRED_TRACKER_DOC = "docs/PRODUCT_PLAN.md";
+const USER_FACING_CANONICAL_DOCS = [
+  "docs/PROJECT_OVERVIEW.md",
+  "docs/PRODUCT_PLAN.md",
+  "docs/DESIGN_DIRECTION.md",
+];
+const TECHNICAL_CANONICAL_DOCS = [
+  "docs/TECHNICAL_PLAN.md",
+  "docs/PRODUCT_PLAN.md",
+  "docs/AGENT_HANDOFF.md",
+];
 
 type Options = {
   base?: string;
@@ -146,30 +157,24 @@ function main() {
     );
   }
 
-  if (touchesNonDocFiles && !relevantFiles.includes("docs/to_dos.md")) {
+  if (touchesNonDocFiles && !relevantFiles.includes(REQUIRED_TRACKER_DOC)) {
     errors.push(
-      "Non-doc changes require an update to `docs/to_dos.md` so task progress stays canonical.",
+      `Non-doc changes require an update to \`${REQUIRED_TRACKER_DOC}\` so task progress stays canonical.`,
     );
   }
 
   if (
     touchesUserFacingFiles &&
-    !hasCanonicalDoc(relevantFiles, ["docs/overview.md", "docs/to_dos.md"])
+    !hasCanonicalDoc(relevantFiles, USER_FACING_CANONICAL_DOCS)
   ) {
     warnings.push(
-      "User-facing changes detected without updates to `docs/overview.md` or `docs/to_dos.md`.",
+      "User-facing changes detected without updates to the canonical product or design docs.",
     );
   }
 
   if (
     touchesTechnicalFiles &&
-    !hasCanonicalDoc(relevantFiles, [
-      "docs/techplan.md",
-      "docs/environment.md",
-      "docs/local_docker.md",
-      "docs/vercel_deployment.md",
-      "docs/to_dos.md",
-    ])
+    !hasCanonicalDoc(relevantFiles, TECHNICAL_CANONICAL_DOCS)
   ) {
     warnings.push(
       "Technical boundary changes detected without updates to canonical technical docs.",

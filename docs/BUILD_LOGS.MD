@@ -4,6 +4,33 @@ Append-only log of completed work slices. Every agent should add an entry when a
 
 ---
 
+## 2026-05-05 - Discipline Guard Doc Consolidation
+
+- Updated `scripts/check-repo-discipline.ts` to require `docs/PRODUCT_PLAN.md` for source changes instead of the removed `docs/to_dos.md`.
+- Updated the guard's user-facing and technical canonical-doc warnings to reference the consolidated doc set (`PROJECT_OVERVIEW.md`, `PRODUCT_PLAN.md`, `DESIGN_DIRECTION.md`, `TECHNICAL_PLAN.md`, `AGENT_HANDOFF.md`).
+- Removed stale technical-debt notes for the old tracker, pending token migration, and unresolved database provider after the current docs marked those items complete.
+- Fixed `PROJECT_OVERVIEW.md` so Current Limitations reflects the Neon decision and the remaining deployment/email/PWA validation work.
+- Verified: `npm run discipline:check` and `npm run verify` pass.
+
+## 2026-05-04 - P1.1 UI Primitive Token Migration
+
+- `Button` base radius: `rounded-md` (12px) → `rounded-sm` (8px). Icon variant updated to match. Aligns with the DESIGN_DIRECTION.md rule "small controls: 8px (`--radius-sm`)". Pill (`rounded-full`) retained where it carries semantic meaning (circular check/uncheck buttons, avatar circles, dot separators, pill badges).
+- `Sheet` close button: `rounded-md` → `rounded-sm`. Consistent with button family; removes the last incidental non-token shape in the overlay system.
+- `auth-card.tsx` icon box: `rounded-2xl` → `rounded-xl`. `rounded-2xl` was using a Tailwind default (16px) outside the token set; `rounded-xl` maps to `--radius-xl` (20px) which is the correct token for prominent panel accents.
+- `Input`, `Select`, `Textarea`, `Card`, `AlertDialogContent` audited and confirmed already correct (all `rounded-lg` or `rounded-xl` per design mapping).
+- Also fixed `prisma.config.ts` `directUrl` spread: Prisma 7 requires `directUrl` in `prisma.config.ts`, not in `schema.prisma`. The `@prisma/config` TS types lag behind; used a spread cast (`...({ directUrl } as Record<string, string>)`) to satisfy both the CLI and the TypeScript compiler. Comment in file explains the workaround.
+- Verified: `npm run verify` passes (34/34 tests, ESLint clean, TypeScript clean, production build clean).
+
+## 2026-05-04 - Neon Database Setup + Strategic Decisions (P0.2)
+
+- Updated `.env.local` with Neon pooled connection (`DATABASE_URL` via PgBouncer) and direct connection (`DIRECT_URL` bypassing pooler for DDL/migrations). Commented out the local Docker fallback.
+- Fixed `prisma.config.ts`: `directUrl` is not a valid property in `defineConfig`'s datasource type, so moved it to `prisma/schema.prisma` as `directUrl = env("DIRECT_URL")` — the standard Prisma approach. Removed `getDirectUrl` import from `prisma.config.ts`.
+- Applied baseline migration (`20260311170000_init`) to Neon via `npm run prisma:migrate:deploy` — confirmed 1 migration applied.
+- Resolved **Open Strategic Decision 2 (Database Provider)** → Neon (serverless Postgres). Updated `PRODUCT_PLAN.md` and `TECHNICAL_PLAN.md` with the decision and Neon connection setup details.
+- Resolved **Open Strategic Decision 3 (Habit Lists model)** → separate entity (tentative, user-flagged uncertain). Documented as "create as separate entity for safety; owner is unsure — re-confirm before any schema split". Updated `PRODUCT_PLAN.md` with owner's note preserved verbatim.
+- P0.2 marked complete in `PRODUCT_PLAN.md`.
+- Verified: `npm run lint && npm run build` pass cleanly.
+
 ## 2026-05-04 - Landing Page Visual Audit + Polish Pass
 
 - Replaced all three `ScreenPlaceholder` skeleton boxes (grey rectangles + "Screenshot coming" text) with real app mockups: `TodayMockup`, `StructureMockup`, `HistoryMockup`. Each shows actual app content — checklist rows, category lists, day-grouped log — using the same visual language as the hero preview.

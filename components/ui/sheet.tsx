@@ -80,7 +80,7 @@ function SheetContent({
         {...props}
       >
         {children}
-        <DialogPrimitive.Close className="absolute top-4 right-4 rounded-md border border-transparent p-2 text-muted-foreground transition-[background-color,border-color,color,box-shadow] duration-[160ms] ease-out hover:border-border hover:bg-muted hover:text-foreground focus:outline-none focus:ring-4 focus:ring-ring/15">
+        <DialogPrimitive.Close className="absolute top-4 right-4 rounded-sm border border-transparent p-2 text-muted-foreground transition-[background-color,border-color,color,box-shadow] duration-[160ms] ease-out hover:border-border hover:bg-muted hover:text-foreground focus:outline-none focus:ring-4 focus:ring-ring/15">
           <X className="size-4" />
           <span className="sr-only">Close</span>
         </DialogPrimitive.Close>
