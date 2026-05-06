@@ -39,7 +39,7 @@ export async function PUT(request: Request, context: CompletionRouteContext) {
   const quest = await findOwnedQuest(session.user.id, id);
 
   if (!quest) {
-    return jsonError(404, "Quest not found.");
+    return jsonError(404, "Task not found.");
   }
 
   const periodType = quest.questType;
@@ -84,7 +84,7 @@ export async function DELETE(request: Request, context: CompletionRouteContext) 
   const quest = await findOwnedQuest(session.user.id, id);
 
   if (!quest) {
-    return jsonError(404, "Quest not found.");
+    return jsonError(404, "Task not found.");
   }
 
   const periodType = quest.questType;

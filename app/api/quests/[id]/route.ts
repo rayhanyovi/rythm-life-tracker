@@ -24,7 +24,7 @@ export async function GET(request: Request, context: QuestRouteContext) {
   const quest = await findOwnedQuest(session.user.id, id);
 
   if (!quest) {
-    return jsonError(404, "Quest not found.");
+    return jsonError(404, "Task not found.");
   }
 
   return jsonResponse({
@@ -57,14 +57,14 @@ export async function PATCH(request: Request, context: QuestRouteContext) {
   const existingQuest = await findOwnedQuest(session.user.id, id);
 
   if (!existingQuest) {
-    return jsonError(404, "Quest not found.");
+    return jsonError(404, "Task not found.");
   }
 
   if (result.data.categoryId) {
     const category = await findOwnedCategory(session.user.id, result.data.categoryId);
 
     if (!category) {
-      return jsonError(404, "Category not found.");
+      return jsonError(404, "Habit List not found.");
     }
   }
 
@@ -82,7 +82,7 @@ export async function PATCH(request: Request, context: QuestRouteContext) {
     if (completionCount > 0) {
       return jsonError(
         409,
-        "Quest type cannot be changed once completions already exist.",
+        "Task cadence cannot be changed once completions already exist.",
       );
     }
   }
@@ -125,7 +125,7 @@ export async function DELETE(request: Request, context: QuestRouteContext) {
   const quest = await findOwnedQuest(session.user.id, id);
 
   if (!quest) {
-    return jsonError(404, "Quest not found.");
+    return jsonError(404, "Task not found.");
   }
 
   await db.quest.delete({

@@ -44,7 +44,7 @@ export async function PATCH(request: Request, context: CategoryRouteContext) {
   });
 
   if (!existingCategory) {
-    return jsonError(404, "Category not found.");
+    return jsonError(404, "Habit List not found.");
   }
 
   try {
@@ -63,7 +63,7 @@ export async function PATCH(request: Request, context: CategoryRouteContext) {
       error instanceof Prisma.PrismaClientKnownRequestError &&
       error.code === "P2002"
     ) {
-      return jsonError(409, "Category name must be unique per user.");
+      return jsonError(409, "Habit List name must be unique per user.");
     }
 
     throw error;
@@ -86,7 +86,7 @@ export async function DELETE(request: Request, context: CategoryRouteContext) {
   });
 
   if (!existingCategory) {
-    return jsonError(404, "Category not found.");
+    return jsonError(404, "Habit List not found.");
   }
 
   const questCount = await db.quest.count({
@@ -99,7 +99,7 @@ export async function DELETE(request: Request, context: CategoryRouteContext) {
   if (questCount > 0) {
     return jsonError(
       409,
-      "Category cannot be deleted while quests still use it.",
+      "Habit List cannot be deleted while tasks still use it.",
     );
   }
 

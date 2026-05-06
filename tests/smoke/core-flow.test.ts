@@ -218,7 +218,7 @@ describe("core route smoke flow", () => {
     assert.equal(deleteResponse.status, 409);
     assert.equal(
       deletePayload?.error,
-      "Category cannot be deleted while quests still use it.",
+      "Habit List cannot be deleted while tasks still use it.",
     );
   });
 

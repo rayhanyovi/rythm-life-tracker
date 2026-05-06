@@ -72,7 +72,7 @@ export async function POST(request: Request) {
       error instanceof Prisma.PrismaClientKnownRequestError &&
       error.code === "P2002"
     ) {
-      return jsonError(409, "Category name must be unique per user.");
+      return jsonError(409, "Habit List name must be unique per user.");
     }
 
     throw error;

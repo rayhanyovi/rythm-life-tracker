@@ -99,7 +99,7 @@ export async function POST(request: Request) {
   const category = await findOwnedCategory(session.user.id, result.data.categoryId);
 
   if (!category) {
-    return jsonError(404, "Category not found.");
+    return jsonError(404, "Habit List not found.");
   }
 
   try {
@@ -128,7 +128,7 @@ export async function POST(request: Request) {
       error instanceof Prisma.PrismaClientKnownRequestError &&
       error.code === "P2003"
     ) {
-      return jsonError(400, "Quest references an invalid category.");
+      return jsonError(400, "Task references an invalid Habit List.");
     }
 
     throw error;

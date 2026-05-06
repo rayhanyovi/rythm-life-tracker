@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     template: "%s | Rythm",
   },
   description:
-    "Rythm is a focused life rhythm tracker for recurring quests, streaks, and simple daily structure.",
+    "Rythm is a focused life rhythm tracker for recurring tasks, streaks, and simple daily structure.",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,

@@ -7,6 +7,7 @@ Append-only log of completed work slices. Every agent should add an entry when a
 ## 2026-05-06 - Auth And Support Copy Cleanup
 
 - Rewrote auth-side panel, auth-card helper text, offline fallback, and route-error copy so implemented support surfaces use Tasks-first language instead of old quest/dashboard phrasing or developer-facing diagnostics.
+- Updated metadata, manifest description, email-verified notice, and API error strings that can surface in toasts to use Tasks / Habit Lists / Today wording while leaving old route paths and internal model names unchanged.
 - Aligned offline and app-error icon containers with the documented radius token set.
 - Skipped E2E and screenshot QA per owner instruction; see [AGENT_HANDOFF.md](./AGENT_HANDOFF.md) temporary verification note.
 

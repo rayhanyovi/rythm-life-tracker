@@ -17,7 +17,7 @@ function buildSignInNotice(searchParams: Record<string, string | string[] | unde
   if (verified === "1") {
     return {
       description:
-        "Your email is verified. Sign in again to continue into the dashboard.",
+        "Your email is verified. Sign in again to continue into Today.",
       title: "Email verified",
     };
   }

@@ -6,7 +6,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "Rythm",
     short_name: "Rythm",
     description:
-      "Rythm is a focused life rhythm tracker for recurring quests, streaks, and simple daily structure.",
+      "Rythm is a focused life rhythm tracker for recurring tasks, streaks, and simple daily structure.",
     start_url: "/",
     scope: "/",
     display: "standalone",
