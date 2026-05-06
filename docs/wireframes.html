@@ -1216,11 +1216,12 @@
                 <code>/history</code> -&gt; <code>Tasks / Activity Log</code>
               </li>
               <li><code>/quests</code> -&gt; <code>Tasks / Lists</code></li>
-              <li><code>/categories</code> -&gt; <code>Tasks / Lists</code></li>
+              <li><code>/categories</code> -&gt; <code>Tasks / Habit Lists</code></li>
             </ul>
             <p class="sub">
-              Current categories act as the first stand-in for list containers.
-              No real project entity is implied yet.
+              Habit Lists are the user-facing containers for recurring tasks.
+              The current category-backed data model remains an implementation
+              detail until the planned schema work.
             </p>
           </div>
         </div>
@@ -2027,8 +2028,8 @@
         <div class="num">07</div>
         <h2>Tasks / Lists</h2>
         <p class="sub">
-          Lists is the grouped-work surface. Current categories remain the
-          compatibility layer for list containers.
+          Lists is the grouped-work surface. Habit Lists remain the
+          user-facing containers for recurring task groups.
         </p>
         <div class="callout">
           <strong>Product honesty:</strong> use `Lists` as the label. Do not
@@ -2135,7 +2136,7 @@
             <div class="wire">
               +----------------------------------+ | Tasks / Lists [Add task]|
               +----------------------------------+ | Selected list: Product | |
-              category-backed stand-in | +----------------------------------+ |
+              Habit List container | +----------------------------------+ |
               [ ] Fix onboarding copy | | [ ] Review landing copy |
               +----------------------------------+ | Habit Lists | | Daily
               Schedule | | Wellness | +----------------------------------+
