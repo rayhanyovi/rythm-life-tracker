@@ -75,7 +75,7 @@ Run through this checklist in order. If any step has no answer, stop and ask.
 1. Read the relevant section of [DESIGN_DIRECTION.md](./DESIGN_DIRECTION.md). Different surfaces have different rules.
 2. Find the right token in [`app/globals.css`](../app/globals.css). Don't hardcode `hsl()`, `oklch()`, gradients, or shadows.
 3. Reuse a primitive from `components/ui/` (`Button`, `Input`, `Sheet`, `Select`, `AlertDialog`, etc.). Do **not** install a second UI kit or fork shadcn primitives without reason.
-4. Reuse a layout pattern from `components/app/` (`PageShell`, `PageIntro`, `MetricCard`, `DetailPanel`, `InteractiveListCard`, `EmptyState`).
+4. Reuse active app primitives from `components/app/` and `components/ui/`. `EmptyState` is the shared app empty-state primitive; the feature screens currently own their list/detail layouts directly so they can match the wireframed four-zone shell. Do not reintroduce metric-card or dashboard-card helper patterns.
 5. Mobile-first: design the mobile layout first, expand to desktop with width, not new conceptual zones.
 6. Avoid hover-only paths, full-pill defaults, gradient flooding, glow shadows, neon accents.
 7. Use specific verbs in button copy ("Create quest" beats "Submit"). See [DESIGN_DIRECTION.md Section 6](./DESIGN_DIRECTION.md#section-6--component-family-rules).

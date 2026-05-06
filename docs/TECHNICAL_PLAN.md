@@ -126,9 +126,7 @@ components/
     auth-shell.tsx, auth-card.tsx, auth-form.tsx
     request-password-reset-form.tsx, reset-password-form.tsx
     sign-out-button.tsx
-    page-shell.tsx, page-intro.tsx
-    metric-card.tsx, detail-panel.tsx, detail-stat.tsx, interactive-list-card.tsx
-    empty-state.tsx
+    empty-state.tsx                     # shared app empty-state primitive
   marketing/
     landing-page.tsx                    # public landing
   pwa/
