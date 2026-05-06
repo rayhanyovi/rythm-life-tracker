@@ -4,6 +4,12 @@ Append-only log of completed work slices. Every agent should add an entry when a
 
 ---
 
+## 2026-05-06 - Lists Detail Pane Cleanup
+
+- Replaced the Lists detail pane's boxed Created / Last updated stat cards with a quiet definition-list treatment.
+- Updated destructive task deletion copy to refer to linked Activity Log entries instead of "completion history" so the wording stays Tasks-first.
+- Skipped E2E and screenshot QA per owner instruction; see [AGENT_HANDOFF.md](./AGENT_HANDOFF.md) temporary verification note.
+
 ## 2026-05-06 - Detail Pane Metadata Cleanup
 
 - Removed raw period keys from the Today detail pane and completion IDs / period keys from the Activity Log detail pane.

@@ -82,6 +82,7 @@ Categories
 Quests
 - List with search, category filter, type filter, include-inactive toggle
 - Create, edit, deactivate, hard-delete
+- Detail pane uses compact task metadata rows and destructive copy references linked Activity Log entries.
 - API: [app/api/quests/route.ts](../app/api/quests/route.ts), [app/api/quests/[id]/route.ts](../app/api/quests/[id]/route.ts)
 - UI: [components/quests/quest-manager.tsx](../components/quests/quest-manager.tsx)
 

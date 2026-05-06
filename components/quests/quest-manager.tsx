@@ -154,23 +154,6 @@ function formatTimestamp(value: string) {
   }).format(new Date(value));
 }
 
-function DetailStat({
-  label,
-  value,
-}: {
-  label: string;
-  value: React.ReactNode;
-}) {
-  return (
-    <div className="rounded-xl border border-border/80 bg-background/80 px-4 py-3">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-        {label}
-      </p>
-      <div className="mt-2 text-sm font-semibold text-foreground">{value}</div>
-    </div>
-  );
-}
-
 function QuestFormFields({
   categories,
   formError,
@@ -324,10 +307,20 @@ function QuestDetailContent({
         </p>
       </div>
 
-      <div className="grid gap-3">
-        <DetailStat label="Created" value={formatTimestamp(quest.createdAt)} />
-        <DetailStat label="Last updated" value={formatTimestamp(quest.updatedAt)} />
-      </div>
+      <dl className="space-y-2 border-y border-border/70 py-3 text-sm">
+        <div className="flex items-center justify-between gap-4">
+          <dt className="text-muted-foreground">Created</dt>
+          <dd className="text-right font-medium text-foreground">
+            {formatTimestamp(quest.createdAt)}
+          </dd>
+        </div>
+        <div className="flex items-center justify-between gap-4">
+          <dt className="text-muted-foreground">Last updated</dt>
+          <dd className="text-right font-medium text-foreground">
+            {formatTimestamp(quest.updatedAt)}
+          </dd>
+        </div>
+      </dl>
 
       <div className="flex flex-wrap gap-3">
         <Button onClick={onEdit} disabled={isPending}>
@@ -352,7 +345,7 @@ function QuestDetailContent({
         <CircleAlert className="size-4" />
         <AlertTitle>Deletion is permanent</AlertTitle>
         <AlertDescription>
-          Deleting a task removes the linked completion history because completions
+          Deleting a task removes the linked Activity Log entries because completions
           cascade with the task.
         </AlertDescription>
       </Alert>
@@ -1080,7 +1073,7 @@ export function QuestManager() {
             <AlertDialogTitle>Delete task</AlertDialogTitle>
             <AlertDialogDescription>
               Delete &quot;{deleteTarget?.title}&quot; only if you accept losing the
-              linked completion history as well. This action cannot be undone.
+              linked Activity Log entries as well. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
