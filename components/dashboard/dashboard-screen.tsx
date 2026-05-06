@@ -194,7 +194,6 @@ function QuestDetailContent({
       <div className="grid gap-3">
         <DetailStat label="Status" value={formatQuestSelectionHint(quest)} />
         <DetailStat label="Streak" value={formatStreakLabel(quest)} />
-        <DetailStat label="Period key" value={quest.currentPeriodKey} />
       </div>
 
       <div className="space-y-2">

@@ -90,6 +90,7 @@ Dashboard (current-period view)
 - Quick check / uncheck for the active period (DAILY/WEEKLY/MONTHLY/MAIN)
 - Inline note edit on completion
 - Streak badge per quest (`—` for MAIN)
+- Detail pane shows user-facing status and streak context without raw period keys.
 - API: [app/api/dashboard/route.ts](../app/api/dashboard/route.ts), [app/api/quests/[id]/current-completion/route.ts](../app/api/quests/[id]/current-completion/route.ts)
 - UI: [components/dashboard/dashboard-screen.tsx](../components/dashboard/dashboard-screen.tsx)
 
@@ -98,6 +99,7 @@ History (activity log)
 - Filter by quest, category, quest type, date range
 - Edit note on a completion
 - Delete a completion (effectively "uncheck" for that period)
+- Detail pane uses human-readable completion time and avoids raw completion identifiers.
 - API: [app/api/history/route.ts](../app/api/history/route.ts), [app/api/completions/[id]/route.ts](../app/api/completions/[id]/route.ts)
 - UI: [components/history/history-screen.tsx](../components/history/history-screen.tsx)
 

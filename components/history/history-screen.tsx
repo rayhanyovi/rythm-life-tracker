@@ -152,23 +152,6 @@ function formatHistoryTime(value: string) {
   }).format(new Date(value));
 }
 
-function DetailStat({
-  label,
-  value,
-}: {
-  label: string;
-  value: React.ReactNode;
-}) {
-  return (
-    <div className="rounded-xl border border-border/80 bg-background/80 px-4 py-3">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-        {label}
-      </p>
-      <div className="mt-2 text-sm font-semibold text-foreground">{value}</div>
-    </div>
-  );
-}
-
 function HistoryDetail({
   isPending,
   noteDraft,
@@ -206,11 +189,6 @@ function HistoryDetail({
           Completed on {formatHistoryDayLabel(item.completedAt)} at{" "}
           {formatHistoryTime(item.completedAt)}.
         </p>
-      </div>
-
-      <div className="grid gap-3">
-        <DetailStat label="Period key" value={item.periodKey} />
-        <DetailStat label="Completion ID" value={item.completionId} />
       </div>
 
       <div className="space-y-2">
@@ -880,7 +858,7 @@ export function HistoryScreen() {
               ) : (
                 <EmptyState
                   title="Select a completion"
-                  description="Choose any row to inspect the note, period key, and remove action without leaving the archive."
+                  description="Choose any row to inspect the note, completion time, and remove action without leaving the archive."
                 />
               )}
             </div>

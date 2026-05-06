@@ -4,6 +4,12 @@ Append-only log of completed work slices. Every agent should add an entry when a
 
 ---
 
+## 2026-05-06 - Detail Pane Metadata Cleanup
+
+- Removed raw period keys from the Today detail pane and completion IDs / period keys from the Activity Log detail pane.
+- Kept human-readable status, streak, cadence, habit list, and completion time visible so detail panes stay useful without exposing implementation identifiers.
+- Skipped E2E and screenshot QA per owner instruction; see [AGENT_HANDOFF.md](./AGENT_HANDOFF.md) temporary verification note.
+
 ## 2026-05-06 - Authenticated Loading State Correction
 
 - Replaced the authenticated route loading skeleton's old three-card metric grid with a list-first skeleton that mirrors the corrected Today / Upcoming / Lists / Habit Lists / Activity Log layout.
