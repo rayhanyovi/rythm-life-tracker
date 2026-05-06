@@ -917,12 +917,12 @@ After a preview or production URL is available, run the smoke flow once manually
 
 1. Open `/sign-up`, create a new account.
 2. Verify email if verification is on; sign in.
-3. Open `/categories`. Create a category.
-4. Open `/quests`. Create a `DAILY` quest.
-5. Open `/dashboard`. Check the quest. Add a note.
+3. Open `/categories` (Habit Lists). Create a habit list.
+4. Open `/quests` (Lists). Create a `DAILY` task.
+5. Open `/dashboard` (Today). Check the task. Add a note.
 6. Open `/history`. Confirm the completion shows with habit list, cadence, human-readable time, and note.
 7. Edit the note. Delete the completion.
-8. Confirm the completion disappears from `/history` and the dashboard returns to unchecked.
+8. Confirm the completion disappears from `/history` and Today returns to unchecked.
 9. Sign out. Confirm protected routes redirect to `/sign-in`.
 
 PWA smoke (after the data smoke passes):
