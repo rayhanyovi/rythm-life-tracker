@@ -4,6 +4,14 @@ Append-only log of completed work slices. Every agent should add an entry when a
 
 ---
 
+## 2026-05-07 - Calendar V1
+
+- Added active `/calendar` route with month grid, selected-day agenda, habit-list/cadence filters, month navigation, and contextual detail pane.
+- Added `GET /api/calendar`, `lib/calendar.ts`, calendar query validation, and unit coverage for month projection and completion state.
+- Enabled Calendar in the Tasks rail and updated deferred E2E mocks/spec expectations without running E2E.
+- Updated canonical docs so Calendar is shipped and Journal remains the only disabled placeholder.
+- Skipped E2E and screenshot QA per owner instruction; see [AGENT_HANDOFF.md](./AGENT_HANDOFF.md) temporary verification note.
+
 ## 2026-05-06 - Activity Log Wireframe Wording Cleanup
 
 - Updated the Activity Log section of the active wireframe reference to avoid archive wording in correction, empty-state, and selection rules.

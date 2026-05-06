@@ -82,7 +82,7 @@ The IA is **Tasks-first**. Route renames are scheduled work — see [PRODUCT_PLA
 | `/history` | `/activity-log` | Chronological completion log |
 | `/offline` | `/offline` | PWA offline fallback |
 | `/upcoming` | `/upcoming` | Date-grouped near-future agenda |
-| *(planned)* | `/calendar` | Month grid with selected-day agenda |
+| `/calendar` | `/calendar` | Month grid with selected-day agenda |
 
 Old routes will redirect permanently (`308`) after the rename lands. Update `app/manifest.ts` start URL and PWA metadata at the same time.
 
@@ -92,7 +92,7 @@ Old routes will redirect permanently (`308`) after the rename lands. Update `app
 Module Rail        Tasks Rail
   Tasks              Today              → /dashboard  (→ /today after rename)
   Journal (disabled) Upcoming           → /upcoming
-                     Calendar           (disabled placeholder)
+                     Calendar           → /calendar
                      Activity Log       → /history    (→ /activity-log after rename)
                      ── Task Spaces ──
                      Lists              → /quests     (→ /lists after rename)
@@ -105,7 +105,7 @@ Module Rail        Tasks Rail
 |---|---|---|
 | Today | `/dashboard` → `/today` | Daily-use home — recurring habit check-ins due this period |
 | Upcoming | `/upcoming` | Near-future planning surface for date-grouped recurring work |
-| Calendar | *(planned)* | Month grid with selected-day agenda |
+| Calendar | `/calendar` | Month grid with selected-day agenda |
 | Activity Log | `/history` → `/activity-log` | Completion review, note correction, and deletion |
 | Lists | `/quests` → `/lists` | Quest definitions and management — search, filter, edit |
 | Habit Lists | `/categories` → `/habit-lists` | Grouping containers (life domains or recurring cadence containers) |
@@ -117,7 +117,7 @@ Module Rail        Tasks Rail
 - `Lists` and `Habit Lists` live below fixed views and never become peer modules.
 - User identity, sign-out, and install or account status are utility elements, not primary nav.
 - Mobile collapses the rails into a drawer or stacked switcher rather than inventing a second IA.
-- Disabled placeholder modules (`Calendar`, `Journal`) must look obviously inactive — do not let them invite clicks that go nowhere.
+- Disabled placeholder modules (`Journal`) must look obviously inactive — do not let them invite clicks that go nowhere.
 
 ### Public And Support Surfaces
 
@@ -397,7 +397,7 @@ Drawer (opened from [≡]):
 | Tasks                            |
 |   • Today                        |
 |   • Upcoming                    |
-|     Calendar      (disabled)     |
+|     Calendar                     |
 |     Activity Log                 |
 |   ── Task Spaces ──              |
 |     Lists                        |
@@ -416,7 +416,7 @@ The route paths inside the drawer will update when the route renames land (see I
 | Modules  | Tasks rail     | List column                     | Detail pane      |
 | Tasks    | Today          | (the actionable surface)        | (contextual)     |
 | Journal* | Upcoming       |                                 |                  |
-|          | Calendar*      |                                 |                  |
+|          | Calendar       |                                 |                  |
 |          | Activity Log   |                                 |                  |
 |          | ── Spaces ──   |                                 |                  |
 |          | Lists          |                                 |                  |
@@ -501,7 +501,7 @@ The list column stays dominant. The detail pane supports inspection and editing 
 
 Group by date first, then show the same mixed task model used in Today.
 
-### 7.6 — Calendar (Mobile, planned, Tasks-first only)
+### 7.6 — Calendar (Mobile, Tasks-first)
 
 ```text
 +----------------------------------+
@@ -652,7 +652,7 @@ Two recovery actions max. Honest about the limitation.
 |---|---|---|
 | Today / Dashboard | Row check / uncheck, quick add | Filter, show-inactive toggle, open detail sheet |
 | Upcoming | Date triage over projected recurring periods | Filter |
-| Calendar (planned) | Date selection, scheduling | Filter |
+| Calendar | Date selection, selected-day agenda | Filter, month navigation |
 | Lists / Quests | Select a list, add or edit a task | Search, cadence/habit-list filter, deactivate |
 | Habit Lists / Categories | Add or rename a list | Reorder, delete-with-guard |
 | Activity Log / History | Filter and open a completion | Note edit (inside detail), delete (destructive secondary) |
@@ -725,7 +725,7 @@ After primitives are updated, propagate through:
 
 - [components/marketing/landing-page.tsx](../components/marketing/landing-page.tsx) — marketing shell still expresses older warm-system pill-heavy language; should adopt slate tokens and rectangle shapes.
 - [components/app/app-shell.tsx](../components/app/app-shell.tsx) and [components/app/app-sidebar.tsx](../components/app/app-sidebar.tsx) — shell structure now follows the module rail + Tasks rail + mobile drawer grammar; keep future shell changes inside this pattern.
-- Feature screens under [components/dashboard](../components/dashboard), [components/upcoming](../components/upcoming), [components/quests](../components/quests), [components/categories](../components/categories), [components/history](../components/history) — list rows, chips, and filters should inherit the new primitives instead of keeping local pill-heavy exceptions.
+- Feature screens under [components/dashboard](../components/dashboard), [components/upcoming](../components/upcoming), [components/calendar](../components/calendar), [components/quests](../components/quests), [components/categories](../components/categories), [components/history](../components/history) — list rows, chips, and filters should inherit the new primitives instead of keeping local pill-heavy exceptions.
 
 When the visual pass happens, theme metadata should also align:
 
@@ -771,7 +771,7 @@ The design system is correctly applied if all of the following are true:
 
 - A landing hero can be built without guessing headline hierarchy, hero composition, CTA styling, or screenshot framing.
 - The authenticated shell can be built without guessing module rail, task rail, list column, or detail pane behavior.
-- `Today`, `Lists`, and `Activity Log` can be restyled without guessing fonts, semantic colors, radius, shadows, or density.
+- `Today`, `Upcoming`, `Calendar`, `Lists`, and `Activity Log` can be restyled without guessing fonts, semantic colors, radius, shadows, or density.
 - The relationship to the visual reference is explicit: composition and type discipline inherited; palette and glossy decoration rejected.
 - The app still reads as a calm ritual tool, not a SaaS admin dashboard.
 - The landing page can be more expressive than the app without looking like a different product.

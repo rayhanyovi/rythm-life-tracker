@@ -90,6 +90,7 @@ app/
   (app)/                                # authenticated app group
     layout.tsx                          # mounts AppShell
     loading.tsx, error.tsx
+    calendar/page.tsx
     dashboard/page.tsx
     upcoming/page.tsx
     quests/page.tsx
@@ -108,6 +109,7 @@ app/
     quests/[id]/route.ts
     quests/[id]/current-completion/route.ts
     completions/[id]/route.ts
+    calendar/route.ts
     dashboard/route.ts
     upcoming/route.ts
     history/route.ts
@@ -133,6 +135,7 @@ components/
     pwa-register.tsx                    # service worker registration
   dashboard/dashboard-screen.tsx
   upcoming/upcoming-screen.tsx
+  calendar/calendar-screen.tsx
   quests/quest-manager.tsx
   categories/category-manager.tsx
   history/history-screen.tsx
@@ -152,9 +155,9 @@ Domain logic lives in `lib/`. Direct imports of these are preferred over reimple
 | `lib/session.ts` | `sessionApi` — central session access; tests can swap implementations |
 | `lib/periods/index.ts` | Period key calculation (DAILY / WEEKLY / MONTHLY / MAIN) |
 | `lib/streaks/index.ts` | Streak calculation |
-| `lib/dashboard.ts`, `lib/upcoming.ts`, `lib/quests.ts`, `lib/categories.ts`, `lib/history.ts` | Domain-level data access used by API routes |
+| `lib/dashboard.ts`, `lib/upcoming.ts`, `lib/calendar.ts`, `lib/quests.ts`, `lib/categories.ts`, `lib/history.ts` | Domain-level data access used by API routes |
 | `lib/category-defaults.ts` | Wheel-of-Life seed |
-| `lib/validators/*.ts` | Zod payload validators (category, quest, completion, dashboard, history) |
+| `lib/validators/*.ts` | Zod payload validators (category, quest, completion, dashboard, upcoming, calendar, history) |
 | `lib/http.ts` | Shared HTTP helpers for route handlers |
 | `lib/utils.ts` | `cn()` and small utility helpers |
 
@@ -463,7 +466,49 @@ type UpcomingResponse = {
 
 Projection rule: daily quests appear on every future day in the horizon. Weekly and monthly quests appear once when a new period enters the horizon. Current-period rows are excluded so Upcoming does not duplicate Today.
 
-### 6.4 Categories
+### 6.4 Calendar — `GET /api/calendar`
+
+Authenticated route. Requires session.
+
+Query params:
+
+- `month?: string` — `YYYY-MM`; defaults to the current app month
+- `categoryId?: string` — filter to one category-backed habit list
+- `questType?: "DAILY" | "WEEKLY" | "MONTHLY"` — `MAIN` is intentionally excluded because one-time tasks have no due date in the current schema
+
+Response:
+
+```ts
+type CalendarResponse = {
+  month: string;
+  startDate: string;
+  endDate: string;
+  days: Array<{
+    date: string;
+    dayOfMonth: number;
+    inMonth: boolean;
+    isToday: boolean;
+    totalCount: number;
+    completedCount: number;
+    items: Array<{
+      questId: string;
+      categoryId: string;
+      categoryName: string;
+      title: string;
+      description: string | null;
+      questType: "DAILY" | "WEEKLY" | "MONTHLY";
+      periodKey: string;
+      isCompleted: boolean;
+      completionId: string | null;
+      note: string | null;
+    }>;
+  }>;
+};
+```
+
+Projection rule: daily tasks appear on every visible calendar cell. Weekly and monthly tasks appear once per visible period. The API returns a stable 42-cell month grid so the client layout does not shift between months.
+
+### 6.5 Categories
 
 | Method + Path | Body / Params | Notes |
 |---|---|---|
@@ -473,7 +518,7 @@ Projection rule: daily quests appear on every future day in the horizon. Weekly 
 | `POST /api/categories/reorder` | `{ categoryIds: string[] }` | Reassigns `sort_order` based on array index |
 | `DELETE /api/categories/:id` | none | **Rejected if any quest references the category.** Error message asks user to move or delete quests first. |
 
-### 6.5 Quests
+### 6.6 Quests
 
 | Method + Path | Body / Params | Notes |
 |---|---|---|
@@ -483,21 +528,21 @@ Projection rule: daily quests appear on every future day in the horizon. Weekly 
 | `PATCH /api/quests/:id` | `{ categoryId?, title?, description?, questType?, isActive? }` | Same ownership validation |
 | `DELETE /api/quests/:id` | none | Hard delete; cascades to completions |
 
-### 6.6 Current Completion
+### 6.7 Current Completion
 
 | Method + Path | Body | Notes |
 |---|---|---|
 | `PUT /api/quests/:id/current-completion` | `{ note?: string }` | Server computes `period_key` from quest type + app timezone. Upserts `(user_id, quest_id, period_type, period_key)`. |
 | `DELETE /api/quests/:id/current-completion` | none | Removes the completion for the active period. |
 
-### 6.7 Completion Note And Delete
+### 6.8 Completion Note And Delete
 
 | Method + Path | Body | Notes |
 |---|---|---|
 | `PATCH /api/completions/:id` | `{ note: string \| null }` | Edits the note on a specific completion. |
 | `DELETE /api/completions/:id` | none | Used by history correction flow to remove an old completion. |
 
-### 6.8 History — `GET /api/history`
+### 6.9 History — `GET /api/history`
 
 Query params:
 
@@ -524,7 +569,7 @@ type HistoryResponse = {
 };
 ```
 
-### 6.9 Default-Category Bootstrap — `POST /api/bootstrap/default-categories`
+### 6.10 Default-Category Bootstrap — `POST /api/bootstrap/default-categories`
 
 Idempotently creates the Wheel-of-Life seed (Spiritual / Finance / Career / Health / Personal Growth / Relationship). Only creates categories that don't already exist for the user. Called automatically after first login.
 
@@ -580,7 +625,7 @@ Better Auth ([`better-auth`](../node_modules/better-auth)) configured in [lib/au
 
 - `shadcn/ui` for primitives. Files in `components/ui` are generated/forked from shadcn — keep them close to upstream patterns.
 - Shared product primitives in `components/app/` are intentionally narrow (`AppShell`, `AppSidebar`, auth helpers, sign-out, and `EmptyState`).
-- Feature screens in `components/dashboard|upcoming|quests|categories|history` own their list/detail composition directly so they can match the Tasks-first four-zone shell without drifting back to metric-card or card-gallery helpers.
+- Feature screens in `components/dashboard|upcoming|calendar|quests|categories|history` own their list/detail composition directly so they can match the Tasks-first four-zone shell without drifting back to metric-card or card-gallery helpers.
 - Do not mix multiple UI kits.
 
 ### Tokens And Styling

@@ -5,6 +5,7 @@ import {
   createCategorySchema,
   reorderCategoriesSchema,
 } from "../../lib/validators/category";
+import { calendarQuerySchema } from "../../lib/validators/calendar";
 import {
   updateCompletionSchema,
   upsertCurrentCompletionSchema,
@@ -127,5 +128,27 @@ describe("dashboard and history validators", () => {
       to: "2026-03-31",
       },
     );
+  });
+});
+
+describe("calendar validators", () => {
+  it("accepts valid month and recurring task filters", () => {
+    assert.deepEqual(
+      calendarQuerySchema.parse({
+        categoryId: "cat-1",
+        month: "2026-05",
+        questType: "WEEKLY",
+      }),
+      {
+        categoryId: "cat-1",
+        month: "2026-05",
+        questType: "WEEKLY",
+      },
+    );
+  });
+
+  it("rejects malformed month input", () => {
+    assert.equal(calendarQuerySchema.safeParse({ month: "2026-13" }).success, false);
+    assert.equal(calendarQuerySchema.safeParse({ month: "May 2026" }).success, false);
   });
 });

@@ -119,6 +119,44 @@ const upcomingPayload = {
   startDate: "2026-03-11",
 };
 
+const calendarPayload = {
+  days: Array.from({ length: 42 }, (_, index) => {
+    const cellDate = new Date(Date.UTC(2026, 2, 1 + index));
+    const day = cellDate.getUTCDate();
+    const date = cellDate.toISOString().slice(0, 10);
+    const isSelectedDay = date === "2026-03-11";
+
+    return {
+      completedCount: isSelectedDay ? 1 : 0,
+      date,
+      dayOfMonth: day,
+      inMonth: cellDate.getUTCMonth() === 2,
+      isToday: isSelectedDay,
+      items:
+        isSelectedDay
+          ? [
+              {
+                categoryId: "cat-health",
+                categoryName: "Health",
+                completionId: "completion-run",
+                description: "Keep momentum steady.",
+                isCompleted: true,
+                note: "Done before work.",
+                periodKey: "2026-03-11",
+                questId: "quest-run",
+                questType: "DAILY",
+                title: "Morning Run",
+              },
+            ]
+          : [],
+      totalCount: isSelectedDay ? 1 : 0,
+    };
+  }),
+  endDate: "2026-03-31",
+  month: "2026-03",
+  startDate: "2026-03-01",
+};
+
 export const e2eAuthHeaders = {
   "x-rythm-e2e-user-email": "e2e@rythm.local",
   "x-rythm-e2e-user-id": "user-e2e",
@@ -161,6 +199,14 @@ export async function mockAuthenticatedAppApi(page: Page) {
   await page.route("**/api/upcoming**", async (route) => {
     await route.fulfill({
       body: JSON.stringify(upcomingPayload),
+      contentType: "application/json",
+      status: 200,
+    });
+  });
+
+  await page.route("**/api/calendar**", async (route) => {
+    await route.fulfill({
+      body: JSON.stringify(calendarPayload),
       contentType: "application/json",
       status: 200,
     });

@@ -47,7 +47,7 @@ export const taskNavGroups: AppNavGroup[] = [
         icon: Repeat2,
       },
       {
-        disabled: true,
+        href: "/calendar",
         label: "Calendar",
         summary: "Grid planning over the same task pool.",
         icon: CalendarDays,

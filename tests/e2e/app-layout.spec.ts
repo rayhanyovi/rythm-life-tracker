@@ -70,6 +70,31 @@ test.describe("authenticated app shell", () => {
     await expectNoHorizontalOverflow(page);
   });
 
+  test("calendar screen keeps month grid and selected agenda usable", async ({
+    isMobile,
+    page,
+  }) => {
+    await mockAuthenticatedAppApi(page);
+    await page.goto("/calendar");
+
+    await expect(
+      page.getByRole("heading", { name: "Calendar", exact: true }),
+    ).toBeVisible();
+    await expect(page.getByText("March 2026").first()).toBeVisible();
+    await expect(page.getByText("Morning Run").first()).toBeVisible();
+    await expect(page.getByLabel("Habit list")).toBeVisible();
+    await expect(page.getByLabel("Cadence")).toBeVisible();
+
+    if (isMobile) {
+      await page.getByRole("button", { name: /open workspace navigation/i }).click();
+      await expect(
+        page.getByRole("link", { name: /^Calendar\b/i }),
+      ).toBeVisible();
+    }
+
+    await expectNoHorizontalOverflow(page);
+  });
+
   test("quests screen keeps filters and form shell accessible", async ({
     isMobile,
     page,
