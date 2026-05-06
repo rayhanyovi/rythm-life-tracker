@@ -56,7 +56,7 @@ export const taskNavGroups: AppNavGroup[] = [
         aliases: ["/activity-log"],
         href: "/history",
         label: "Activity Log",
-        summary: "Archive, notes, and correction flow.",
+        summary: "Completion notes and correction flow.",
         icon: History,
       },
     ],

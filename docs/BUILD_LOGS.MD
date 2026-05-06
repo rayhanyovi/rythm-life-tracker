@@ -4,6 +4,13 @@ Append-only log of completed work slices. Every agent should add an entry when a
 
 ---
 
+## 2026-05-06 - Activity Log Row Copy Cleanup
+
+- Removed raw period-key text from Activity Log list rows; completion time and task context remain visible.
+- Replaced remaining "archive" wording in Activity Log empty/context/sheet copy and sidebar summary with Activity Log language.
+- Updated the deferred auth E2E assertion to match the current auth panel headline without running E2E.
+- Skipped E2E and screenshot QA per owner instruction; see [AGENT_HANDOFF.md](./AGENT_HANDOFF.md) temporary verification note.
+
 ## 2026-05-06 - Habit Lists Copy Cleanup
 
 - Replaced developer-facing Habit Lists detail copy about the category compatibility layer with product-facing Tasks workspace language.

@@ -101,7 +101,7 @@ History (activity log)
 - Filter by quest, category, quest type, date range
 - Edit note on a completion
 - Delete a completion (effectively "uncheck" for that period)
-- Detail pane uses human-readable completion time and avoids raw completion identifiers.
+- Activity Log rows and detail pane use human-readable completion time and avoid raw completion identifiers or period keys.
 - API: [app/api/history/route.ts](../app/api/history/route.ts), [app/api/completions/[id]/route.ts](../app/api/completions/[id]/route.ts)
 - UI: [components/history/history-screen.tsx](../components/history/history-screen.tsx)
 

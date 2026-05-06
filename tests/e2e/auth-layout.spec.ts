@@ -35,7 +35,7 @@ test("sign-in layout stays usable on all supported viewports", async ({
   } else {
     await expect(authPanel).toBeVisible();
     await expect(
-      page.getByText("A quieter, clearer home for recurring life quests."),
+      page.getByText("Return to the tasks that shape your day."),
     ).toBeVisible();
   }
 

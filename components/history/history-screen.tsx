@@ -554,8 +554,8 @@ export function HistoryScreen() {
                   Activity Log
                 </h1>
                 <p className="max-w-3xl text-sm leading-6 text-muted-foreground">
-                  Review recent completions, filter the archive, and keep note edits or
-                  removal actions close to the selected record.
+                  Review recent completions, filter the Activity Log, and keep
+                  note edits or removal actions close to the selected record.
                 </p>
               </div>
             </div>
@@ -707,7 +707,7 @@ export function HistoryScreen() {
           ) : hasNoItems ? (
             <EmptyState
               title="No activity in this view"
-              description="Complete something from Today first, or relax the filters if the archive is too narrow."
+              description="Complete something from Today first, or relax the filters if this Activity Log view is too narrow."
               action={
                 <div className="flex flex-wrap gap-3">
                   <Button asChild>
@@ -767,8 +767,6 @@ export function HistoryScreen() {
                               </div>
                               <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
                                 <span>{formatHistoryTime(item.completedAt)}</span>
-                                <span className="size-1 rounded-full bg-border" />
-                                <span>Period {item.periodKey}</span>
                               </div>
                               <p className="mt-2 text-xs leading-5 text-muted-foreground">
                                 {item.note ?? "No note for this completion."}
@@ -858,7 +856,7 @@ export function HistoryScreen() {
               ) : (
                 <EmptyState
                   title="Select a completion"
-                  description="Choose any row to inspect the note, completion time, and remove action without leaving the archive."
+                  description="Choose any row to inspect the note, completion time, and remove action without leaving Activity Log."
                 />
               )}
             </div>
@@ -874,7 +872,7 @@ export function HistoryScreen() {
           <SheetHeader>
             <SheetTitle>Completion detail</SheetTitle>
             <SheetDescription>
-              Keep archive correction inside the Activity Log flow.
+              Keep correction inside the Activity Log flow.
             </SheetDescription>
           </SheetHeader>
 
