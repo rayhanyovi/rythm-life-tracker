@@ -293,7 +293,7 @@ export function DashboardScreen() {
     const payload = await readJson<CategoriesPayload>(response);
 
     if (!response.ok || !payload?.categories) {
-      throw new Error(payload?.error ?? "Failed to load categories.");
+      throw new Error(payload?.error ?? "Failed to load habit lists.");
     }
 
     setCategories(payload.categories);

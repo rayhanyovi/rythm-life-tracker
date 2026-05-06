@@ -10,7 +10,7 @@ const titleSchema = z
 const categoryIdSchema = z
   .string()
   .trim()
-  .min(1, "categoryId is required.");
+  .min(1, "List is required.");
 
 const normalizedDescriptionSchema = z
   .union([

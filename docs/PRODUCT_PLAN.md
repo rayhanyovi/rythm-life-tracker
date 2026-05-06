@@ -74,21 +74,21 @@ Authenticated app shell
 
 Habit Lists (category-backed current model)
 - List, create, rename, delete, reorder
-- Default-category bootstrap on first login (Spiritual / Finance / Career / Health / Personal Growth / Relationship)
+- Starter habit-list bootstrap on first login (Spiritual / Finance / Career / Health / Personal Growth / Relationship)
 - Delete blocked when tasks still reference the habit list
 - Habit Lists screen, reorder validation, and deferred E2E copy expectations use Tasks-first wording while the current API/model remains category-backed until the planned schema work.
 - API: [app/api/categories/route.ts](../app/api/categories/route.ts), [app/api/categories/[id]/route.ts](../app/api/categories/[id]/route.ts), [app/api/categories/reorder/route.ts](../app/api/categories/reorder/route.ts), [app/api/bootstrap/default-categories/route.ts](../app/api/bootstrap/default-categories/route.ts)
 - UI: [components/categories/category-manager.tsx](../components/categories/category-manager.tsx)
 
 Lists (quest-backed current model)
-- List with search, category filter, type filter, include-inactive toggle
+- List with search, habit-list filter, cadence filter, include-inactive toggle
 - Create, edit, deactivate, hard-delete
 - Detail pane uses compact task metadata rows and destructive copy references linked Activity Log entries.
 - API: [app/api/quests/route.ts](../app/api/quests/route.ts), [app/api/quests/[id]/route.ts](../app/api/quests/[id]/route.ts)
 - UI: [components/quests/quest-manager.tsx](../components/quests/quest-manager.tsx)
 
 Today (dashboard-backed current route)
-- Date display, category filter, show-inactive toggle
+- Date display, habit-list filter, show-inactive toggle
 - Quick check / uncheck for the active period (DAILY/WEEKLY/MONTHLY/MAIN)
 - Inline note edit on completion
 - Streak badge per quest (`—` for MAIN)
@@ -98,7 +98,7 @@ Today (dashboard-backed current route)
 
 Activity Log (history-backed current route)
 - Chronological list grouped by day with cursor pagination
-- Filter by quest, category, quest type, date range
+- Filter by task, habit list, cadence, date range
 - Edit note on a completion
 - Delete a completion (effectively "uncheck" for that period)
 - Activity Log rows and detail pane use human-readable completion time and avoid raw completion identifiers or period keys.
@@ -275,7 +275,7 @@ These are worth flagging but not gating any current work. If you encounter one w
 - **Note retention on uncheck.** When a user unchecks a completion, the row is deleted and the note goes with it. Should notes survive an uncheck (would require a soft-delete model) or is the current "completion + note are atomic" semantics the right one?
 - **Category sort vs reorder vs alphabetical.** `sort_order` is user-controlled. Should there be an alphabetical-sort mode for users who don't want to manage order manually?
 - **Quest description field.** Description exists but isn't surfaced on the dashboard row. Should the row show description on long-press, or is the field strictly for the form view?
-- **Default-category bootstrap timing.** The bootstrap fires on first login. Should a user with zero categories ever re-trigger it, or is the current "once" behavior intentional?
+- **Starter habit-list bootstrap timing.** The bootstrap fires on first login. Should a user with zero lists ever re-trigger it, or is the current "once" behavior intentional?
 
 ---
 

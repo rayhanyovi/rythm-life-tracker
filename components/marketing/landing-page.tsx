@@ -88,7 +88,7 @@ const todayBullets = [
 
 const structureBullets = [
   "Create and edit in-context — no bouncing to admin screens",
-  "Search and type filters stay compact",
+  "Search and cadence filters stay compact",
   "Starter habit lists to begin without blank-page anxiety",
   "Delete rules stay explicit when data dependencies exist",
 ];
