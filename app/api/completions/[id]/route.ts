@@ -45,7 +45,7 @@ export async function PATCH(
   });
 
   if (!completion) {
-    return jsonError(404, "Completion not found.");
+    return jsonError(404, "Activity Log entry not found.");
   }
 
   const updatedCompletion = await db.questCompletion.update({
@@ -79,7 +79,7 @@ export async function DELETE(
   });
 
   if (!completion) {
-    return jsonError(404, "Completion not found.");
+    return jsonError(404, "Activity Log entry not found.");
   }
 
   await db.questCompletion.delete({

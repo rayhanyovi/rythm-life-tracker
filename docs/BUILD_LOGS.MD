@@ -4,6 +4,13 @@ Append-only log of completed work slices. Every agent should add an entry when a
 
 ---
 
+## 2026-05-06 - Upcoming Metadata Copy Cleanup
+
+- Removed raw period-key text from Upcoming rows and detail metadata while keeping habit list and cadence visible.
+- Updated Activity Log completion edit/delete 404 errors to use Activity Log wording.
+- Updated agent/design guidance to use "Create task" as the button-copy example.
+- Skipped E2E and screenshot QA per owner instruction; see [AGENT_HANDOFF.md](./AGENT_HANDOFF.md) temporary verification note.
+
 ## 2026-05-06 - Activity Log Row Copy Cleanup
 
 - Removed raw period-key text from Activity Log list rows; completion time and task context remain visible.

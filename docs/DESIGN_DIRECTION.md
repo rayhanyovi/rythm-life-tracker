@@ -340,7 +340,7 @@ Use shadow to separate layers, not to manufacture excitement.
 - Primary buttons should feel decisive and architectural.
 - Outline buttons should remain quiet and structured.
 - Ghost buttons are allowed for secondary or destructive actions but should not disappear into the background.
-- Button copy: prefer specific verbs over generic ones. Use **"Create quest"** rather than **"Submit"**, **"Save note"** rather than **"OK"**.
+- Button copy: prefer specific verbs over generic ones. Use **"Create task"** rather than **"Submit"**, **"Save note"** rather than **"OK"**.
 
 ### Forms
 
@@ -746,7 +746,7 @@ When the visual pass happens, theme metadata should also align:
 - Reach for tokens before adding new visual values.
 - Add new tokens to `app/globals.css` first when a new surface treatment is genuinely needed.
 - Use Tasks-first labels in all copy, page titles, and sidebar text.
-- Use specific verbs in button copy ("Create quest" beats "Submit").
+- Use specific verbs in button copy ("Create task" beats "Submit").
 - When implementing gamification, keep it quiet: XP as a small mono counter, badges in a dedicated surface (not the main list), no glow, no aggressive animations.
 
 ### Do Not

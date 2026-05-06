@@ -110,6 +110,7 @@ Upcoming
 - Filters for next 7 / 14 / 30 days, habit list, and cadence
 - Daily tasks appear on each future day; weekly/monthly tasks appear once when a new period enters the horizon
 - One-time `MAIN` tasks are excluded because the current schema has no due date
+- Rows and detail panes show habit list, cadence, status, and notes without exposing raw period keys.
 - API: [app/api/upcoming/route.ts](../app/api/upcoming/route.ts)
 - UI: [components/upcoming/upcoming-screen.tsx](../components/upcoming/upcoming-screen.tsx)
 

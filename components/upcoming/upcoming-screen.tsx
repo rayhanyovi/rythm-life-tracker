@@ -131,8 +131,6 @@ function UpcomingDetail({ item }: { item: UpcomingItem }) {
           <span>{item.categoryName}</span>
           <span className="size-1 rounded-full bg-border" />
           <span>{formatQuestType(item.questType)}</span>
-          <span className="size-1 rounded-full bg-border" />
-          <span>{item.periodKey}</span>
         </div>
         {item.description ? (
           <p className="text-sm leading-6 text-muted-foreground">
@@ -584,7 +582,7 @@ export function UpcomingScreen() {
                             <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
                               <span>{item.categoryName}</span>
                               <span className="size-1 rounded-full bg-border" />
-                              <span>Period {item.periodKey}</span>
+                              <span>{formatQuestType(item.questType)}</span>
                             </div>
                             {item.description ? (
                               <p className="mt-2 truncate text-xs leading-5 text-muted-foreground">
