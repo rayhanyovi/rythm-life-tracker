@@ -4,6 +4,12 @@ Append-only log of completed work slices. Every agent should add an entry when a
 
 ---
 
+## 2026-05-06 - Landing Copy Deck Terminology Cleanup
+
+- Updated the non-archive landing page HTML copy deck to match the implemented Tasks-first landing copy.
+- Replaced visible History/archive/Quests/Categories wording with Activity Log, tasks, and habit-list language where the deck describes user-facing copy or screenshot requirements.
+- Skipped E2E and screenshot QA per owner instruction; see [AGENT_HANDOFF.md](./AGENT_HANDOFF.md) temporary verification note.
+
 ## 2026-05-06 - API Fallback Copy Cleanup
 
 - Updated remaining validator/fallback copy and landing filter text that could surface in UI from category/type wording to list, habit-list, or cadence wording.
