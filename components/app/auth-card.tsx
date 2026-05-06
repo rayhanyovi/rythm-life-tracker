@@ -101,7 +101,7 @@ export function AuthCard({
           />
         )}
 
-        <div className="rounded-[calc(var(--radius)-0.25rem)] bg-muted/70 p-4 text-sm leading-6 text-muted-foreground">
+        <div className="rounded-lg bg-muted/70 p-4 text-sm leading-6 text-muted-foreground">
           {content[mode].helper}
         </div>
       </CardContent>

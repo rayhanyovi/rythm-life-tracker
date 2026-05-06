@@ -195,7 +195,7 @@ These items can be picked up regardless of how the IA decision lands.
 - `Button` base: `rounded-md` (12px) → `rounded-sm` (8px) per the design rule "small controls = 8px". Icon variant updated to match. Full-pill (`rounded-full`) is still available for semantic uses (badges, circular avatar buttons, dots).
 - `Input`, `Select`, `Textarea`: already used `rounded-lg` (14px = `--radius-lg`) — no changes needed.
 - `Sheet` close button: `rounded-md` → `rounded-sm` — consistent with the button family.
-- `auth-card.tsx` icon box: `rounded-2xl` (un-tokenized Tailwind default) → `rounded-xl` (20px = `--radius-xl`).
+- `auth-card.tsx` icon box and helper panel now use tokenized radii (`rounded-xl` and `rounded-lg`).
 - All `rounded-full` usages reviewed: retained where semantic (circular check/uncheck button, avatar circles, dot separators, pill badges). Removed where incidental.
 - `prisma.config.ts` `directUrl` handling: Prisma 7 requires `directUrl` in `prisma.config.ts`, not `schema.prisma`. The TS type lags; worked around with a spread cast (`...({ directUrl: getDirectUrl() } as Record<string, string>)`). See `prisma.config.ts` comment for context.
 - Verified: `npm run verify` passes (34/34 tests, ESLint clean, TS clean, production build).
