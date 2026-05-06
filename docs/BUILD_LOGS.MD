@@ -4,6 +4,11 @@ Append-only log of completed work slices. Every agent should add an entry when a
 
 ---
 
+## 2026-05-06 - Activity Log Wireframe Wording Cleanup
+
+- Updated the Activity Log section of the active wireframe reference to avoid archive wording in correction, empty-state, and selection rules.
+- Skipped E2E and screenshot QA per owner instruction; see [AGENT_HANDOFF.md](./AGENT_HANDOFF.md) temporary verification note.
+
 ## 2026-05-06 - Landing Copy Deck Terminology Cleanup
 
 - Updated the non-archive landing page HTML copy deck to match the implemented Tasks-first landing copy.
