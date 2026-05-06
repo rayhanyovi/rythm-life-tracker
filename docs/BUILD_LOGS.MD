@@ -4,6 +4,12 @@ Append-only log of completed work slices. Every agent should add an entry when a
 
 ---
 
+## 2026-05-06 - Authenticated Loading State Correction
+
+- Replaced the authenticated route loading skeleton's old three-card metric grid with a list-first skeleton that mirrors the corrected Today / Upcoming / Lists / Habit Lists / Activity Log layout.
+- Added a contextual detail-pane skeleton at the `xl` breakpoint so loading state matches the four-zone desktop shell without introducing dashboard-style cards.
+- Skipped E2E and screenshot QA per owner instruction; see [AGENT_HANDOFF.md](./AGENT_HANDOFF.md) temporary verification note.
+
 ## 2026-05-06 - Auth And Support Copy Cleanup
 
 - Rewrote auth-side panel, auth-card helper text, offline fallback, and route-error copy so implemented support surfaces use Tasks-first language instead of old quest/dashboard phrasing or developer-facing diagnostics.

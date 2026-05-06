@@ -67,6 +67,7 @@ Auth and account
 Authenticated app shell
 - Desktop shell split into module rail, Tasks rail, and content column; feature screens provide contextual detail panes from normal desktop widths (`xl`) upward.
 - Mobile shell uses a compact `Tasks / [view]` top bar with direct Add access and a drawer that preserves the same module/view/task-space IA.
+- Authenticated route loading states use list-first skeletons plus a contextual desktop detail-pane skeleton, not dashboard metric cards.
 - `Calendar` and `Journal` remain disabled placeholders; route paths still use the old URLs until the IA Roadmap route-rename step.
 - UI: [components/app/app-shell.tsx](../components/app/app-shell.tsx), [components/app/app-sidebar.tsx](../components/app/app-sidebar.tsx)
 
