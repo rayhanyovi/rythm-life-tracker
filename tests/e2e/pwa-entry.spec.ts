@@ -138,6 +138,6 @@ test("offline navigation falls back to the cached offline screen", async ({
     page.getByRole("heading", { name: "You're offline", exact: true }),
   ).toBeVisible();
   await expect(
-    page.getByText(/quest writes and history updates still need a connection/i),
+    page.getByText(/task updates and Activity Log refreshes still need a connection/i),
   ).toBeVisible();
 });

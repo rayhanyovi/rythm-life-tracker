@@ -25,7 +25,7 @@ describe("category validators", () => {
     assert.equal(createCategorySchema.safeParse({ name: "   " }).success, false);
   });
 
-  it("requires at least one category id during reorder", () => {
+  it("requires at least one habit list id during reorder", () => {
     assert.equal(
       reorderCategoriesSchema.safeParse({ categoryIds: [] }).success,
       false,

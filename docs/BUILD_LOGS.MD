@@ -9,6 +9,7 @@ Append-only log of completed work slices. Every agent should add an entry when a
 - Replaced developer-facing Habit Lists detail copy about the category compatibility layer with product-facing Tasks workspace language.
 - Tightened Habit Lists header metadata, row order text, starter-pack row radius, and reorder API error copy to match Tasks-first wording.
 - Updated the wireframe reference copy so `/categories` maps to `Tasks / Habit Lists` and no longer describes category compatibility as user-facing copy.
+- Updated the category reorder validator message and deferred PWA E2E expectation to match the current Habit Lists / Activity Log wording.
 - Skipped E2E and screenshot QA per owner instruction; see [AGENT_HANDOFF.md](./AGENT_HANDOFF.md) temporary verification note.
 
 ## 2026-05-06 - Lists Detail Pane Cleanup

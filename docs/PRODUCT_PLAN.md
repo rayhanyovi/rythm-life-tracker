@@ -76,7 +76,7 @@ Categories
 - List, create, rename, delete, reorder
 - Default-category bootstrap on first login (Spiritual / Finance / Career / Health / Personal Growth / Relationship)
 - Delete blocked when quests still reference the category
-- Habit Lists screen copy uses Tasks-first wording while the current API/model remains category-backed until the planned schema work.
+- Habit Lists screen, reorder validation, and deferred E2E copy expectations use Tasks-first wording while the current API/model remains category-backed until the planned schema work.
 - API: [app/api/categories/route.ts](../app/api/categories/route.ts), [app/api/categories/[id]/route.ts](../app/api/categories/[id]/route.ts), [app/api/categories/reorder/route.ts](../app/api/categories/reorder/route.ts), [app/api/bootstrap/default-categories/route.ts](../app/api/bootstrap/default-categories/route.ts)
 - UI: [components/categories/category-manager.tsx](../components/categories/category-manager.tsx)
 

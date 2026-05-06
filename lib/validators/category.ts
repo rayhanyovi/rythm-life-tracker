@@ -14,5 +14,7 @@ export const updateCategorySchema = z.object({
 });
 
 export const reorderCategoriesSchema = z.object({
-  categoryIds: z.array(z.string().min(1)).min(1, "At least one category is required."),
+  categoryIds: z
+    .array(z.string().min(1))
+    .min(1, "At least one Habit List is required."),
 });
