@@ -298,7 +298,7 @@ export function CategoryManager() {
                 <p className="text-xs font-medium text-muted-foreground">
                   {isLoading
                     ? "Loading habit lists"
-                    : `${categories.length} visible | ${DEFAULT_CATEGORY_NAMES.length} starter lists | current focus ${selectedCategory?.name ?? "none"}`}
+                    : `${categories.length} lists | ${DEFAULT_CATEGORY_NAMES.length} starter options | selected ${selectedCategory?.name ?? "none"}`}
                 </p>
               </div>
             </div>
@@ -472,7 +472,7 @@ export function CategoryManager() {
                             {category.name}
                           </p>
                           <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                            Position {index + 1} in your task workspace.
+                            Order {index + 1} in the Tasks workspace.
                           </p>
                         </button>
                       )}
@@ -523,8 +523,8 @@ export function CategoryManager() {
                   {selectedCategory?.name ?? "No list selected"}
                 </h2>
                 <p className="text-sm leading-6 text-muted-foreground">
-                  Categories act as the current compatibility layer for list containers
-                  across the Tasks workspace.
+                  Habit Lists keep recurring tasks grouped across Today, Upcoming,
+                  and Lists.
                 </p>
               </div>
             </div>
@@ -540,7 +540,7 @@ export function CategoryManager() {
                 {DEFAULT_CATEGORY_NAMES.map((name) => (
                   <div
                     key={name}
-                    className="rounded-xl border border-border/80 bg-background/80 px-4 py-3 text-sm text-foreground"
+                    className="rounded-lg border border-border/80 bg-background/80 px-4 py-3 text-sm text-foreground"
                   >
                     {name}
                   </div>

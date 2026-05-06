@@ -41,7 +41,7 @@ export async function POST(request: Request) {
   ) {
     return jsonError(
       400,
-      "categoryIds must contain the full set of categories owned by the current user.",
+      "Reorder must include every Habit List in this workspace.",
     );
   }
 
