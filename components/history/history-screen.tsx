@@ -564,9 +564,9 @@ export function HistoryScreen() {
 
   return (
     <>
-      <div className="grid gap-5 2xl:grid-cols-[minmax(0,1fr)_21rem]">
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_20rem] 2xl:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="min-w-0 space-y-5">
-          <section className="rounded-[1.25rem] border border-border/80 bg-card/92 p-4 shadow-sm sm:p-5">
+          <section className="border-b border-border/70 pb-4">
             <div className="space-y-3">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                 Tasks / Activity Log
@@ -582,7 +582,7 @@ export function HistoryScreen() {
               </div>
             </div>
 
-            <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+            <div className="mt-5 grid gap-3 md:grid-cols-2 2xl:grid-cols-5">
               <div className="space-y-2">
                 <Label htmlFor="activity-from">From</Label>
                 <Input
@@ -704,7 +704,7 @@ export function HistoryScreen() {
               {Array.from({ length: 3 }).map((_, index) => (
                 <section
                   key={index}
-                  className="overflow-hidden rounded-[1.15rem] border border-border/80 bg-card/95 shadow-sm"
+                  className="overflow-hidden rounded-lg border border-border/80 bg-card/95 shadow-sm"
                 >
                   <div className="border-b border-border/70 px-4 py-3.5">
                     <Skeleton className="h-3 w-40" />
@@ -747,7 +747,7 @@ export function HistoryScreen() {
                 {groupedItems.map((group) => (
                   <section
                     key={group.dayKey}
-                    className="overflow-hidden rounded-[1.15rem] border border-border/80 bg-card/95 shadow-sm"
+                    className="overflow-hidden rounded-lg border border-border/80 bg-card/95 shadow-sm"
                   >
                     <div className="flex items-center justify-between gap-3 border-b border-border/70 bg-muted/30 px-4 py-3.5">
                       <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
@@ -801,7 +801,7 @@ export function HistoryScreen() {
                               <Button
                                 size="sm"
                                 variant={selected ? "secondary" : "outline"}
-                                className="hidden h-8 px-3 2xl:inline-flex"
+                                className="hidden h-8 px-3 xl:inline-flex"
                                 onClick={() => setSelectedCompletionId(item.completionId)}
                               >
                                 <NotebookPen className="size-4" />
@@ -810,7 +810,7 @@ export function HistoryScreen() {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                className="h-8 px-3 2xl:hidden"
+                                className="h-8 px-3 xl:hidden"
                                 onClick={() => {
                                   setSelectedCompletionId(item.completionId);
                                   setIsMobileDetailOpen(true);
@@ -856,8 +856,8 @@ export function HistoryScreen() {
           )}
         </div>
 
-        <aside className="hidden 2xl:block">
-          <div className="sticky top-4 rounded-[1.25rem] border border-border/80 bg-card/95 p-5 shadow-sm">
+        <aside className="hidden xl:block">
+          <div className="sticky top-5 rounded-lg border border-border/80 bg-card/95 p-5 shadow-xs">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
               Context pane
             </p>

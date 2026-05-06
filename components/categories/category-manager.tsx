@@ -52,25 +52,6 @@ async function readPayload(response: Response) {
   }
 }
 
-function StatusCell({
-  label,
-  value,
-}: {
-  label: string;
-  value: React.ReactNode;
-}) {
-  return (
-    <div className="bg-card px-4 py-3">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-        {label}
-      </p>
-      <p className="mt-2 text-lg font-semibold tracking-tight text-foreground">
-        {value}
-      </p>
-    </div>
-  );
-}
-
 export function CategoryManager() {
   const [categories, setCategories] = useState<CategoryRecord[]>([]);
   const [newCategoryName, setNewCategoryName] = useState("");
@@ -298,9 +279,9 @@ export function CategoryManager() {
 
   return (
     <>
-      <div className="grid gap-5 2xl:grid-cols-[minmax(0,1fr)_21rem]">
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_20rem] 2xl:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="min-w-0 space-y-5">
-          <section className="rounded-[1.25rem] border border-border/80 bg-card/92 p-4 shadow-sm sm:p-5">
+          <section className="border-b border-border/70 pb-4">
             <div className="space-y-3">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                 Tasks / Habit Lists
@@ -313,6 +294,11 @@ export function CategoryManager() {
                   Organize recurring tasks into stable list containers, keep their
                   order intentional, and seed a starter pack when you want a faster
                   setup.
+                </p>
+                <p className="text-xs font-medium text-muted-foreground">
+                  {isLoading
+                    ? "Loading habit lists"
+                    : `${categories.length} visible | ${DEFAULT_CATEGORY_NAMES.length} starter lists | current focus ${selectedCategory?.name ?? "none"}`}
                 </p>
               </div>
             </div>
@@ -335,7 +321,7 @@ export function CategoryManager() {
               </Button>
               <Button
                 variant="outline"
-                className="2xl:hidden"
+                className="xl:hidden"
                 onClick={handleSeedDefaults}
                 disabled={isPending}
               >
@@ -348,17 +334,6 @@ export function CategoryManager() {
               </Button>
             </div>
 
-            <div className="mt-4 grid gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-3">
-              <StatusCell label="Visible lists" value={isLoading ? "..." : categories.length} />
-              <StatusCell
-                label="Starter pack"
-                value={DEFAULT_CATEGORY_NAMES.length}
-              />
-              <StatusCell
-                label="Current focus"
-                value={selectedCategory ? selectedCategory.name : "..."}
-              />
-            </div>
           </section>
 
           {errorMessage ? (
@@ -382,7 +357,7 @@ export function CategoryManager() {
               {Array.from({ length: 4 }).map((_, index) => (
                 <section
                   key={index}
-                  className="overflow-hidden rounded-[1.15rem] border border-border/80 bg-card/95 shadow-sm"
+                  className="overflow-hidden rounded-lg border border-border/80 bg-card/95 shadow-sm"
                 >
                   <div className="grid gap-3 px-4 py-3.5 sm:grid-cols-[auto_minmax(0,1fr)_auto]">
                     <Skeleton className="h-9 w-18 rounded-md" />
@@ -418,7 +393,7 @@ export function CategoryManager() {
                   <section
                     key={category.id}
                     className={cn(
-                      "overflow-hidden rounded-[1.15rem] border border-border/80 bg-card/95 shadow-sm",
+                      "overflow-hidden rounded-lg border border-border/80 bg-card/95 shadow-sm",
                       selected && "ring-1 ring-border",
                     )}
                   >
@@ -537,9 +512,9 @@ export function CategoryManager() {
           )}
         </div>
 
-        <aside className="hidden 2xl:block">
-          <div className="sticky top-4 space-y-4">
-            <div className="rounded-[1.25rem] border border-border/80 bg-card/95 p-5 shadow-sm">
+        <aside className="hidden xl:block">
+          <div className="sticky top-5 space-y-4">
+            <div className="rounded-lg border border-border/80 bg-card/95 p-5 shadow-xs">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                 Selected list
               </p>
@@ -554,7 +529,7 @@ export function CategoryManager() {
               </div>
             </div>
 
-            <div className="rounded-[1.25rem] border border-border/80 bg-card/95 p-5 shadow-sm">
+            <div className="rounded-lg border border-border/80 bg-card/95 p-5 shadow-xs">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                 Starter pack
               </p>

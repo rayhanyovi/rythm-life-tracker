@@ -39,7 +39,7 @@ export function AppShell({ children, userEmail, userName }: AppShellProps) {
   }, [pathname]);
 
   return (
-    <div className="min-h-screen bg-background lg:grid lg:grid-cols-[4.25rem_17.5rem_minmax(0,1fr)] xl:grid-cols-[4.5rem_18rem_minmax(0,1fr)]">
+    <div className="min-h-screen bg-background lg:grid lg:grid-cols-[4rem_15.5rem_minmax(0,1fr)] xl:grid-cols-[4.25rem_16rem_minmax(0,1fr)]">
       <aside className="hidden min-h-screen border-r border-sidebar-border bg-sidebar/95 lg:block">
         <AppModuleRail pathname={pathname} userName={userName} />
       </aside>
@@ -70,9 +70,6 @@ export function AppShell({ children, userEmail, userName }: AppShellProps) {
               <p className="truncate text-sm font-semibold tracking-tight text-foreground">
                 Tasks / {activeItem.label}
               </p>
-              <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                {activeItem.summary}
-              </p>
             </div>
 
             <Button
@@ -88,7 +85,7 @@ export function AppShell({ children, userEmail, userName }: AppShellProps) {
           </div>
         </header>
 
-        <main className="px-4 pt-4 pb-8 sm:px-5 lg:px-6 lg:py-6 xl:px-8">
+        <main className="px-4 pt-4 pb-8 sm:px-5 lg:px-5 lg:py-5 xl:px-6">
           {children}
         </main>
       </div>

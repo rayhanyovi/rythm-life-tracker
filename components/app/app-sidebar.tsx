@@ -126,9 +126,9 @@ function ModuleItem({
   );
 
   const className = cn(
-    "flex size-10 items-center justify-center rounded-xl border text-muted-foreground transition-[background-color,border-color,color,box-shadow] duration-[160ms] ease-out",
+    "flex size-9 items-center justify-center rounded-lg border text-muted-foreground transition-[background-color,border-color,color] duration-[160ms] ease-out",
     active
-      ? "border-primary/25 bg-primary text-primary-foreground shadow-sm"
+      ? "border-sidebar-border bg-sidebar-accent text-sidebar-accent-foreground"
       : "border-sidebar-border bg-background/70 hover:border-border hover:bg-background hover:text-foreground",
     item.disabled && "cursor-not-allowed border-dashed opacity-45 hover:bg-background/70 hover:text-muted-foreground",
   );
@@ -166,48 +166,36 @@ function TaskRailItem({
 
   const content = (
     <>
-      <div
+      <item.icon
         className={cn(
-          "flex size-9 shrink-0 items-center justify-center rounded-lg border transition-[background-color,border-color,color] duration-[160ms] ease-out",
-          active
-            ? "border-primary/20 bg-primary/10 text-primary"
-            : "border-border/80 bg-background/80 text-muted-foreground",
-          item.disabled && "border-dashed bg-background/50 text-muted-foreground/70",
+          "size-4 shrink-0 text-muted-foreground",
+          active && "text-primary",
+        )}
+      />
+      <span
+        className={cn(
+          "min-w-0 flex-1 truncate text-sm font-medium",
+          active ? "text-foreground" : "text-foreground/90",
         )}
       >
-        <item.icon className="size-4" />
-      </div>
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center justify-between gap-3">
-          <p
-            className={cn(
-              "truncate text-sm font-medium",
-              active ? "text-foreground" : "text-foreground/90",
-            )}
-          >
-            {item.label}
-          </p>
-          {item.disabled ? (
-            <span className="rounded-full border border-border bg-background px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-              Soon
-            </span>
-          ) : item.badge ? (
-            <span className="text-xs font-medium text-muted-foreground">
-              {item.badge}
-            </span>
-          ) : null}
-        </div>
-        <p className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground">
-          {item.summary}
-        </p>
-      </div>
+        {item.label}
+      </span>
+      {item.disabled ? (
+        <span className="rounded-sm border border-border bg-background px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
+          Soon
+        </span>
+      ) : item.badge ? (
+        <span className="text-xs font-medium text-muted-foreground">
+          {item.badge}
+        </span>
+      ) : null}
     </>
   );
 
   const className = cn(
-    "group flex items-start gap-3 rounded-xl border px-3 py-3 transition-[background-color,border-color,box-shadow] duration-[160ms] ease-out",
+    "group flex min-h-10 items-center gap-2 rounded-sm border px-2.5 py-2 transition-[background-color,border-color,color] duration-[160ms] ease-out",
     active
-      ? "border-primary/15 bg-accent/40 shadow-xs"
+      ? "border-sidebar-border bg-sidebar-accent"
       : "border-transparent bg-transparent hover:border-border/80 hover:bg-background/70",
     item.disabled && "cursor-not-allowed opacity-70 hover:border-transparent hover:bg-transparent",
   );
@@ -251,7 +239,7 @@ export function AppModuleRail({
     <div className="flex h-screen flex-col items-center px-2 py-3">
       <Link
         href="/dashboard"
-        className="flex size-10 items-center justify-center rounded-xl border border-sidebar-border bg-background text-sm font-semibold text-foreground shadow-xs"
+        className="flex size-9 items-center justify-center rounded-lg border border-sidebar-border bg-background text-sm font-semibold text-foreground"
         title="Open Today"
       >
         R
@@ -289,22 +277,19 @@ export function AppTaskRail({
   const initials = getInitials(userName);
 
   return (
-    <div className="flex h-full min-h-0 flex-col px-3 py-4">
-      <div className="px-2 pb-4">
+    <div className="flex h-full min-h-0 flex-col px-2.5 py-3">
+      <div className="border-b border-sidebar-border px-2 pb-3">
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
           Tasks workspace
         </p>
         <h2 className="mt-1 text-lg font-semibold tracking-tight text-sidebar-foreground">
           Rythm
         </h2>
-        <p className="mt-1 text-sm leading-6 text-muted-foreground">
-          Quiet daily work, list-led planning, and an honest activity archive.
-        </p>
       </div>
 
       <nav
         aria-label="Tasks navigation"
-        className="min-h-0 flex-1 space-y-5 overflow-y-auto px-1 pb-4"
+        className="min-h-0 flex-1 space-y-5 overflow-y-auto px-1 py-4"
       >
         {taskNavGroups.map((group) => (
           <section key={group.label} className="space-y-2">
@@ -325,30 +310,22 @@ export function AppTaskRail({
         ))}
       </nav>
 
-      <div className="space-y-3 border-t border-sidebar-border px-2 pt-4">
-        <div className="rounded-xl border border-border bg-background/80 px-3 py-3 shadow-xs">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-            Signed in
-          </p>
-          <p className="mt-2 truncate text-sm font-medium text-foreground">
-            {userName}
-          </p>
-          <p className="mt-1 break-all text-xs leading-5 text-muted-foreground">
-            {userEmail}
-          </p>
-        </div>
-        <div className="flex items-center justify-between gap-3 rounded-xl border border-border bg-background/80 px-3 py-3 shadow-xs">
-          <div className="min-w-0">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-              Scope
-            </p>
-            <p className="mt-1 truncate text-sm text-foreground">
-              Personal workspace
-            </p>
-          </div>
-          <div className="flex size-9 shrink-0 items-center justify-center rounded-full border border-border bg-muted/70 text-xs font-semibold text-foreground">
+      <div className="space-y-3 border-t border-sidebar-border px-2 pt-3">
+        <div className="flex items-center gap-3">
+          <div className="flex size-9 shrink-0 items-center justify-center rounded-full border border-border bg-background/80 text-xs font-semibold text-foreground">
             {initials}
           </div>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-medium text-foreground">
+              {userName}
+            </p>
+            <p className="truncate text-xs text-muted-foreground">{userEmail}</p>
+          </div>
+        </div>
+        <div className="flex items-center justify-between gap-3">
+          <p className="truncate text-xs font-medium text-muted-foreground">
+            Personal workspace
+          </p>
           <SignOutButton />
         </div>
       </div>
@@ -366,7 +343,7 @@ export function AppMobileNavigation({
 
   return (
     <div className="flex h-full flex-col gap-4 bg-sidebar p-4">
-      <div className="rounded-xl border border-sidebar-border bg-background/80 p-4 shadow-xs">
+      <div className="border-b border-sidebar-border pb-4">
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
           Modules
         </p>
@@ -375,7 +352,7 @@ export function AppMobileNavigation({
             <div
               key={item.label}
               className={cn(
-                "flex items-center gap-3 rounded-xl border border-border bg-background px-3 py-3",
+                "flex items-center gap-3 rounded-sm border border-border bg-background/80 px-3 py-3",
                 item.disabled && "opacity-60",
               )}
             >
@@ -447,7 +424,7 @@ export function AppSidebar(props: AppSidebarProps) {
   }
 
   return (
-    <div className="grid h-full overflow-hidden rounded-[1.25rem] border border-sidebar-border bg-sidebar shadow-lg lg:grid-cols-[4.5rem_minmax(0,1fr)]">
+    <div className="grid h-full overflow-hidden rounded-lg border border-sidebar-border bg-sidebar shadow-xs lg:grid-cols-[4.25rem_minmax(0,1fr)]">
       <div className="border-r border-sidebar-border bg-sidebar/95">
         <AppModuleRail pathname={props.pathname} userName={props.userName} />
       </div>

@@ -14,6 +14,13 @@ This document is written for AI coding agents (including weaker ones like Claude
 
 You can skim 1, 2, and 5 every time. Read 3 and 4 only when the task domain demands them.
 
+### Temporary Verification Note - Delete This Section After E2E Is Done
+
+- Owner asked agents to skip E2E for now because the Playwright / screenshot workflow appears to destabilize this PC.
+- Do not run `npm run test:e2e` or `npm run qa:layout` unless the owner explicitly asks for it in a later session.
+- Later verification still needed: full `npm run test:e2e` and `npm run qa:layout` after the app layout correction pass.
+- Delete this temporary section after E2E and layout screenshot QA are completed and recorded in [BUILD_LOGS.MD](./BUILD_LOGS.MD).
+
 ---
 
 ## 2. Source-Of-Truth Map

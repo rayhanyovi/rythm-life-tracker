@@ -64,7 +64,7 @@ Auth and account
 - Auth email delivery via Resend (gated behind `AUTH_EMAIL_FROM` + `RESEND_API_KEY`); fallback to server log when unset
 
 Authenticated app shell
-- Desktop shell split into module rail, Tasks rail, and content column; feature screens provide contextual detail panes on wide desktop.
+- Desktop shell split into module rail, Tasks rail, and content column; feature screens provide contextual detail panes from normal desktop widths (`xl`) upward.
 - Mobile shell uses a compact `Tasks / [view]` top bar with direct Add access and a drawer that preserves the same module/view/task-space IA.
 - `Calendar` and `Journal` remain disabled placeholders; route paths still use the old URLs until the IA Roadmap route-rename step.
 - UI: [components/app/app-shell.tsx](../components/app/app-shell.tsx), [components/app/app-sidebar.tsx](../components/app/app-sidebar.tsx)
@@ -227,6 +227,7 @@ These items can be picked up regardless of how the IA decision lands.
 - Desktop shell now follows the wireframed structure: module rail, Tasks rail, content column, and route-owned detail panes at wide breakpoints.
 - Mobile shell exposes the same IA through a drawer and keeps a compact Add action in the top bar.
 - Layout e2e coverage passes across desktop and mobile after the PostCSS/Tailwind e2e startup repair. Full verification notes are recorded in [BUILD_LOGS.MD](./BUILD_LOGS.MD).
+- Follow-up correction pass completed 2026-05-06: compacted rail navigation, flattened feature-screen headers, removed dashboard-like metric strips, and moved detail panes from `2xl` to `xl` so the wireframed four-zone desktop layout appears on ordinary desktop widths.
 
 ### P2 — Nice-to-have
 

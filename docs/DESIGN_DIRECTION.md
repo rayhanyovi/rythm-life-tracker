@@ -328,7 +328,7 @@ Use shadow to separate layers, not to manufacture excitement.
 - Contextual detail belongs in side panes or sheets — not new routes.
 - Dense workflows privilege rows, groups, and stacked sections over feature-card layouts.
 - Desktop adds persistent context, not unrelated new destinations.
-- Current implementation: [components/app/app-shell.tsx](../components/app/app-shell.tsx) owns the module rail, Tasks rail, and mobile drawer; feature screens own their contextual detail panes at wide desktop breakpoints.
+- Current implementation: [components/app/app-shell.tsx](../components/app/app-shell.tsx) owns the module rail, Tasks rail, and mobile drawer; feature screens own their contextual detail panes from the `xl` breakpoint upward.
 
 ---
 

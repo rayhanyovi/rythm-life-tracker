@@ -159,25 +159,6 @@ function DetailStat({
   );
 }
 
-function StatusCell({
-  label,
-  value,
-}: {
-  label: string;
-  value: React.ReactNode;
-}) {
-  return (
-    <div className="bg-card px-4 py-3">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-        {label}
-      </p>
-      <p className="mt-2 text-lg font-semibold tracking-tight text-foreground">
-        {value}
-      </p>
-    </div>
-  );
-}
-
 function QuestDetailContent({
   isPending,
   noteDraft,
@@ -489,9 +470,9 @@ export function DashboardScreen() {
 
   return (
     <>
-      <div className="grid gap-5 2xl:grid-cols-[minmax(0,1fr)_20rem]">
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_20rem] 2xl:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="min-w-0 space-y-5">
-          <section className="rounded-[1.25rem] border border-border/80 bg-card/92 p-4 shadow-sm sm:p-5">
+          <section className="border-b border-border/70 pb-4">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
               <div className="space-y-2">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
@@ -506,6 +487,11 @@ export function DashboardScreen() {
                 <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
                   Due work and recurring rhythm live in one list. Check, inspect, or
                   correct without leaving the flow.
+                </p>
+                <p className="text-xs font-medium text-muted-foreground">
+                  {isLoading
+                    ? "Loading task counts"
+                    : `${stats.completedItems}/${stats.totalItems} complete | best streak ${stats.bestStreak}`}
                 </p>
               </div>
 
@@ -529,48 +515,6 @@ export function DashboardScreen() {
                   </Link>
                 </Button>
               </div>
-            </div>
-
-            <div className="mt-5 grid gap-3 xl:grid-cols-[minmax(0,1.5fr)_minmax(16rem,0.9fr)]">
-              <Button
-                asChild
-                variant="outline"
-                className="h-auto justify-between rounded-xl border-border/80 px-4 py-3 text-left"
-              >
-                <Link href="/quests">
-                  <span className="flex items-center gap-3 text-sm text-muted-foreground">
-                    <Plus className="size-4" />
-                    Add task to Today
-                  </span>
-                  <span className="text-xs font-medium text-foreground">
-                    Opens Lists
-                  </span>
-                </Link>
-              </Button>
-
-              <div className="rounded-xl border border-border/80 bg-background/80 px-4 py-3">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                  Current rhythm
-                </p>
-                <p className="mt-2 text-sm font-semibold text-foreground">
-                  Daily checklist first. Notes stay contextual.
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-3 grid gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-3">
-              <StatusCell
-                label="Visible tasks"
-                value={isLoading ? "..." : stats.totalItems}
-              />
-              <StatusCell
-                label="Completed now"
-                value={isLoading ? "..." : stats.completedItems}
-              />
-              <StatusCell
-                label="Best streak"
-                value={isLoading ? "..." : stats.bestStreak}
-              />
             </div>
 
             <div className="mt-4 grid gap-3 xl:grid-cols-[minmax(0,1fr)_15rem_auto] xl:items-end">
@@ -652,7 +596,7 @@ export function DashboardScreen() {
               {Array.from({ length: 3 }).map((_, index) => (
                 <section
                   key={index}
-                  className="overflow-hidden rounded-[1.15rem] border border-border/80 bg-card/95 shadow-sm"
+                  className="overflow-hidden rounded-lg border border-border/80 bg-card/95 shadow-sm"
                 >
                   <div className="flex items-center justify-between border-b border-border/70 px-4 py-3.5">
                     <Skeleton className="h-3 w-28" />
@@ -696,7 +640,7 @@ export function DashboardScreen() {
               {visibleCategories.map((category) => (
                 <section
                   key={category.categoryId}
-                  className="overflow-hidden rounded-[1.15rem] border border-border/80 bg-card/95 shadow-sm"
+                  className="overflow-hidden rounded-lg border border-border/80 bg-card/95 shadow-sm"
                 >
                   <div className="flex items-center justify-between gap-3 border-b border-border/70 bg-muted/30 px-4 py-3.5">
                     <div>
@@ -805,8 +749,8 @@ export function DashboardScreen() {
           )}
         </div>
 
-        <aside className="hidden 2xl:block">
-          <div className="sticky top-4 rounded-[1.25rem] border border-border/80 bg-card/95 p-5 shadow-sm">
+        <aside className="hidden xl:block">
+          <div className="sticky top-5 rounded-lg border border-border/80 bg-card/95 p-5 shadow-xs">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
               Context pane
             </p>

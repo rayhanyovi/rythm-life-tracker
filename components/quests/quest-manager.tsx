@@ -154,25 +154,6 @@ function formatTimestamp(value: string) {
   }).format(new Date(value));
 }
 
-function StatusCell({
-  label,
-  value,
-}: {
-  label: string;
-  value: React.ReactNode;
-}) {
-  return (
-    <div className="bg-card px-4 py-3">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-        {label}
-      </p>
-      <p className="mt-2 text-lg font-semibold tracking-tight text-foreground">
-        {value}
-      </p>
-    </div>
-  );
-}
-
 function DetailStat({
   label,
   value,
@@ -718,9 +699,9 @@ export function QuestManager() {
 
   return (
     <>
-      <div className="grid gap-5 2xl:grid-cols-[minmax(0,1fr)_21rem]">
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_20rem] 2xl:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="min-w-0 space-y-5">
-          <section className="rounded-[1.25rem] border border-border/80 bg-card/92 p-4 shadow-sm sm:p-5">
+          <section className="border-b border-border/70 pb-4">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
               <div className="space-y-3">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
@@ -734,6 +715,11 @@ export function QuestManager() {
                     Manage recurring task definitions inside the list they belong to.
                     Search, filter, edit, activate, or remove without leaving the
                     workspace.
+                  </p>
+                  <p className="text-xs font-medium text-muted-foreground">
+                    {isLoadingQuests
+                      ? "Loading task library"
+                      : `${stats.visible} visible | ${stats.active} active | ${stats.inactive} inactive`}
                   </p>
                 </div>
               </div>
@@ -823,12 +809,6 @@ export function QuestManager() {
                 Reset filters
               </Button>
             </div>
-
-            <div className="mt-4 grid gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-3">
-              <StatusCell label="Visible tasks" value={isLoadingQuests ? "..." : stats.visible} />
-              <StatusCell label="Active" value={isLoadingQuests ? "..." : stats.active} />
-              <StatusCell label="Inactive" value={isLoadingQuests ? "..." : stats.inactive} />
-            </div>
           </section>
 
           {errorMessage ? (
@@ -844,7 +824,7 @@ export function QuestManager() {
               {Array.from({ length: 3 }).map((_, index) => (
                 <section
                   key={index}
-                  className="overflow-hidden rounded-[1.15rem] border border-border/80 bg-card/95 shadow-sm"
+                  className="overflow-hidden rounded-lg border border-border/80 bg-card/95 shadow-sm"
                 >
                   <div className="border-b border-border/70 px-4 py-3.5">
                     <Skeleton className="h-3 w-32" />
@@ -897,7 +877,7 @@ export function QuestManager() {
               {groupedQuests.map((group) => (
                 <section
                   key={group.categoryId}
-                  className="overflow-hidden rounded-[1.15rem] border border-border/80 bg-card/95 shadow-sm"
+                  className="overflow-hidden rounded-lg border border-border/80 bg-card/95 shadow-sm"
                 >
                   <div className="flex items-center justify-between gap-3 border-b border-border/70 bg-muted/30 px-4 py-3.5">
                     <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
@@ -947,7 +927,7 @@ export function QuestManager() {
                             <Button
                               size="sm"
                               variant={selected ? "secondary" : "outline"}
-                              className="hidden h-8 px-3 2xl:inline-flex"
+                              className="hidden h-8 px-3 xl:inline-flex"
                               onClick={() => setSelectedQuestId(quest.id)}
                             >
                               Detail
@@ -955,7 +935,7 @@ export function QuestManager() {
                             <Button
                               size="sm"
                               variant="outline"
-                              className="h-8 px-3 2xl:hidden"
+                              className="h-8 px-3 xl:hidden"
                               onClick={() => {
                                 setSelectedQuestId(quest.id);
                                 setIsMobileDetailOpen(true);
@@ -983,8 +963,8 @@ export function QuestManager() {
           )}
         </div>
 
-        <aside className="hidden 2xl:block">
-          <div className="sticky top-4 rounded-[1.25rem] border border-border/80 bg-card/95 p-5 shadow-sm">
+        <aside className="hidden xl:block">
+          <div className="sticky top-5 rounded-lg border border-border/80 bg-card/95 p-5 shadow-xs">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
               Context pane
             </p>

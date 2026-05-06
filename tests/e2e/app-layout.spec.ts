@@ -134,6 +134,7 @@ test.describe("authenticated app shell", () => {
   });
 
   test("history page keeps filters and detail panel readable", async ({
+    isMobile,
     page,
   }) => {
     await mockAuthenticatedAppApi(page);
@@ -147,7 +148,14 @@ test.describe("authenticated app shell", () => {
     await expect(page.locator("#activity-category")).toBeVisible();
 
     await page.getByRole("button", { name: /detail/i }).first().click();
-    await expect(page.getByText("Completion detail")).toBeVisible();
+
+    if (isMobile) {
+      await expect(page.getByText("Completion detail")).toBeVisible();
+    } else {
+      await expect(page.getByText("Context pane")).toBeVisible();
+      await expect(page.getByText("Selected completion", { exact: true })).toBeVisible();
+    }
+
     await expect(
       page.getByLabel("Completion note").filter({ visible: true }),
     ).toBeVisible();

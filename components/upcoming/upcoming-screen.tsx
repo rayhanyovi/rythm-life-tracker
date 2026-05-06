@@ -328,9 +328,9 @@ export function UpcomingScreen() {
 
   return (
     <>
-      <div className="grid gap-5 2xl:grid-cols-[minmax(0,1fr)_21rem]">
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_20rem] 2xl:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="min-w-0 space-y-5">
-          <section className="rounded-[1.25rem] border border-border/80 bg-card/92 p-4 shadow-sm sm:p-5">
+          <section className="border-b border-border/70 pb-4">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
               <div className="space-y-3">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
@@ -348,6 +348,11 @@ export function UpcomingScreen() {
                 <p className="max-w-3xl text-sm leading-6 text-muted-foreground">
                   Scan the next recurring periods by date, then open the task where
                   the current model can act on it.
+                </p>
+                <p className="text-xs font-medium text-muted-foreground">
+                  {isLoading
+                    ? "Loading upcoming work"
+                    : `${stats.totalCount} tasks across ${stats.dateCount} dates | ${stats.completedCount} already complete`}
                 </p>
               </div>
 
@@ -370,33 +375,6 @@ export function UpcomingScreen() {
                     Add task
                   </Link>
                 </Button>
-              </div>
-            </div>
-
-            <div className="mt-5 grid gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-3">
-              <div className="bg-card px-4 py-3">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                  Upcoming tasks
-                </p>
-                <p className="mt-2 text-lg font-semibold tracking-tight text-foreground">
-                  {isLoading ? "..." : stats.totalCount}
-                </p>
-              </div>
-              <div className="bg-card px-4 py-3">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                  Date groups
-                </p>
-                <p className="mt-2 text-lg font-semibold tracking-tight text-foreground">
-                  {isLoading ? "..." : stats.dateCount}
-                </p>
-              </div>
-              <div className="bg-card px-4 py-3">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                  Completed
-                </p>
-                <p className="mt-2 text-lg font-semibold tracking-tight text-foreground">
-                  {isLoading ? "..." : stats.completedCount}
-                </p>
               </div>
             </div>
 
@@ -518,7 +496,7 @@ export function UpcomingScreen() {
               {Array.from({ length: 3 }).map((_, groupIndex) => (
                 <section
                   key={groupIndex}
-                  className="overflow-hidden rounded-[1.15rem] border border-border/80 bg-card/95 shadow-sm"
+                  className="overflow-hidden rounded-lg border border-border/80 bg-card/95 shadow-sm"
                 >
                   <div className="border-b border-border/70 px-4 py-3.5">
                     <Skeleton className="h-3 w-36" />
@@ -558,7 +536,7 @@ export function UpcomingScreen() {
               {payload?.groups?.map((group) => (
                 <section
                   key={group.date}
-                  className="overflow-hidden rounded-[1.15rem] border border-border/80 bg-card/95 shadow-sm"
+                  className="overflow-hidden rounded-lg border border-border/80 bg-card/95 shadow-sm"
                 >
                   <div className="flex items-center justify-between gap-3 border-b border-border/70 bg-muted/30 px-4 py-3.5">
                     <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
@@ -619,7 +597,7 @@ export function UpcomingScreen() {
                             <Button
                               size="sm"
                               variant={selected ? "secondary" : "outline"}
-                              className="hidden h-8 px-3 2xl:inline-flex"
+                              className="hidden h-8 px-3 xl:inline-flex"
                               onClick={() => setSelectedKey(itemKey)}
                             >
                               <NotebookPen className="size-4" />
@@ -628,7 +606,7 @@ export function UpcomingScreen() {
                             <Button
                               size="sm"
                               variant="outline"
-                              className="h-8 px-3 2xl:hidden"
+                              className="h-8 px-3 xl:hidden"
                               onClick={() => {
                                 setSelectedKey(itemKey);
                                 setIsMobileDetailOpen(true);
@@ -648,8 +626,8 @@ export function UpcomingScreen() {
           )}
         </div>
 
-        <aside className="hidden 2xl:block">
-          <div className="sticky top-4 rounded-[1.25rem] border border-border/80 bg-card/95 p-5 shadow-sm">
+        <aside className="hidden xl:block">
+          <div className="sticky top-5 rounded-lg border border-border/80 bg-card/95 p-5 shadow-xs">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
               Context pane
             </p>

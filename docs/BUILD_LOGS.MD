@@ -4,6 +4,15 @@ Append-only log of completed work slices. Every agent should add an entry when a
 
 ---
 
+## 2026-05-06 - App Layout Correction Pass
+
+- Compact rail navigation in the authenticated shell so the module rail and Tasks rail read as navigation instead of descriptive cards.
+- Flattened the top of Today, Upcoming, Lists, Habit Lists, and Activity Log: removed dashboard-like metric strips and moved counts into quiet supporting text so rows appear sooner.
+- Moved route-owned detail panes from `2xl` to `xl`, making the wireframed four-zone desktop layout visible on ordinary desktop widths.
+- Aligned repeated list group cards and context panes back to tokenized app radii and lighter shadows.
+- Updated `PRODUCT_PLAN.md` and `DESIGN_DIRECTION.md` to record the correction pass.
+- Verified: `npm run verify` passes. A targeted `npm run test:e2e -- tests/e2e/app-layout.spec.ts --reporter=list --workers=1` run also passed once (10/10), but the owner has asked agents to skip further E2E for now because the Playwright / screenshot workflow appears to destabilize this PC. `npm run qa:layout` was attempted, but the screenshot runner timed out before producing artifacts and repeated attempts exhausted the Windows PowerShell host.
+
 ## 2026-05-06 - Authenticated Shell Layout Reframe
 
 - Split the authenticated shell into separate desktop zones: module rail, Tasks rail, and content column. The feature screens continue to own their contextual detail panes at wide desktop breakpoints, preserving the wireframed four-zone layout without duplicating pane logic.
