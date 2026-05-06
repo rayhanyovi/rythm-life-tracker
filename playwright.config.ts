@@ -1,5 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
+const projectRoot = __dirname;
+
 const appPort = Number(
   process.env.PLAYWRIGHT_APP_PORT ??
     (process.env.RYTHM_E2E_AUTH_BYPASS === "true" ? "3100" : "3000"),
@@ -23,6 +25,7 @@ export default defineConfig({
   },
   webServer: {
     command: webServerCommand,
+    cwd: projectRoot,
     port: appPort,
     reuseExistingServer:
       !process.env.CI && process.env.RYTHM_E2E_AUTH_BYPASS !== "true",

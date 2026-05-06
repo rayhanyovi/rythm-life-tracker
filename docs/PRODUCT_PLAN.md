@@ -63,6 +63,12 @@ Auth and account
 - Allowed hosts configured for `localhost:3000` and `*.vercel.app`
 - Auth email delivery via Resend (gated behind `AUTH_EMAIL_FROM` + `RESEND_API_KEY`); fallback to server log when unset
 
+Authenticated app shell
+- Desktop shell split into module rail, Tasks rail, and content column; feature screens provide contextual detail panes on wide desktop.
+- Mobile shell uses a compact `Tasks / [view]` top bar with direct Add access and a drawer that preserves the same module/view/task-space IA.
+- `Calendar` and `Journal` remain disabled placeholders; route paths still use the old URLs until the IA Roadmap route-rename step.
+- UI: [components/app/app-shell.tsx](../components/app/app-shell.tsx), [components/app/app-sidebar.tsx](../components/app/app-sidebar.tsx)
+
 Categories
 - List, create, rename, delete, reorder
 - Default-category bootstrap on first login (Spiritual / Finance / Career / Health / Personal Growth / Relationship)
@@ -92,6 +98,14 @@ History (activity log)
 - API: [app/api/history/route.ts](../app/api/history/route.ts), [app/api/completions/[id]/route.ts](../app/api/completions/[id]/route.ts)
 - UI: [components/history/history-screen.tsx](../components/history/history-screen.tsx)
 
+Upcoming
+- Date-grouped agenda over future recurring periods
+- Filters for next 7 / 14 / 30 days, habit list, and cadence
+- Daily tasks appear on each future day; weekly/monthly tasks appear once when a new period enters the horizon
+- One-time `MAIN` tasks are excluded because the current schema has no due date
+- API: [app/api/upcoming/route.ts](../app/api/upcoming/route.ts)
+- UI: [components/upcoming/upcoming-screen.tsx](../components/upcoming/upcoming-screen.tsx)
+
 PWA
 - `app/manifest.ts` + dynamic icon routes ([app/icon.tsx](../app/icon.tsx), [app/apple-icon.tsx](../app/apple-icon.tsx), [app/pwa/icon-192.png/route.tsx](../app/pwa/icon-192.png/route.tsx), [app/pwa/icon-512.png/route.tsx](../app/pwa/icon-512.png/route.tsx))
 - Service worker registration at [components/pwa/pwa-register.tsx](../components/pwa/pwa-register.tsx)
@@ -112,17 +126,17 @@ Deployment readiness
 Quality gates
 - Canonical `npm run verify` (env check + Prisma validate + unit tests + lint + production build)
 - Unit tests in `tests/` for period helpers, streak calculation, payload validators
-- Playwright e2e suite (`npm run test:e2e`) covering auth layout, authenticated shell, dashboard, quests, categories, history, PWA installability, offline fallback
+- Playwright e2e suite (`npm run test:e2e`) covering auth layout, authenticated shell, Today, Upcoming, Lists, Habit Lists, Activity Log, PWA installability, offline fallback
+- Playwright's local dev server is pinned to the repo root, and the PostCSS/Tailwind pipeline includes a `from` fallback so Tailwind v4 does not resolve from the parent `C:\Projects` directory during e2e runs.
 - Manual screenshot review (`npm run qa:layout`)
 - Repo discipline guard (`npm run discipline:check`) blocks edits in `quest-companion/` and source edits without `docs/PRODUCT_PLAN.md` updates.
 
 ### Partially Complete / In Flight
 
-- **IA route renames.** Sidebar labels are already Tasks-first (`Today`, `Lists`, `Habit Lists`, `Activity Log`). Routes still live at old paths (`/dashboard`, `/quests`, `/categories`, `/history`). Rename + redirect work is queued in the IA Roadmap below — resolve Strategic Decision 3 first.
+- **IA route renames.** The app shell and page labels are Tasks-first (`Today`, `Upcoming`, `Lists`, `Habit Lists`, `Activity Log`), but routes still live at old paths (`/dashboard`, `/quests`, `/categories`, `/history`). Rename + redirect work is queued in the IA Roadmap below — resolve Strategic Decision 3 first.
 
 ### Coming Soon (visible but disabled in UI)
 
-- **`Upcoming`** — date-grouped agenda over the next short horizon. Currently a disabled sidebar entry. Ships only if Decision 1 picks Tasks-first.
 - **`Calendar`** — month grid with selected-day agenda. Currently a disabled sidebar entry. Ships only if Decision 1 picks Tasks-first.
 - **`Journal`** — a future module placeholder for reflective writing. Currently a disabled module-rail entry. No data model exists yet. Ships only if Decision 1 picks Tasks-first AND a `Journal` entity is designed.
 
@@ -206,6 +220,14 @@ These items can be picked up regardless of how the IA decision lands.
 - **Dependencies:** P1.1 recommended first to avoid restyling immediately after.
 - **Risks:** Gesture conflicts with native browser swipe-back. May require careful event-coalescing.
 
+#### P1.4 — Authenticated shell layout reframe
+
+**Status: ✅ DONE** — Completed 2026-05-06.
+
+- Desktop shell now follows the wireframed structure: module rail, Tasks rail, content column, and route-owned detail panes at wide breakpoints.
+- Mobile shell exposes the same IA through a drawer and keeps a compact Add action in the top bar.
+- Layout e2e coverage passes across desktop and mobile after the PostCSS/Tailwind e2e startup repair. Full verification notes are recorded in [BUILD_LOGS.MD](./BUILD_LOGS.MD).
+
 ### P2 — Nice-to-have
 
 - **P2.1 — Color tagging for categories.** Each category gets an optional accent color (constrained to the slate palette family) used as a left bar on the dashboard row. Schema impact: one new nullable text column on `categories`.
@@ -228,7 +250,7 @@ Strategic Decision 1 is resolved: Tasks-first is canonical. The work below is no
 
 1. **Resolve `Habit Lists` data model** (Strategic Decision 3) — do this first, before any route or copy changes.
 2. **Route renames + redirects.** `/dashboard` → `/today`, `/quests` → `/lists`, `/categories` → `/habit-lists`, `/history` → `/activity-log`. Old paths return permanent redirects (`308`). Update `app/manifest.ts` start URL, sidebar `href` values, all page title copy, Playwright e2e route references, and the deployment smoke checklist.
-3. **`Upcoming` v1.** Date-grouped agenda surface over existing completion data. Filters for next 7 / 14 / 30 days. No schema change required for v1 — Daily/Weekly/Monthly quests already imply future periods via the period helper.
+3. ~~**`Upcoming` v1**~~ — done 2026-05-05. Date-grouped agenda surface over existing completion data. Filters for next 7 / 14 / 30 days. No schema change required for v1 — Daily/Weekly/Monthly quests already imply future periods via the period helper. `MAIN` tasks remain excluded until a due-date/scheduling model exists.
 4. **`Calendar` v1.** Month grid with selected-day agenda below it. Reuses the `Today` row component for the agenda. No schema change for v1.
 5. **`Journal` foundation.** Decide entity shape (`journal_entries(user_id, date, body, created_at, updated_at)` is a reasonable starting point), build a minimal write surface, then graduate it from disabled to enabled in the sidebar.
 
@@ -258,7 +280,7 @@ Pick vertical slices, ship them complete, then move on. Avoid scattering partial
 5. **Set Vercel env vars** — `DATABASE_URL`, `DIRECT_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL` must be set in Vercel before any preview/production deploy is usable.
 6. **IA route renames + redirects** — unblocked once Decision 3 schema work is done.
 7. ~~P1.1 (token migration pass on `components/ui`)~~ — ✅ done (button/sheet/auth-card radius tokens aligned).
-8. `Upcoming` v1, then `Calendar` v1.
+8. ~~Authenticated shell layout reframe~~ and ~~`Upcoming` v1~~, then `Calendar` v1.
 9. P1.2 / P1.3 (DnD reorder, mobile gestures) — polish layer.
 10. P2 items as bandwidth allows.
 11. Gamification design pass (schema + visual treatment) before any implementation.

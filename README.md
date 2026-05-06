@@ -31,6 +31,9 @@ npm install
 # Local Postgres in Docker
 npm run docker:db
 
+# Dedicated local DB for Playwright e2e
+npm run db:e2e:prepare
+
 # Configure env (copy .env.example → .env.local, fill in values)
 # At minimum: BETTER_AUTH_SECRET, BETTER_AUTH_URL, DATABASE_URL
 

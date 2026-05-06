@@ -67,7 +67,7 @@ The MVP is largely shipped:
 - **PWA** — manifest, icons, service worker for shell caching, offline fallback page
 - **Deployment posture** — Next.js fullstack on Vercel, Better Auth + Prisma + PostgreSQL-compatible, deployment env checker, Resend integration for auth emails
 
-The IA direction is settled: **Tasks-first**. The sidebar already shows `Today`, `Lists`, `Habit Lists`, `Activity Log` with `Upcoming`, `Calendar`, and `Journal` as disabled placeholders. Route renames (`/dashboard` → `/today`, etc.) are scheduled implementation work — the old routes will redirect permanently once renamed. Gamification is now a planned future layer; the schema is additive and the visual treatment will stay within the calm design language.
+The IA direction is settled: **Tasks-first**. The sidebar already shows `Today`, `Upcoming`, `Lists`, `Habit Lists`, and `Activity Log`, with `Calendar` and `Journal` as disabled placeholders. Route renames (`/dashboard` → `/today`, etc.) are scheduled implementation work — the old routes will redirect permanently once renamed. Gamification is now a planned future layer; the schema is additive and the visual treatment will stay within the calm design language.
 
 ## Current Limitations
 

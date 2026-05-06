@@ -48,13 +48,15 @@ Use this when documents conflict (and they sometimes will, briefly, between PRs)
   - `/quests` -> will become `/lists`
   - `/categories` -> will become `/habit-lists`
   - `/history` -> will become `/activity-log`
+  - `/upcoming` -> unchanged
   - `/offline` -> unchanged
 - **Sidebar labels (canonical Tasks-first):**
   - `Today` -> `/dashboard` (`/today` after rename)
   - `Lists` -> `/quests` (`/lists` after rename)
   - `Habit Lists` -> `/categories` (`/habit-lists` after rename)
   - `Activity Log` -> `/history` (`/activity-log` after rename)
-  - `Upcoming`, `Calendar`, `Journal` are **disabled placeholders** - valid forward roadmap items, not to be removed
+  - `Upcoming` -> `/upcoming`
+  - `Calendar`, `Journal` are **disabled placeholders** - valid forward roadmap items, not to be removed
 - **Do not rename routes unilaterally.** The route rename is planned work with a specific sequence in [PRODUCT_PLAN.md](./PRODUCT_PLAN.md#ia-roadmap-tasks-first). Resolve `Habit Lists` data model (Strategic Decision 3) first, then follow the sequence exactly.
 
 ---

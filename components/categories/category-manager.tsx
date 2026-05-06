@@ -317,7 +317,7 @@ export function CategoryManager() {
               </div>
             </div>
 
-            <div className="mt-5 grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto]">
+            <div className="mt-5 grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto_auto]">
               <Input
                 value={newCategoryName}
                 onChange={(event) => setNewCategoryName(event.target.value)}
@@ -332,6 +332,19 @@ export function CategoryManager() {
               <Button onClick={handleCreate} disabled={isPending}>
                 {isPending ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />}
                 Add list
+              </Button>
+              <Button
+                variant="outline"
+                className="2xl:hidden"
+                onClick={handleSeedDefaults}
+                disabled={isPending}
+              >
+                {isPending ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <RotateCw className="size-4" />
+                )}
+                Seed starter pack
               </Button>
             </div>
 

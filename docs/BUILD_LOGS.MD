@@ -4,6 +4,23 @@ Append-only log of completed work slices. Every agent should add an entry when a
 
 ---
 
+## 2026-05-06 - Authenticated Shell Layout Reframe
+
+- Split the authenticated shell into separate desktop zones: module rail, Tasks rail, and content column. The feature screens continue to own their contextual detail panes at wide desktop breakpoints, preserving the wireframed four-zone layout without duplicating pane logic.
+- Updated mobile app chrome to a compact `Tasks / [view]` header with a direct Add action and a drawer that preserves the same module, view, and task-space IA.
+- Kept route paths unchanged (`/dashboard`, `/quests`, `/categories`, `/history`) while adding future-route aliases for active-state compatibility.
+- Updated authenticated app layout e2e coverage to use Tasks-first labels and include the `Upcoming` surface.
+- Fixed Playwright dev-server startup for the layout suite by pinning the web server cwd to the repo root and adding a PostCSS `from` fallback before Tailwind v4 runs, preventing Tailwind from resolving out of `C:\Projects`.
+- Kept the Habit Lists starter-pack action reachable below the `2xl` detail-pane breakpoint and removed duplicate History note input IDs across the context pane and mobile sheet.
+- Verified: `npm run lint`, `npm run build`, `npm run discipline:check`, and `npm run test:e2e -- tests/e2e/app-layout.spec.ts --reporter=list --workers=1` pass (10/10 layout e2e).
+
+## 2026-05-05 - Upcoming Agenda Surface
+
+- Added the `Upcoming` route and screen as a date-grouped planning surface over future recurring periods, keeping `MAIN` tasks excluded until the product has a due-date model.
+- Added `GET /api/upcoming`, `lib/upcoming.ts`, and `lib/validators/upcoming.ts` so daily tasks project across the horizon while weekly and monthly tasks emit once per future period.
+- Added unit coverage for the projection helper and extended the authenticated-shell e2e mocks and screenshot review flow to include the `Upcoming` surface.
+- Updated the canonical docs so `Upcoming` is now treated as shipped rather than a disabled placeholder.
+
 ## 2026-05-05 - Discipline Guard Doc Consolidation
 
 - Updated `scripts/check-repo-discipline.ts` to require `docs/PRODUCT_PLAN.md` for source changes instead of the removed `docs/to_dos.md`.

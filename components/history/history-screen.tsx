@@ -172,6 +172,7 @@ function DetailStat({
 function HistoryDetail({
   isPending,
   noteDraft,
+  noteInputId,
   onChangeNote,
   onDelete,
   onSaveNote,
@@ -179,6 +180,7 @@ function HistoryDetail({
 }: {
   isPending: boolean;
   noteDraft: string;
+  noteInputId: string;
   onChangeNote: (value: string) => void;
   onDelete: () => void;
   onSaveNote: () => void;
@@ -212,9 +214,9 @@ function HistoryDetail({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="activity-log-note">Completion note</Label>
+        <Label htmlFor={noteInputId}>Completion note</Label>
         <Textarea
-          id="activity-log-note"
+          id={noteInputId}
           value={noteDraft}
           onChange={(event) => onChangeNote(event.target.value)}
           placeholder="Add context that will matter when you review this completion later."
@@ -868,6 +870,7 @@ export function HistoryScreen() {
               {selectedCompletion ? (
                 <HistoryDetail
                   item={selectedCompletion}
+                  noteInputId="activity-log-note-context"
                   noteDraft={noteDraft}
                   onChangeNote={setNoteDraft}
                   onDelete={() => setDeleteTarget(selectedCompletion)}
@@ -901,6 +904,7 @@ export function HistoryScreen() {
             <div className="mt-5">
               <HistoryDetail
                 item={selectedCompletion}
+                noteInputId="activity-log-note-sheet"
                 noteDraft={noteDraft}
                 onChangeNote={setNoteDraft}
                 onDelete={() => setDeleteTarget(selectedCompletion)}

@@ -91,6 +91,7 @@ app/
     layout.tsx                          # mounts AppShell
     loading.tsx, error.tsx
     dashboard/page.tsx
+    upcoming/page.tsx
     quests/page.tsx
     categories/page.tsx
     history/page.tsx
@@ -108,6 +109,7 @@ app/
     quests/[id]/current-completion/route.ts
     completions/[id]/route.ts
     dashboard/route.ts
+    upcoming/route.ts
     history/route.ts
 ```
 
@@ -132,6 +134,7 @@ components/
   pwa/
     pwa-register.tsx                    # service worker registration
   dashboard/dashboard-screen.tsx
+  upcoming/upcoming-screen.tsx
   quests/quest-manager.tsx
   categories/category-manager.tsx
   history/history-screen.tsx
@@ -151,7 +154,7 @@ Domain logic lives in `lib/`. Direct imports of these are preferred over reimple
 | `lib/session.ts` | `sessionApi` — central session access; tests can swap implementations |
 | `lib/periods/index.ts` | Period key calculation (DAILY / WEEKLY / MONTHLY / MAIN) |
 | `lib/streaks/index.ts` | Streak calculation |
-| `lib/dashboard.ts`, `lib/quests.ts`, `lib/categories.ts`, `lib/history.ts` | Domain-level data access used by API routes |
+| `lib/dashboard.ts`, `lib/upcoming.ts`, `lib/quests.ts`, `lib/categories.ts`, `lib/history.ts` | Domain-level data access used by API routes |
 | `lib/category-defaults.ts` | Wheel-of-Life seed |
 | `lib/validators/*.ts` | Zod payload validators (category, quest, completion, dashboard, history) |
 | `lib/http.ts` | Shared HTTP helpers for route handlers |
@@ -175,6 +178,8 @@ scripts/
   check-env.ts                          # used by env:check, env:check:deployment
   check-repo-discipline.ts              # enforces repo boundaries
   capture-layout-review.ts              # used by qa:layout
+  prepare-e2e-db.ts                     # starts local Postgres and creates rythm_e2e for Playwright
+  postcss-from-fallback.cjs             # sets PostCSS result.opts.from before Tailwind v4 runs
   seed-demo.ts                          # demo data seed
 ```
 
@@ -424,7 +429,43 @@ type DashboardResponse = {
 };
 ```
 
-### 6.3 Categories
+### 6.3 Upcoming — `GET /api/upcoming`
+
+Query params:
+
+- `horizon?: "7" | "14" | "30"` — defaults to `7`
+- `start?: string` — ISO date `YYYY-MM-DD`; if absent, server uses the current local date
+- `categoryId?: string` — filter to one category
+- `questType?: "DAILY" | "WEEKLY" | "MONTHLY"` — `MAIN` is intentionally excluded because one-time tasks have no due date in the current schema
+
+Response:
+
+```ts
+type UpcomingResponse = {
+  startDate: string;
+  endDate: string;
+  horizonDays: number;
+  groups: Array<{
+    date: string;
+    items: Array<{
+      questId: string;
+      categoryId: string;
+      categoryName: string;
+      title: string;
+      description: string | null;
+      questType: "DAILY" | "WEEKLY" | "MONTHLY";
+      periodKey: string;
+      isCompleted: boolean;
+      completionId: string | null;
+      note: string | null;
+    }>;
+  }>;
+};
+```
+
+Projection rule: daily quests appear on every future day in the horizon. Weekly and monthly quests appear once when a new period enters the horizon. Current-period rows are excluded so Upcoming does not duplicate Today.
+
+### 6.4 Categories
 
 | Method + Path | Body / Params | Notes |
 |---|---|---|
@@ -434,7 +475,7 @@ type DashboardResponse = {
 | `POST /api/categories/reorder` | `{ categoryIds: string[] }` | Reassigns `sort_order` based on array index |
 | `DELETE /api/categories/:id` | none | **Rejected if any quest references the category.** Error message asks user to move or delete quests first. |
 
-### 6.4 Quests
+### 6.5 Quests
 
 | Method + Path | Body / Params | Notes |
 |---|---|---|
@@ -444,21 +485,21 @@ type DashboardResponse = {
 | `PATCH /api/quests/:id` | `{ categoryId?, title?, description?, questType?, isActive? }` | Same ownership validation |
 | `DELETE /api/quests/:id` | none | Hard delete; cascades to completions |
 
-### 6.5 Current Completion
+### 6.6 Current Completion
 
 | Method + Path | Body | Notes |
 |---|---|---|
 | `PUT /api/quests/:id/current-completion` | `{ note?: string }` | Server computes `period_key` from quest type + app timezone. Upserts `(user_id, quest_id, period_type, period_key)`. |
 | `DELETE /api/quests/:id/current-completion` | none | Removes the completion for the active period. |
 
-### 6.6 Completion Note And Delete
+### 6.7 Completion Note And Delete
 
 | Method + Path | Body | Notes |
 |---|---|---|
 | `PATCH /api/completions/:id` | `{ note: string \| null }` | Edits the note on a specific completion. |
 | `DELETE /api/completions/:id` | none | Used by history correction flow to remove an old completion. |
 
-### 6.7 History — `GET /api/history`
+### 6.8 History — `GET /api/history`
 
 Query params:
 
@@ -485,7 +526,7 @@ type HistoryResponse = {
 };
 ```
 
-### 6.8 Default-Category Bootstrap — `POST /api/bootstrap/default-categories`
+### 6.9 Default-Category Bootstrap — `POST /api/bootstrap/default-categories`
 
 Idempotently creates the Wheel-of-Life seed (Spiritual / Finance / Career / Health / Personal Growth / Relationship). Only creates categories that don't already exist for the user. Called automatically after first login.
 
@@ -697,6 +738,17 @@ Auth bypass for Playwright e2e suites. Requires the e2e request to also send the
 RYTHM_E2E_AUTH_BYPASS=true
 ```
 
+#### E2E Database
+
+Playwright e2e runs against a dedicated local Docker Postgres database, not the `DATABASE_URL` from `.env.local`. `npm run test:e2e` sets both URLs to:
+
+```env
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/rythm_e2e?schema=public
+DIRECT_URL=postgresql://postgres:postgres@localhost:5432/rythm_e2e?schema=public
+```
+
+The `pretest:e2e` lifecycle runs `npm run db:e2e:prepare`, which starts the Compose `db` service and creates `rythm_e2e` if it does not exist.
+
 ### Compose-Only Overrides
 
 Read by [compose.yaml](../compose.yaml) for the local Postgres container — not by application code.
@@ -817,6 +869,7 @@ Every API route under `app/api/` declares `export const runtime = "nodejs"`. Loc
 - `app/api/categories/reorder/route.ts`
 - `app/api/completions/[id]/route.ts`
 - `app/api/dashboard/route.ts`
+- `app/api/upcoming/route.ts`
 - `app/api/history/route.ts`
 - `app/api/quests/route.ts`
 - `app/api/quests/[id]/route.ts`
@@ -972,7 +1025,12 @@ If `npm run verify` is clean locally, the same gate passes on CI. Treat its fail
   - `NEXT_PUBLIC_PWA_DEV_ENABLED=true`
   - `PLAYWRIGHT_APP_PORT=3100`
   - `BETTER_AUTH_URL=http://localhost:3100`
+  - `DATABASE_URL=postgresql://postgres:postgres@localhost:5432/rythm_e2e?schema=public`
+  - `DIRECT_URL=postgresql://postgres:postgres@localhost:5432/rythm_e2e?schema=public`
+  - Starts the Docker Compose `db` service and creates `rythm_e2e` before Playwright starts
   - Forces a fresh dev server with `.next-e2e` dist dir
+  - Pins Playwright `webServer.cwd` to the repo root; do not rely on the invoking terminal's parent directory
+  - Uses `scripts/postcss-from-fallback.cjs` before `@tailwindcss/postcss` so Tailwind v4 receives a concrete CSS `from` path when Turbopack omits one
 - Coverage:
   - Auth layout responsive
   - Forgot/reset password layouts

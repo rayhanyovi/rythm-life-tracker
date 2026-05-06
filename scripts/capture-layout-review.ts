@@ -89,7 +89,7 @@ async function captureDeviceScreenshots() {
         extraHTTPHeaders: e2eAuthHeaders,
       });
 
-      for (const route of ["dashboard", "quests", "categories", "history"]) {
+      for (const route of ["dashboard", "upcoming", "quests", "categories", "history"]) {
         const page = await authedContext.newPage();
         await mockAuthenticatedAppApi(page);
         await page.goto(`/${route}`);
@@ -147,4 +147,3 @@ void main().catch((error) => {
   console.error(error instanceof Error ? error.message : error);
   process.exit(1);
 });
-

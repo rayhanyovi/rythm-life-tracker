@@ -81,7 +81,7 @@ The IA is **Tasks-first**. Route renames are scheduled work — see [PRODUCT_PLA
 | `/categories` | `/habit-lists` | Category CRUD + reorder |
 | `/history` | `/activity-log` | Chronological completion log |
 | `/offline` | `/offline` | PWA offline fallback |
-| *(planned)* | `/upcoming` | Date-grouped near-future agenda |
+| `/upcoming` | `/upcoming` | Date-grouped near-future agenda |
 | *(planned)* | `/calendar` | Month grid with selected-day agenda |
 
 Old routes will redirect permanently (`308`) after the rename lands. Update `app/manifest.ts` start URL and PWA metadata at the same time.
@@ -91,7 +91,7 @@ Old routes will redirect permanently (`308`) after the rename lands. Update `app
 ```text
 Module Rail        Tasks Rail
   Tasks              Today              → /dashboard  (→ /today after rename)
-  Journal (disabled) Upcoming           (disabled placeholder)
+  Journal (disabled) Upcoming           → /upcoming
                      Calendar           (disabled placeholder)
                      Activity Log       → /history    (→ /activity-log after rename)
                      ── Task Spaces ──
@@ -104,7 +104,7 @@ Module Rail        Tasks Rail
 | Surface | Route | Role |
 |---|---|---|
 | Today | `/dashboard` → `/today` | Daily-use home — recurring habit check-ins due this period |
-| Upcoming | *(planned)* | Near-future planning surface for date-grouped work |
+| Upcoming | `/upcoming` | Near-future planning surface for date-grouped recurring work |
 | Calendar | *(planned)* | Month grid with selected-day agenda |
 | Activity Log | `/history` → `/activity-log` | Completion review, note correction, and deletion |
 | Lists | `/quests` → `/lists` | Quest definitions and management — search, filter, edit |
@@ -117,7 +117,7 @@ Module Rail        Tasks Rail
 - `Lists` and `Habit Lists` live below fixed views and never become peer modules.
 - User identity, sign-out, and install or account status are utility elements, not primary nav.
 - Mobile collapses the rails into a drawer or stacked switcher rather than inventing a second IA.
-- Disabled placeholder modules (`Upcoming`, `Calendar`, `Journal`) must look obviously inactive — do not let them invite clicks that go nowhere.
+- Disabled placeholder modules (`Calendar`, `Journal`) must look obviously inactive — do not let them invite clicks that go nowhere.
 
 ### Public And Support Surfaces
 
@@ -328,6 +328,7 @@ Use shadow to separate layers, not to manufacture excitement.
 - Contextual detail belongs in side panes or sheets — not new routes.
 - Dense workflows privilege rows, groups, and stacked sections over feature-card layouts.
 - Desktop adds persistent context, not unrelated new destinations.
+- Current implementation: [components/app/app-shell.tsx](../components/app/app-shell.tsx) owns the module rail, Tasks rail, and mobile drawer; feature screens own their contextual detail panes at wide desktop breakpoints.
 
 ---
 
@@ -395,7 +396,7 @@ Drawer (opened from [≡]):
 +----------------------------------+
 | Tasks                            |
 |   • Today                        |
-|     Upcoming      (disabled)     |
+|   • Upcoming                    |
 |     Calendar      (disabled)     |
 |     Activity Log                 |
 |   ── Task Spaces ──              |
@@ -414,7 +415,7 @@ The route paths inside the drawer will update when the route renames land (see I
 +----------+----------------+---------------------------------+------------------+
 | Modules  | Tasks rail     | List column                     | Detail pane      |
 | Tasks    | Today          | (the actionable surface)        | (contextual)     |
-| Journal* | Upcoming*      |                                 |                  |
+| Journal* | Upcoming       |                                 |                  |
 |          | Calendar*      |                                 |                  |
 |          | Activity Log   |                                 |                  |
 |          | ── Spaces ──   |                                 |                  |
@@ -478,7 +479,7 @@ Forbidden patterns on this screen:
 
 The list column stays dominant. The detail pane supports inspection and editing only — never replaces the list as the primary action surface.
 
-### 7.5 — Upcoming (Mobile, planned, Tasks-first only)
+### 7.5 — Upcoming (Mobile, Tasks-first)
 
 ```text
 +----------------------------------+
@@ -650,7 +651,7 @@ Two recovery actions max. Honest about the limitation.
 | Surface | Primary action | Secondary actions |
 |---|---|---|
 | Today / Dashboard | Row check / uncheck, quick add | Filter, show-inactive toggle, open detail sheet |
-| Upcoming (planned) | Date triage, defer / reschedule | Filter |
+| Upcoming | Date triage over projected recurring periods | Filter |
 | Calendar (planned) | Date selection, scheduling | Filter |
 | Lists / Quests | Select a list, add or edit a quest | Search, type/category filter, deactivate |
 | Habit Lists / Categories | Add or rename a list | Reorder, delete-with-guard |
@@ -723,8 +724,8 @@ The first implementation pass of the design migration should update the base pri
 After primitives are updated, propagate through:
 
 - [components/marketing/landing-page.tsx](../components/marketing/landing-page.tsx) — marketing shell still expresses older warm-system pill-heavy language; should adopt slate tokens and rectangle shapes.
-- [components/app/app-shell.tsx](../components/app/app-shell.tsx) — header chrome and utility pills should be normalized to the new surface grammar.
-- Feature screens under [components/dashboard](../components/dashboard), [components/quests](../components/quests), [components/categories](../components/categories), [components/history](../components/history) — list rows, chips, and filters should inherit the new primitives instead of keeping local pill-heavy exceptions.
+- [components/app/app-shell.tsx](../components/app/app-shell.tsx) and [components/app/app-sidebar.tsx](../components/app/app-sidebar.tsx) — shell structure now follows the module rail + Tasks rail + mobile drawer grammar; keep future shell changes inside this pattern.
+- Feature screens under [components/dashboard](../components/dashboard), [components/upcoming](../components/upcoming), [components/quests](../components/quests), [components/categories](../components/categories), [components/history](../components/history) — list rows, chips, and filters should inherit the new primitives instead of keeping local pill-heavy exceptions.
 
 When the visual pass happens, theme metadata should also align:
 

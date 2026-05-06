@@ -77,6 +77,48 @@ const historyPayload = {
   nextCursor: null,
 };
 
+const upcomingPayload = {
+  endDate: "2026-03-18",
+  groups: [
+    {
+      date: "2026-03-12",
+      items: [
+        {
+          categoryId: "cat-health",
+          categoryName: "Health",
+          completionId: null,
+          description: "Keep momentum steady.",
+          isCompleted: false,
+          note: null,
+          periodKey: "2026-03-12",
+          questId: "quest-run",
+          questType: "DAILY",
+          title: "Morning Run",
+        },
+      ],
+    },
+    {
+      date: "2026-03-16",
+      items: [
+        {
+          categoryId: "cat-career",
+          categoryName: "Career",
+          completionId: null,
+          description: "Reflect on the work week.",
+          isCompleted: false,
+          note: null,
+          periodKey: "2026-W12",
+          questId: "quest-review",
+          questType: "WEEKLY",
+          title: "Weekly Review",
+        },
+      ],
+    },
+  ],
+  horizonDays: 7,
+  startDate: "2026-03-11",
+};
+
 export const e2eAuthHeaders = {
   "x-rythm-e2e-user-email": "e2e@rythm.local",
   "x-rythm-e2e-user-id": "user-e2e",
@@ -111,6 +153,14 @@ export async function mockAuthenticatedAppApi(page: Page) {
   await page.route("**/api/history**", async (route) => {
     await route.fulfill({
       body: JSON.stringify(historyPayload),
+      contentType: "application/json",
+      status: 200,
+    });
+  });
+
+  await page.route("**/api/upcoming**", async (route) => {
+    await route.fulfill({
+      body: JSON.stringify(upcomingPayload),
       contentType: "application/json",
       status: 200,
     });
