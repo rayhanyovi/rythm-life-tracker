@@ -6,9 +6,9 @@
 
 **Rythm** (deliberately spelled with one `h`) is a personal life-rhythm tracker delivered as an installable Progressive Web App.
 
-In one sentence: *Rythm helps people build a calm daily rhythm by checking off recurring quests and one-time milestones — structure and honest progress first, light rewards layer in later.*
+In one sentence: *Rythm helps people build a calm daily rhythm by checking off recurring tasks and one-time milestones — structure and honest progress first, light rewards layer in later.*
 
-In one paragraph: Rythm gives a single user a clean, mobile-first surface to define the activities that matter (Daily, Weekly, Monthly, or one-time Main quests), group them into life categories, and check them off for the current period. The app remembers completion per period, computes streaks for recurring quests, and provides a chronological activity log for review and correction. Authentication, data, and PWA installation all work end-to-end.
+In one paragraph: Rythm gives a single user a clean, mobile-first surface to define the activities that matter (Daily, Weekly, Monthly, or one-time tasks), group them into habit lists, and check them off for the current period. The app remembers completion per period, computes streaks for recurring tasks, and provides a chronological activity log for review and correction. Authentication, data, and PWA installation all work end-to-end.
 
 In a longer paragraph: The product is opinionated about *how* it is built. It is not a productivity dashboard with KPI walls and analytics charts. It is not a generic task manager with projects, deadlines, and assignments. Rythm is a quiet ritual tool — closer in feel to Linear, Todoist, or Notion than to Habitica or Strava — designed for adults who want personal structure without noise. Where gamification is introduced, it stays quiet: XP and badges as honest signals of consistency, never as social pressure, push urgency, or aggressive celebrations. Every product and design decision should compress toward calm, structured, and honest.
 
@@ -20,7 +20,7 @@ Many people who want more discipline in their lives fail to keep it because:
 2. Their existing routines feel scattered across calendars, notebooks, and reminders.
 3. The habit-tracker apps they try are either too gamified (XP, streaks-as-currency, social pressure) or too complex (sub-tasks, projects, deadlines, analytics).
 
-Rythm answers this with a deliberately minimal model: a user defines quests grouped by category; each period (today, this week, this month, or "ever" for Main quests) the quest is either checked or not; streaks are visible but never the point.
+Rythm answers this with a deliberately minimal user model: a user defines tasks grouped by habit list; each period (today, this week, this month, or "ever" for one-time tasks) the task is either checked or not; streaks are visible but never the point. Internally, the current database still uses `Quest` and `Category` names until the planned Habit Lists schema work is reconfirmed and implemented.
 
 ## Who It Is For
 
@@ -60,10 +60,10 @@ If a design or feature decision moves the product toward "looks like a startup a
 The MVP is largely shipped:
 
 - **Auth flow** — sign up, sign in, sign out, forgot password, reset password, email verification (with a local-dev bypass flag)
-- **Categories** — full CRUD plus reorder, with a default-category bootstrap on first login (Wheel of Life: Spiritual, Finance, Career, Health, Personal Growth, Relationship)
-- **Quests** — full CRUD (DAILY / WEEKLY / MONTHLY / MAIN) with search, filter, deactivate vs delete
-- **Dashboard** — current-period view, category filter, show-inactive toggle, quick check/uncheck, optional completion notes, streak badge
-- **History** — chronological activity log, filter by quest/category/type, edit completion notes, delete completion records
+- **Habit Lists** — category-backed full CRUD plus reorder, with a starter bootstrap on first login (Wheel of Life: Spiritual, Finance, Career, Health, Personal Growth, Relationship)
+- **Lists** — task CRUD (DAILY / WEEKLY / MONTHLY / MAIN) with search, filter, deactivate vs delete
+- **Today** — current-period view, habit-list filter, show-inactive toggle, quick check/uncheck, optional completion notes, streak badge
+- **Activity Log** — chronological completion log, filter by task/habit list/cadence, edit completion notes, delete completion records
 - **PWA** — manifest, icons, service worker for shell caching, offline fallback page
 - **Deployment posture** — Next.js fullstack on Vercel, Better Auth + Prisma + PostgreSQL-compatible, deployment env checker, Resend integration for auth emails
 

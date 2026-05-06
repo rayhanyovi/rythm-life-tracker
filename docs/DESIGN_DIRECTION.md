@@ -29,7 +29,7 @@ Mobile-first, low-noise, and list-led. Readable hierarchy, comfortable touch tar
 ### Core Design Principles
 
 1. The first viewport must answer: *what is the current period, what is my visible progress, and what can I check right now*.
-2. Daily execution takes priority over management surfaces; management takes priority over archive review.
+2. Daily execution takes priority over management surfaces; management takes priority over Activity Log review.
 3. Contextual sheets, drawers, and side panes are preferred over route jumps for note editing and object maintenance.
 4. Lists and grouped rows beat card galleries for operational flows.
 5. Empty, loading, error, and destructive states must be explicit, honest, and action-oriented.
@@ -353,7 +353,7 @@ Use shadow to separate layers, not to manufacture excitement.
 
 - Use the same border, radius, and shadow grammar as normal surfaces.
 - Destructive actions are explicit and unembellished.
-- Blocked destructive states explain dependencies directly. Example: "Cannot delete category — 4 quests still reference it. Move them first."
+- Blocked destructive states explain dependencies directly. Example: "Cannot delete habit list — 4 tasks still reference it. Move them first."
 
 ### Cards And Panels
 
@@ -459,7 +459,7 @@ Forbidden patterns on this screen:
 - dashboard KPI wall
 - splitting recurring vs one-off into separate first-class canvases
 - permanent heavy detail panel on mobile
-- card-per-quest gallery layouts
+- card-per-task gallery layouts
 
 ### 7.4 — Today / Dashboard (Desktop)
 
@@ -583,7 +583,7 @@ Drag-and-drop reorder is P1; up/down buttons currently fill the role on mobile.
 Sheet: completion detail, note edit, delete completion
 ```
 
-Activity log stays chronological and human-readable, never table-like. Empty states route users back to action surfaces, not to a dead-end archive.
+Activity log stays chronological and human-readable, never table-like. Empty states route users back to action surfaces, not to a dead-end log.
 
 ### 7.10 — Landing (Mobile)
 
@@ -653,7 +653,7 @@ Two recovery actions max. Honest about the limitation.
 | Today / Dashboard | Row check / uncheck, quick add | Filter, show-inactive toggle, open detail sheet |
 | Upcoming | Date triage over projected recurring periods | Filter |
 | Calendar (planned) | Date selection, scheduling | Filter |
-| Lists / Quests | Select a list, add or edit a quest | Search, type/category filter, deactivate |
+| Lists / Quests | Select a list, add or edit a task | Search, cadence/habit-list filter, deactivate |
 | Habit Lists / Categories | Add or rename a list | Reorder, delete-with-guard |
 | Activity Log / History | Filter and open a completion | Note edit (inside detail), delete (destructive secondary) |
 | Landing | One dominant CTA per section | One educational secondary CTA in hero |

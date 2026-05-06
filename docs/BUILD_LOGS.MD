@@ -4,6 +4,12 @@ Append-only log of completed work slices. Every agent should add an entry when a
 
 ---
 
+## 2026-05-06 - Canonical Docs Terminology Cleanup
+
+- Updated the project overview and product inventory to describe shipped surfaces as Today, Lists, Habit Lists, and Activity Log while preserving current internal model/route notes.
+- Updated design guidance examples to use task/habit-list language instead of quest/category/archive wording.
+- Skipped E2E and screenshot QA per owner instruction; see [AGENT_HANDOFF.md](./AGENT_HANDOFF.md) temporary verification note.
+
 ## 2026-05-06 - Upcoming Metadata Copy Cleanup
 
 - Removed raw period-key text from Upcoming rows and detail metadata while keeping habit list and cadence visible.

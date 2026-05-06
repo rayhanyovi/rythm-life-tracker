@@ -72,22 +72,22 @@ Authenticated app shell
 - `Calendar` and `Journal` remain disabled placeholders; route paths still use the old URLs until the IA Roadmap route-rename step.
 - UI: [components/app/app-shell.tsx](../components/app/app-shell.tsx), [components/app/app-sidebar.tsx](../components/app/app-sidebar.tsx)
 
-Categories
+Habit Lists (category-backed current model)
 - List, create, rename, delete, reorder
 - Default-category bootstrap on first login (Spiritual / Finance / Career / Health / Personal Growth / Relationship)
-- Delete blocked when quests still reference the category
+- Delete blocked when tasks still reference the habit list
 - Habit Lists screen, reorder validation, and deferred E2E copy expectations use Tasks-first wording while the current API/model remains category-backed until the planned schema work.
 - API: [app/api/categories/route.ts](../app/api/categories/route.ts), [app/api/categories/[id]/route.ts](../app/api/categories/[id]/route.ts), [app/api/categories/reorder/route.ts](../app/api/categories/reorder/route.ts), [app/api/bootstrap/default-categories/route.ts](../app/api/bootstrap/default-categories/route.ts)
 - UI: [components/categories/category-manager.tsx](../components/categories/category-manager.tsx)
 
-Quests
+Lists (quest-backed current model)
 - List with search, category filter, type filter, include-inactive toggle
 - Create, edit, deactivate, hard-delete
 - Detail pane uses compact task metadata rows and destructive copy references linked Activity Log entries.
 - API: [app/api/quests/route.ts](../app/api/quests/route.ts), [app/api/quests/[id]/route.ts](../app/api/quests/[id]/route.ts)
 - UI: [components/quests/quest-manager.tsx](../components/quests/quest-manager.tsx)
 
-Dashboard (current-period view)
+Today (dashboard-backed current route)
 - Date display, category filter, show-inactive toggle
 - Quick check / uncheck for the active period (DAILY/WEEKLY/MONTHLY/MAIN)
 - Inline note edit on completion
@@ -96,7 +96,7 @@ Dashboard (current-period view)
 - API: [app/api/dashboard/route.ts](../app/api/dashboard/route.ts), [app/api/quests/[id]/current-completion/route.ts](../app/api/quests/[id]/current-completion/route.ts)
 - UI: [components/dashboard/dashboard-screen.tsx](../components/dashboard/dashboard-screen.tsx)
 
-History (activity log)
+Activity Log (history-backed current route)
 - Chronological list grouped by day with cursor pagination
 - Filter by quest, category, quest type, date range
 - Edit note on a completion
