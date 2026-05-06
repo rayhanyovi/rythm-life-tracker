@@ -50,17 +50,17 @@ const features = [
   {
     icon: ClipboardList,
     title: "Today stays clear",
-    body: "Open the app and see the current period, your progress, and the quests that matter right now — not yesterday's guilt.",
+    body: "Open the app and see the current period, your progress, and the tasks that matter right now — not yesterday's guilt.",
   },
   {
     icon: CalendarRange,
-    title: "Period-aware quests",
-    body: "Daily, weekly, monthly, and one-time quests each live in the right cadence. Today's checklist stays relevant to the actual period.",
+    title: "Period-aware tasks",
+    body: "Daily, weekly, monthly, and one-time tasks each live in the right cadence. Today's checklist stays relevant to the actual period.",
   },
   {
     icon: PanelsTopLeft,
-    title: "Life areas",
-    body: "Group habits into categories like Health, Finance, or Spiritual so structure stays human and readable, not cluttered.",
+    title: "Habit lists",
+    body: "Group recurring commitments into habit lists like Health, Finance, or Spiritual so structure stays human and readable, not cluttered.",
   },
   {
     icon: NotebookText,
@@ -81,7 +81,7 @@ const features = [
 
 const todayBullets = [
   "Sticky date and current-period context at the top",
-  "Compact progress strip instead of a KPI dashboard wall",
+  "Compact progress strip instead of a KPI wall",
   "Checklist rows grouped by habit list",
   "Notes stay close to the row, not buried in a separate route",
 ];
@@ -89,21 +89,21 @@ const todayBullets = [
 const structureBullets = [
   "Create and edit in-context — no bouncing to admin screens",
   "Search and type filters stay compact",
-  "Starter categories to begin without blank-page anxiety",
+  "Starter habit lists to begin without blank-page anxiety",
   "Delete rules stay explicit when data dependencies exist",
 ];
 
 const historyBullets = [
   "Grouped by day, readable like a log not a spreadsheet",
   "Notes and delete actions stay in the same view",
-  "Filters exist but do not overpower the archive itself",
+  "Filters exist but do not overpower the Activity Log itself",
 ];
 
 const workflowSteps = [
   {
     number: "01",
     title: "Set your structure",
-    body: "Create a few life areas, add the recurring quests that matter, and keep the system intentionally small at the beginning.",
+    body: "Create a few habit lists, add the recurring tasks that matter, and keep the system intentionally small at the beginning.",
   },
   {
     number: "02",
@@ -163,9 +163,9 @@ const pricingPlans: {
     description: "Free forever",
     cta: "Start free",
     features: [
-      "Up to 12 active quests",
+      "Up to 12 active tasks",
       "Up to 4 habit lists",
-      "Daily, weekly, monthly, and main quests",
+      "Daily, weekly, monthly, and one-time tasks",
       "Basic streak tracking",
       "Mobile web access",
     ],
@@ -177,11 +177,11 @@ const pricingPlans: {
     featured: true,
     cta: "Start 14-day trial",
     features: [
-      "Unlimited quests and habit lists",
+      "Unlimited tasks and habit lists",
       "Full activity log and note editing",
       "XP, milestone badges, progress tracking",
       "Installable PWA experience",
-      "Flexible filters and archive review",
+      "Flexible filters and Activity Log review",
       "Priority feature feedback access",
     ],
   },
@@ -204,7 +204,7 @@ const faqItems = [
   {
     question: "Is this just another habit tracker?",
     answer:
-      "No. Most habit trackers push daily streaks, notifications, and social comparison. Rythm is a period-aware quest system — daily, weekly, monthly, or one-time — where you define the structure and it quietly tracks your consistency.",
+      "No. Most habit trackers push daily streaks, notifications, and social comparison. Rythm is a period-aware task system — daily, weekly, monthly, or one-time — where you define the structure and it quietly tracks your consistency.",
   },
   {
     question: "Does Rythm have gamification?",
@@ -214,7 +214,7 @@ const faqItems = [
   {
     question: "Can I use it for both work and personal routines?",
     answer:
-      "Yes. The life-category model is deliberately broad. Health, Finance, Career, Spiritual, Relationships — whatever groupings reflect your actual life. Nothing forces a separation.",
+      "Yes. The habit-list model is deliberately broad. Health, Finance, Career, Spiritual, Relationships — whatever groupings reflect your actual life. Nothing forces a separation.",
   },
   {
     question: "Do I need to write notes every day?",
@@ -229,7 +229,7 @@ const faqItems = [
   {
     question: "Does it work offline?",
     answer:
-      "Partially. The app shell loads offline, but writes and history updates need a live connection. That limitation is intentional — Rythm does not promise background sync it cannot reliably deliver.",
+      "Partially. The app shell loads offline, but writes and Activity Log updates need a live connection. That limitation is intentional — Rythm does not promise background sync it cannot reliably deliver.",
   },
   {
     question: "Is there a team or household plan?",
@@ -393,7 +393,7 @@ function StructureMockup() {
             Habit Lists
           </p>
           <p className="mt-0.5 text-sm font-semibold">
-            3 habit lists · 9 quests
+            3 habit lists · 9 tasks
           </p>
         </div>
         {categories.map((cat, i) => (
@@ -567,7 +567,7 @@ export function LandingPage() {
                 Build a rhythm you can actually keep.
               </h1>
               <p className="mx-auto mt-5 max-w-2xl text-base leading-8 text-muted-foreground sm:text-lg">
-                Rythm turns recurring commitments into period-aware quests so
+                Rythm turns recurring commitments into period-aware tasks so
                 you can see today clearly, track progress honestly, and build
                 consistency without habit-tracker pressure.
               </p>
@@ -814,7 +814,7 @@ export function LandingPage() {
             Rythm gives you a quieter way to keep promises to yourself.
           </h2>
           <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-muted-foreground">
-            One daily view. Real recurring structure. Enough history to stay
+            One daily view. Real recurring structure. Enough review to stay
             honest. No performance theater.
           </p>
           <div className="mx-auto mt-8 flex flex-wrap justify-center gap-2">
@@ -895,7 +895,7 @@ export function LandingPage() {
                 Structure without spreadsheet chaos.
               </h2>
               <p className="mt-4 text-lg leading-8 text-muted-foreground">
-                Add quests, group them into life areas, reorder, and keep setup
+                Add tasks, group them into habit lists, reorder, and keep setup
                 close to the list instead of bouncing through admin screens.
               </p>
               <div className="mt-6">

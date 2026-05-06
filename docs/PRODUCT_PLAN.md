@@ -122,6 +122,7 @@ PWA
 
 Public surface
 - Landing page at `/` with sign-in / sign-up CTAs ([components/marketing/landing-page.tsx](../components/marketing/landing-page.tsx))
+- Landing page copy follows Tasks-first labels (`tasks`, `habit lists`, `Activity Log`) even while internal models/routes retain legacy names.
 - Authenticated users redirected to `/dashboard`
 
 Deployment readiness

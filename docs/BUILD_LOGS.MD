@@ -11,6 +11,12 @@ Append-only log of completed work slices. Every agent should add an entry when a
 - Updated agent/design guidance to use "Create task" as the button-copy example.
 - Skipped E2E and screenshot QA per owner instruction; see [AGENT_HANDOFF.md](./AGENT_HANDOFF.md) temporary verification note.
 
+## 2026-05-06 - Landing Copy Terminology Cleanup
+
+- Updated public landing page copy to use Tasks-first product language for tasks, habit lists, and Activity Log review.
+- Removed visible quest/category/archive wording from the landing value props, pricing bullets, FAQ answers, and mockup summary text while leaving internal route/model names unchanged.
+- Skipped E2E and screenshot QA per owner instruction; see [AGENT_HANDOFF.md](./AGENT_HANDOFF.md) temporary verification note.
+
 ## 2026-05-06 - Activity Log Row Copy Cleanup
 
 - Removed raw period-key text from Activity Log list rows; completion time and task context remain visible.
