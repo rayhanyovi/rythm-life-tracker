@@ -579,8 +579,8 @@ Better Auth ([`better-auth`](../node_modules/better-auth)) configured in [lib/au
 ### Component Library
 
 - `shadcn/ui` for primitives. Files in `components/ui` are generated/forked from shadcn — keep them close to upstream patterns.
-- Product-level composition (page intro, metric card, detail panel, interactive list card) lives in `components/app/`.
-- Feature-specific UI in `components/dashboard|quests|categories|history`.
+- Shared product primitives in `components/app/` are intentionally narrow (`AppShell`, `AppSidebar`, auth helpers, sign-out, and `EmptyState`).
+- Feature screens in `components/dashboard|upcoming|quests|categories|history` own their list/detail composition directly so they can match the Tasks-first four-zone shell without drifting back to metric-card or card-gallery helpers.
 - Do not mix multiple UI kits.
 
 ### Tokens And Styling
@@ -920,7 +920,7 @@ After a preview or production URL is available, run the smoke flow once manually
 3. Open `/categories`. Create a category.
 4. Open `/quests`. Create a `DAILY` quest.
 5. Open `/dashboard`. Check the quest. Add a note.
-6. Open `/history`. Confirm the completion shows with category, quest type, period key, and note.
+6. Open `/history`. Confirm the completion shows with habit list, cadence, human-readable time, and note.
 7. Edit the note. Delete the completion.
 8. Confirm the completion disappears from `/history` and the dashboard returns to unchecked.
 9. Sign out. Confirm protected routes redirect to `/sign-in`.

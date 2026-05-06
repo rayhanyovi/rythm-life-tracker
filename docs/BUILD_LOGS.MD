@@ -8,6 +8,7 @@ Append-only log of completed work slices. Every agent should add an entry when a
 
 - Removed raw period keys from the Today detail pane and completion IDs / period keys from the Activity Log detail pane.
 - Kept human-readable status, streak, cadence, habit list, and completion time visible so detail panes stay useful without exposing implementation identifiers.
+- Updated the deployment smoke checklist and component-convention notes so future agents do not restore raw period-key checks or old metric-card helpers.
 - Skipped E2E and screenshot QA per owner instruction; see [AGENT_HANDOFF.md](./AGENT_HANDOFF.md) temporary verification note.
 
 ## 2026-05-06 - Authenticated Loading State Correction
