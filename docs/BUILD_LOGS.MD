@@ -4,6 +4,12 @@ Append-only log of completed work slices. Every agent should add an entry when a
 
 ---
 
+## 2026-05-06 - Auth And Support Copy Cleanup
+
+- Rewrote auth-side panel, auth-card helper text, offline fallback, and route-error copy so implemented support surfaces use Tasks-first language instead of old quest/dashboard phrasing or developer-facing diagnostics.
+- Aligned offline and app-error icon containers with the documented radius token set.
+- Skipped E2E and screenshot QA per owner instruction; see [AGENT_HANDOFF.md](./AGENT_HANDOFF.md) temporary verification note.
+
 ## 2026-05-06 - App Layout Correction Pass
 
 - Compact rail navigation in the authenticated shell so the module rail and Tasks rail read as navigation instead of descriptive cards.

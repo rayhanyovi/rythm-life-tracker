@@ -62,6 +62,7 @@ Auth and account
 - Better Auth route handler at [app/api/auth/[...all]/route.ts](../app/api/auth/[...all]/route.ts)
 - Allowed hosts configured for `localhost:3000` and `*.vercel.app`
 - Auth email delivery via Resend (gated behind `AUTH_EMAIL_FROM` + `RESEND_API_KEY`); fallback to server log when unset
+- Auth, offline, and route-error support copy uses Tasks-first language and user-facing recovery text.
 
 Authenticated app shell
 - Desktop shell split into module rail, Tasks rail, and content column; feature screens provide contextual detail panes from normal desktop widths (`xl`) upward.

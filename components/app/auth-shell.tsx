@@ -9,22 +9,21 @@ export function AuthShell({
         <div className="space-y-6">
           <div className="space-y-3">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
-              Rythm foundation
+              Rythm access
             </p>
             <h1 className="max-w-xl text-5xl font-semibold leading-tight tracking-tight text-foreground">
-              A quieter, clearer home for recurring life quests.
+              Return to the tasks that shape your day.
             </h1>
             <p className="max-w-xl text-base leading-8 text-muted-foreground">
-              The layout stays familiar from the prototype, while the product
-              flow now covers account access, password recovery, and the daily
-              rhythm dashboard in one root app.
+              Sign in, recover access, and get back to Today without turning
+              account work into a detour.
             </p>
           </div>
           <div className="grid gap-4">
             {[
-              "Fast current-period checklist",
-              "Clean quest grouping by category",
-              "Calm recovery flow when access needs to be restored",
+              "Current-period checklist",
+              "Lists and Habit Lists stay ordered",
+              "Quiet recovery when access needs to be restored",
             ].map((item) => (
               <div
                 key={item}
@@ -36,9 +35,8 @@ export function AuthShell({
           </div>
         </div>
         <p className="max-w-md text-sm leading-7 text-muted-foreground">
-          Better Auth handles the session boundary in the root app, while the
-          product layer keeps the journey focused on account access and returning
-          quickly to the main dashboard flow.
+          Better Auth handles the session boundary; Rythm keeps the first stop
+          focused on Today.
         </p>
       </section>
       <div className="flex items-center justify-center px-5 py-10 md:px-8">

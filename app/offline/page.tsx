@@ -19,7 +19,7 @@ export default function OfflinePage() {
     <main className="flex min-h-screen items-center justify-center px-5 py-10">
       <Card className="w-full max-w-xl">
         <CardHeader className="space-y-4">
-          <div className="flex size-12 items-center justify-center rounded-2xl bg-secondary text-secondary-foreground shadow-sm">
+          <div className="flex size-12 items-center justify-center rounded-xl bg-secondary text-secondary-foreground shadow-sm">
             <WifiOff className="size-5" />
           </div>
           <div className="space-y-2">
@@ -28,15 +28,14 @@ export default function OfflinePage() {
             </CardTitle>
             <CardDescription className="max-w-lg text-sm leading-7">
               Rythm keeps offline support intentionally small. You can reopen
-              the app shell and cached assets, but quest writes and history
-              updates still need a connection.
+              the app shell and cached assets, but task updates and Activity Log
+              refreshes still need a connection.
             </CardDescription>
           </div>
         </CardHeader>
         <CardContent className="space-y-5">
           <div className="rounded-xl border border-border/80 bg-muted/40 p-4 text-sm leading-7 text-muted-foreground">
-            Reconnect to continue sign-in, sync completions, or refresh the live
-            dashboard data.
+            Reconnect to continue sign-in, sync completions, or refresh Today.
           </div>
           <div className="flex flex-wrap gap-3">
             <Button asChild>

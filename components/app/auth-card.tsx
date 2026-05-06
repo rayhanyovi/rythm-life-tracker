@@ -45,7 +45,7 @@ export function AuthCard({
     "sign-in": {
       description: "Sign in to continue your daily rhythm.",
       helper:
-        "Email and password auth is mounted in the root app with guarded routes, verification checks, and a recovery path for lost access.",
+        "Use the account you created for Rythm. If verification is pending, resend the email from here.",
       footerPrompt: "Need an account?",
       footerHref: "/sign-up",
       footerLabel: "Go to sign up",
@@ -53,7 +53,7 @@ export function AuthCard({
     "sign-up": {
       description: "Create your account to start shaping your recurring rhythm.",
       helper:
-        "New accounts now verify their email before first sign-in, while category bootstrap still happens after the first successful authenticated entry into the app shell.",
+        "After your first sign-in, Rythm seeds a starter set of Habit Lists so Today is not empty.",
       footerPrompt: "Already have an account?",
       footerHref: "/sign-in",
       footerLabel: "Go to sign in",
@@ -61,7 +61,7 @@ export function AuthCard({
     "forgot-password": {
       description: "Request a reset link if you need to recover access.",
       helper:
-        "Reset links point back to the root app and can be delivered by a real email provider later. Local development falls back to server logs when mail delivery is not configured.",
+        "Use the reset link to choose a new password. Local development may show the email preview in server logs.",
       footerPrompt: "Remembered your password?",
       footerHref: "/sign-in",
       footerLabel: "Back to sign in",
@@ -69,7 +69,7 @@ export function AuthCard({
     "reset-password": {
       description: "Choose a new password and return to your rhythm.",
       helper:
-        "Reset tokens are short-lived and single-use. Successful resets revoke older sessions so the new password becomes the only valid path back in.",
+        "Choose a new password; older sessions are revoked after a successful reset.",
       footerPrompt: "Need another reset link?",
       footerHref: "/forgot-password",
       footerLabel: "Request a new link",
