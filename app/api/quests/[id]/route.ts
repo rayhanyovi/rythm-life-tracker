@@ -1,4 +1,4 @@
-import { jsonError, jsonResponse, validationErrorResponse } from "@/lib/http";
+import { jsonError, jsonResponse, parseJsonBody, validationErrorResponse } from "@/lib/http";
 import { db } from "@/lib/db";
 import { findOwnedCategory, findOwnedQuest } from "@/lib/quests";
 import { getSessionFromRequest } from "@/lib/session";
@@ -39,15 +39,10 @@ export async function PATCH(request: Request, context: QuestRouteContext) {
     return jsonError(401, "Authentication required.");
   }
 
-  let parsedBody: unknown;
+  const parsed = await parseJsonBody(request);
+  if (!parsed.ok) return parsed.response;
 
-  try {
-    parsedBody = await request.json();
-  } catch {
-    return jsonError(400, "Request body must be valid JSON.");
-  }
-
-  const result = updateQuestSchema.safeParse(parsedBody);
+  const result = updateQuestSchema.safeParse(parsed.data);
 
   if (!result.success) {
     return validationErrorResponse(result.error);

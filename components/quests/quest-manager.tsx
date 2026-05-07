@@ -7,8 +7,11 @@ import {
   useEffect,
   useMemo,
   useState,
-  useTransition,
 } from "react";
+
+import { useAutoSelect } from "@/hooks/use-auto-select";
+import { useGroupedItems } from "@/hooks/use-grouped-items";
+import { useMutation } from "@/hooks/use-mutation";
 import {
   CircleAlert,
   Loader2,
@@ -442,7 +445,6 @@ export function QuestManager() {
   const [isMobileDetailOpen, setIsMobileDetailOpen] = useState(false);
   const [isLoadingCategories, setIsLoadingCategories] = useState(true);
   const [isLoadingQuests, setIsLoadingQuests] = useState(true);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [formMode, setFormMode] = useState<"create" | "edit" | null>(null);
   const [editingQuestId, setEditingQuestId] = useState<string | null>(null);
   const [formState, setFormState] = useState<QuestFormState>(
@@ -450,7 +452,7 @@ export function QuestManager() {
   );
   const [formError, setFormError] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<QuestRecord | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const { errorMessage, isPending, runMutation, setError } = useMutation();
 
   const fetchCategories = useCallback(async () => {
     const response = await fetch("/api/categories", {
@@ -517,7 +519,7 @@ export function QuestManager() {
         }
       } catch (error) {
         if (!cancelled) {
-          setErrorMessage(
+          setError(
             error instanceof Error ? error.message : "Failed to load lists.",
           );
         }
@@ -533,13 +535,13 @@ export function QuestManager() {
     return () => {
       cancelled = true;
     };
-  }, [fetchCategories]);
+  }, [fetchCategories, setError]);
 
   useEffect(() => {
     let cancelled = false;
 
     async function run() {
-      setErrorMessage(null);
+      setError(null);
 
       try {
         const nextQuests = await fetchQuests();
@@ -549,7 +551,7 @@ export function QuestManager() {
         }
       } catch (error) {
         if (!cancelled) {
-          setErrorMessage(
+          setError(
             error instanceof Error ? error.message : "Failed to load tasks.",
           );
         }
@@ -565,48 +567,15 @@ export function QuestManager() {
     return () => {
       cancelled = true;
     };
-  }, [fetchQuests]);
+  }, [fetchQuests, setError]);
 
-  const selectedQuest = useMemo(() => {
-    if (!quests.length) {
-      return null;
-    }
+  const selectedQuest = useAutoSelect(quests, selectedQuestId, setSelectedQuestId);
 
-    return quests.find((quest) => quest.id === selectedQuestId) ?? quests[0];
-  }, [quests, selectedQuestId]);
-
-  useEffect(() => {
-    if (!selectedQuest) {
-      setSelectedQuestId(null);
-      return;
-    }
-
-    setSelectedQuestId(selectedQuest.id);
-  }, [selectedQuest]);
-
-  const groupedQuests = useMemo(() => {
-    const groups = new Map<
-      string,
-      {
-        categoryId: string;
-        categoryName: string;
-        items: QuestRecord[];
-      }
-    >();
-
-    quests.forEach((quest) => {
-      const existingGroup = groups.get(quest.categoryId) ?? {
-        categoryId: quest.categoryId,
-        categoryName: quest.category.name,
-        items: [],
-      };
-
-      existingGroup.items.push(quest);
-      groups.set(quest.categoryId, existingGroup);
-    });
-
-    return [...groups.values()];
-  }, [quests]);
+  const groupedQuests = useGroupedItems(
+    quests,
+    "categoryId",
+    (quest) => quest.category.name,
+  );
 
   const stats = useMemo(() => {
     const activeCount = quests.filter((quest) => quest.isActive).length;
@@ -639,7 +608,7 @@ export function QuestManager() {
 
   const openCreateForm = () => {
     if (!categories.length) {
-      setErrorMessage("Create a list first before adding tasks.");
+      setError("Create a list first before adding tasks.");
       return;
     }
 
@@ -669,10 +638,9 @@ export function QuestManager() {
       return;
     }
 
-    setErrorMessage(null);
     setFormError(null);
 
-    startTransition(async () => {
+    runMutation(async () => {
       const isEditing = formMode === "edit" && editingQuestId;
       const response = await fetch(
         isEditing ? `/api/quests/${editingQuestId}` : "/api/quests",
@@ -705,9 +673,7 @@ export function QuestManager() {
   };
 
   const handleToggleActive = (quest: QuestRecord) => {
-    setErrorMessage(null);
-
-    startTransition(async () => {
+    runMutation(async () => {
       const response = await fetch(`/api/quests/${quest.id}`, {
         method: "PATCH",
         headers: {
@@ -720,8 +686,7 @@ export function QuestManager() {
       const payload = await readJson<QuestMutationPayload>(response);
 
       if (!response.ok || !payload?.quest) {
-        setErrorMessage(payload?.error ?? "Failed to update task status.");
-        return;
+        throw new Error(payload?.error ?? "Failed to update task status.");
       }
 
       toast.success(
@@ -743,17 +708,14 @@ export function QuestManager() {
       return;
     }
 
-    setErrorMessage(null);
-
-    startTransition(async () => {
+    runMutation(async () => {
       const response = await fetch(`/api/quests/${deleteTarget.id}`, {
         method: "DELETE",
       });
       const payload = await readJson<DeletePayload>(response);
 
       if (!response.ok && response.status !== 204) {
-        setErrorMessage(payload?.error ?? "Failed to delete task.");
-        return;
+        throw new Error(payload?.error ?? "Failed to delete task.");
       }
 
       toast.success(`Deleted "${deleteTarget.title}".`);
@@ -950,9 +912,9 @@ export function QuestManager() {
           ) : (
             <div className="pb-5">
               {groupedQuests.map((group) => (
-                <section key={group.categoryId}>
+                <section key={group.id}>
                   <SectionLabel
-                    label={group.categoryName}
+                    label={group.name}
                     count={group.items.length}
                   />
                   <div className="border-t border-border">

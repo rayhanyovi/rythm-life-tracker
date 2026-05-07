@@ -4,11 +4,12 @@ import {
   type DragEvent,
   type PointerEvent,
   useEffect,
-  useMemo,
   useRef,
   useState,
-  useTransition,
 } from "react";
+
+import { useAutoSelect } from "@/hooks/use-auto-select";
+import { useMutation } from "@/hooks/use-mutation";
 import {
   ArrowDown,
   ArrowUp,
@@ -76,10 +77,9 @@ export function AttributeManager() {
   const [selectedAttributeId, setSelectedAttributeId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<AttributeRecord | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [dragState, setDragState] = useState<DragState | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const { errorMessage, statusMessage, isPending, runMutation, setError, setStatus } =
+    useMutation();
   const dragOverIdRef = useRef<string | null>(null);
   const longPressTimerRef = useRef<number | null>(null);
   const pointerDraggingRef = useRef(false);
@@ -94,7 +94,7 @@ export function AttributeManager() {
   };
 
   const loadAttributes = async () => {
-    setErrorMessage(null);
+    setError(null);
 
     const response = await fetch("/api/attributes", {
       cache: "no-store",
@@ -116,7 +116,7 @@ export function AttributeManager() {
         await loadAttributes();
       } catch (error) {
         if (!cancelled) {
-          setErrorMessage(
+          setError(
             error instanceof Error ? error.message : "Failed to load attributes.",
           );
         }
@@ -132,42 +132,14 @@ export function AttributeManager() {
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const selectedAttribute = useMemo(() => {
-    if (!attributes.length) {
-      return null;
-    }
-
-    return (
-      attributes.find((attribute) => attribute.id === selectedAttributeId) ??
-      attributes[0]
-    );
-  }, [attributes, selectedAttributeId]);
-
-  useEffect(() => {
-    if (!selectedAttribute) {
-      setSelectedAttributeId(null);
-      return;
-    }
-
-    setSelectedAttributeId(selectedAttribute.id);
-  }, [selectedAttribute]);
-
-  const runMutation = (action: () => Promise<void>) => {
-    setErrorMessage(null);
-    setStatusMessage(null);
-
-    startTransition(async () => {
-      try {
-        await action();
-      } catch (error) {
-        setErrorMessage(
-          error instanceof Error ? error.message : "Something went wrong.",
-        );
-      }
-    });
-  };
+  const selectedAttribute = useAutoSelect(
+    attributes,
+    selectedAttributeId,
+    setSelectedAttributeId,
+  );
 
   const persistAttributeOrder = (
     reordered: AttributeRecord[],
@@ -190,7 +162,7 @@ export function AttributeManager() {
       }
 
       setAttributes(payload.attributes);
-      setStatusMessage(message);
+      setStatus(message);
     });
   };
 
@@ -217,7 +189,7 @@ export function AttributeManager() {
     const trimmedName = newAttributeName.trim();
 
     if (!trimmedName) {
-      setErrorMessage("Attribute name is required.");
+      setError("Attribute name is required.");
       return;
     }
 
@@ -237,7 +209,7 @@ export function AttributeManager() {
 
       setNewAttributeName("");
       setSelectedAttributeId(payload.attribute.id);
-      setStatusMessage(`Created "${trimmedName}".`);
+      setStatus(`Created "${trimmedName}".`);
       await loadAttributes();
     });
   };
@@ -246,7 +218,7 @@ export function AttributeManager() {
     const trimmedName = editingName.trim();
 
     if (!trimmedName) {
-      setErrorMessage("Attribute name is required.");
+      setError("Attribute name is required.");
       return;
     }
 
@@ -266,7 +238,7 @@ export function AttributeManager() {
 
       setEditingId(null);
       setEditingName("");
-      setStatusMessage(`Renamed attribute to "${trimmedName}".`);
+      setStatus(`Renamed attribute to "${trimmedName}".`);
       await loadAttributes();
     });
   };
@@ -286,7 +258,7 @@ export function AttributeManager() {
         throw new Error(payload?.error ?? "Failed to delete attribute.");
       }
 
-      setStatusMessage(`Deleted "${deleteTarget.name}".`);
+      setStatus(`Deleted "${deleteTarget.name}".`);
       setDeleteTarget(null);
 
       if (selectedAttributeId === deleteTarget.id) {
@@ -419,7 +391,7 @@ export function AttributeManager() {
       }
 
       setAttributes(payload.attributes);
-      setStatusMessage(
+      setStatus(
         payload.createdNames?.length
           ? `Added ${payload.createdNames.length} starter attributes.`
           : "Starter attributes are already available.",

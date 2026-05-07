@@ -1,16 +1,13 @@
 import { z } from "zod";
 
-const attributeNameSchema = z
-  .string()
-  .trim()
-  .min(1, "Name is required.");
+import { nameSchema } from "@/lib/validators/common";
 
 export const createAttributeSchema = z.object({
-  name: attributeNameSchema,
+  name: nameSchema,
 });
 
 export const updateAttributeSchema = z.object({
-  name: attributeNameSchema,
+  name: nameSchema,
 });
 
 export const reorderAttributesSchema = z.object({

@@ -7,8 +7,11 @@ import {
   useEffect,
   useMemo,
   useState,
-  useTransition,
 } from "react";
+
+import { useAutoSelect } from "@/hooks/use-auto-select";
+import { useGroupedItems } from "@/hooks/use-grouped-items";
+import { useMutation } from "@/hooks/use-mutation";
 import {
   CircleAlert,
   Loader2,
@@ -537,7 +540,6 @@ export function TaskManager() {
   const [isMobileDetailOpen, setIsMobileDetailOpen] = useState(false);
   const [isLoadingAttributes, setIsLoadingAttributes] = useState(true);
   const [isLoadingTasks, setIsLoadingTasks] = useState(true);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [formMode, setFormMode] = useState<"create" | "edit" | null>(null);
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const [formState, setFormState] = useState<TaskFormState>(
@@ -545,7 +547,7 @@ export function TaskManager() {
   );
   const [formError, setFormError] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<TaskRecord | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const { errorMessage, isPending, runMutation, setError } = useMutation();
 
   const fetchAttributes = useCallback(async () => {
     const response = await fetch("/api/attributes", {
@@ -612,7 +614,7 @@ export function TaskManager() {
         }
       } catch (error) {
         if (!cancelled) {
-          setErrorMessage(
+          setError(
             error instanceof Error ? error.message : "Failed to load attributes.",
           );
         }
@@ -628,13 +630,13 @@ export function TaskManager() {
     return () => {
       cancelled = true;
     };
-  }, [fetchAttributes]);
+  }, [fetchAttributes, setError]);
 
   useEffect(() => {
     let cancelled = false;
 
     async function run() {
-      setErrorMessage(null);
+      setError(null);
 
       try {
         const nextTasks = await fetchTasks();
@@ -644,7 +646,7 @@ export function TaskManager() {
         }
       } catch (error) {
         if (!cancelled) {
-          setErrorMessage(
+          setError(
             error instanceof Error ? error.message : "Failed to load tasks.",
           );
         }
@@ -660,48 +662,15 @@ export function TaskManager() {
     return () => {
       cancelled = true;
     };
-  }, [fetchTasks]);
+  }, [fetchTasks, setError]);
 
-  const selectedTask = useMemo(() => {
-    if (!tasks.length) {
-      return null;
-    }
+  const selectedTask = useAutoSelect(tasks, selectedTaskId, setSelectedTaskId);
 
-    return tasks.find((task) => task.id === selectedTaskId) ?? tasks[0];
-  }, [tasks, selectedTaskId]);
-
-  useEffect(() => {
-    if (!selectedTask) {
-      setSelectedTaskId(null);
-      return;
-    }
-
-    setSelectedTaskId(selectedTask.id);
-  }, [selectedTask]);
-
-  const groupedTasks = useMemo(() => {
-    const groups = new Map<
-      string,
-      {
-        attributeId: string;
-        attributeName: string;
-        items: TaskRecord[];
-      }
-    >();
-
-    tasks.forEach((task) => {
-      const existingGroup = groups.get(task.attributeId) ?? {
-        attributeId: task.attributeId,
-        attributeName: task.attribute.name,
-        items: [],
-      };
-
-      existingGroup.items.push(task);
-      groups.set(task.attributeId, existingGroup);
-    });
-
-    return [...groups.values()];
-  }, [tasks]);
+  const groupedTasks = useGroupedItems(
+    tasks,
+    "attributeId",
+    (task) => task.attribute.name,
+  );
 
   const stats = useMemo(() => {
     const activeCount = tasks.filter((task) => task.isActive).length;
@@ -734,7 +703,7 @@ export function TaskManager() {
 
   const openCreateForm = () => {
     if (!attributes.length) {
-      setErrorMessage("Create an attribute first before adding tasks.");
+      setError("Create an attribute first before adding tasks.");
       return;
     }
 
@@ -769,10 +738,9 @@ export function TaskManager() {
       return;
     }
 
-    setErrorMessage(null);
     setFormError(null);
 
-    startTransition(async () => {
+    runMutation(async () => {
       const isEditing = formMode === "edit" && editingTaskId;
 
       const body: Record<string, unknown> = {
@@ -821,9 +789,7 @@ export function TaskManager() {
   };
 
   const handleToggleActive = (task: TaskRecord) => {
-    setErrorMessage(null);
-
-    startTransition(async () => {
+    runMutation(async () => {
       const response = await fetch(`/api/tasks/${task.id}`, {
         method: "PATCH",
         headers: {
@@ -836,8 +802,7 @@ export function TaskManager() {
       const payload = await readJson<TaskMutationPayload>(response);
 
       if (!response.ok || !payload?.task) {
-        setErrorMessage(payload?.error ?? "Failed to update task status.");
-        return;
+        throw new Error(payload?.error ?? "Failed to update task status.");
       }
 
       toast.success(
@@ -859,17 +824,14 @@ export function TaskManager() {
       return;
     }
 
-    setErrorMessage(null);
-
-    startTransition(async () => {
+    runMutation(async () => {
       const response = await fetch(`/api/tasks/${deleteTarget.id}`, {
         method: "DELETE",
       });
       const payload = await readJson<DeletePayload>(response);
 
       if (!response.ok && response.status !== 204) {
-        setErrorMessage(payload?.error ?? "Failed to delete task.");
-        return;
+        throw new Error(payload?.error ?? "Failed to delete task.");
       }
 
       toast.success(`Deleted "${deleteTarget.title}".`);
@@ -1066,9 +1028,9 @@ export function TaskManager() {
           ) : (
             <div className="pb-5">
               {groupedTasks.map((group) => (
-                <section key={group.attributeId}>
+                <section key={group.id}>
                   <SectionLabel
-                    label={group.attributeName}
+                    label={group.name}
                     count={group.items.length}
                   />
                   <div className="border-t border-border">

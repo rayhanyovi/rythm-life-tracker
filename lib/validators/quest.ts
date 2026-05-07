@@ -1,27 +1,21 @@
 import { z } from "zod";
 
+import {
+  atLeastOneField,
+  booleanParamSchema,
+  normalizedDescriptionSchema,
+  searchParamSchema,
+  titleSchema,
+} from "@/lib/validators/common";
+
 export const questTypeSchema = z.enum(["DAILY", "WEEKLY", "MONTHLY", "MAIN"]);
 
-const titleSchema = z
-  .string()
-  .trim()
-  .min(1, "Title is required.");
-
-const categoryIdSchema = z
-  .string()
-  .trim()
-  .min(1, "List is required.");
-
-const normalizedDescriptionSchema = z
-  .union([
-    z.string().trim().transform((value) => (value.length > 0 ? value : null)),
-    z.null(),
-  ]);
+const categoryIdSchema = z.string().trim().min(1, "List is required.");
 
 export const createQuestSchema = z.object({
   categoryId: categoryIdSchema,
   title: titleSchema,
-  description: normalizedDescriptionSchema.optional(),
+  description: normalizedDescriptionSchema,
   questType: questTypeSchema,
   isActive: z.boolean().optional(),
 });
@@ -30,30 +24,15 @@ export const updateQuestSchema = z
   .object({
     categoryId: categoryIdSchema.optional(),
     title: titleSchema.optional(),
-    description: normalizedDescriptionSchema.optional(),
+    description: normalizedDescriptionSchema,
     questType: questTypeSchema.optional(),
     isActive: z.boolean().optional(),
   })
-  .refine((value) => Object.values(value).some((field) => field !== undefined), {
-    message: "At least one field must be provided.",
-  });
+  .refine(atLeastOneField, { message: "At least one field must be provided." });
 
 export const listQuestsQuerySchema = z.object({
-  search: z
-    .union([z.string(), z.undefined()])
-    .transform((value) => {
-      if (!value) {
-        return undefined;
-      }
-
-      const trimmed = value.trim();
-
-      return trimmed.length > 0 ? trimmed : undefined;
-    }),
+  search: searchParamSchema,
   categoryId: z.string().min(1).optional(),
   questType: questTypeSchema.optional(),
-  includeInactive: z
-    .enum(["true", "false"])
-    .optional()
-    .transform((value) => value === "true"),
+  includeInactive: booleanParamSchema,
 });

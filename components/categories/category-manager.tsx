@@ -4,11 +4,12 @@ import {
   type DragEvent,
   type PointerEvent,
   useEffect,
-  useMemo,
   useRef,
   useState,
-  useTransition,
 } from "react";
+
+import { useAutoSelect } from "@/hooks/use-auto-select";
+import { useMutation } from "@/hooks/use-mutation";
 import {
   ArrowDown,
   ArrowUp,
@@ -76,10 +77,9 @@ export function CategoryManager() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<CategoryRecord | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [dragState, setDragState] = useState<DragState | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const { errorMessage, statusMessage, isPending, runMutation, setError, setStatus } =
+    useMutation();
   const dragOverIdRef = useRef<string | null>(null);
   const longPressTimerRef = useRef<number | null>(null);
   const pointerDraggingRef = useRef(false);
@@ -94,7 +94,7 @@ export function CategoryManager() {
   };
 
   const loadCategories = async () => {
-    setErrorMessage(null);
+    setError(null);
 
     const response = await fetch("/api/categories", {
       cache: "no-store",
@@ -116,7 +116,7 @@ export function CategoryManager() {
         await loadCategories();
       } catch (error) {
         if (!cancelled) {
-          setErrorMessage(
+          setError(
             error instanceof Error ? error.message : "Failed to load habit lists.",
           );
         }
@@ -132,42 +132,14 @@ export function CategoryManager() {
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const selectedCategory = useMemo(() => {
-    if (!categories.length) {
-      return null;
-    }
-
-    return (
-      categories.find((category) => category.id === selectedCategoryId) ??
-      categories[0]
-    );
-  }, [categories, selectedCategoryId]);
-
-  useEffect(() => {
-    if (!selectedCategory) {
-      setSelectedCategoryId(null);
-      return;
-    }
-
-    setSelectedCategoryId(selectedCategory.id);
-  }, [selectedCategory]);
-
-  const runMutation = (action: () => Promise<void>) => {
-    setErrorMessage(null);
-    setStatusMessage(null);
-
-    startTransition(async () => {
-      try {
-        await action();
-      } catch (error) {
-        setErrorMessage(
-          error instanceof Error ? error.message : "Something went wrong.",
-        );
-      }
-    });
-  };
+  const selectedCategory = useAutoSelect(
+    categories,
+    selectedCategoryId,
+    setSelectedCategoryId,
+  );
 
   const persistCategoryOrder = (
     reordered: CategoryRecord[],
@@ -190,7 +162,7 @@ export function CategoryManager() {
       }
 
       setCategories(payload.categories);
-      setStatusMessage(message);
+      setStatus(message);
     });
   };
 
@@ -217,7 +189,7 @@ export function CategoryManager() {
     const trimmedName = newCategoryName.trim();
 
     if (!trimmedName) {
-      setErrorMessage("List name is required.");
+      setError("List name is required.");
       return;
     }
 
@@ -237,7 +209,7 @@ export function CategoryManager() {
 
       setNewCategoryName("");
       setSelectedCategoryId(payload.category.id);
-      setStatusMessage(`Created "${trimmedName}".`);
+      setStatus(`Created "${trimmedName}".`);
       await loadCategories();
     });
   };
@@ -246,7 +218,7 @@ export function CategoryManager() {
     const trimmedName = editingName.trim();
 
     if (!trimmedName) {
-      setErrorMessage("List name is required.");
+      setError("List name is required.");
       return;
     }
 
@@ -266,7 +238,7 @@ export function CategoryManager() {
 
       setEditingId(null);
       setEditingName("");
-      setStatusMessage(`Renamed list to "${trimmedName}".`);
+      setStatus(`Renamed list to "${trimmedName}".`);
       await loadCategories();
     });
   };
@@ -286,7 +258,7 @@ export function CategoryManager() {
         throw new Error(payload?.error ?? "Failed to delete habit list.");
       }
 
-      setStatusMessage(`Deleted "${deleteTarget.name}".`);
+      setStatus(`Deleted "${deleteTarget.name}".`);
       setDeleteTarget(null);
 
       if (selectedCategoryId === deleteTarget.id) {
@@ -419,7 +391,7 @@ export function CategoryManager() {
       }
 
       setCategories(payload.categories);
-      setStatusMessage(
+      setStatus(
         payload.createdNames?.length
           ? `Added ${payload.createdNames.length} starter lists.`
           : "Starter lists are already available.",

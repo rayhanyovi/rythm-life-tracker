@@ -1,5 +1,14 @@
 import { z } from "zod";
 
+import {
+  atLeastOneField,
+  booleanParamSchema,
+  nameSchema,
+  normalizedDescriptionSchema,
+  searchParamSchema,
+  titleSchema,
+} from "@/lib/validators/common";
+
 export const taskKindSchema = z.enum(["RECURRING", "TODO", "HABIT"]);
 export const taskCadenceSchema = z.enum(["DAILY", "WEEKLY", "MONTHLY", "ONCE"]);
 export const recurringCadenceSchema = z.enum(["DAILY", "WEEKLY", "MONTHLY"]);
@@ -9,28 +18,14 @@ export const habitModeSchema = z.enum([
   "SCORE_BASED",
 ]);
 
-const titleSchema = z
-  .string()
-  .trim()
-  .min(1, "Title is required.");
-
-const attributeIdSchema = z
-  .string()
-  .trim()
-  .min(1, "Attribute is required.");
-
-const normalizedDescriptionSchema = z
-  .union([
-    z.string().trim().transform((value) => (value.length > 0 ? value : null)),
-    z.null(),
-  ]);
+const attributeIdSchema = nameSchema.describe("Attribute is required.");
 
 export const createTaskSchema = z
   .object({
     attributeId: attributeIdSchema,
     projectId: z.string().min(1).optional(),
     title: titleSchema,
-    description: normalizedDescriptionSchema.optional(),
+    description: normalizedDescriptionSchema,
     taskKind: taskKindSchema,
     cadence: recurringCadenceSchema.optional(),
     dueDate: z
@@ -71,7 +66,7 @@ export const updateTaskSchema = z
     attributeId: attributeIdSchema.optional(),
     projectId: z.string().min(1).optional(),
     title: titleSchema.optional(),
-    description: normalizedDescriptionSchema.optional(),
+    description: normalizedDescriptionSchema,
     cadence: recurringCadenceSchema.optional(),
     dueDate: z
       .string()
@@ -81,27 +76,12 @@ export const updateTaskSchema = z
     habitMode: habitModeSchema.optional(),
     isActive: z.boolean().optional(),
   })
-  .refine((value) => Object.values(value).some((field) => field !== undefined), {
-    message: "At least one field must be provided.",
-  });
+  .refine(atLeastOneField, { message: "At least one field must be provided." });
 
 export const listTasksQuerySchema = z.object({
-  search: z
-    .union([z.string(), z.undefined()])
-    .transform((value) => {
-      if (!value) {
-        return undefined;
-      }
-
-      const trimmed = value.trim();
-
-      return trimmed.length > 0 ? trimmed : undefined;
-    }),
+  search: searchParamSchema,
   attributeId: z.string().min(1).optional(),
   taskKind: taskKindSchema.optional(),
   cadence: taskCadenceSchema.optional(),
-  includeInactive: z
-    .enum(["true", "false"])
-    .optional()
-    .transform((value) => value === "true"),
+  includeInactive: booleanParamSchema,
 });

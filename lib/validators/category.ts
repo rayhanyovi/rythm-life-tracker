@@ -1,16 +1,13 @@
 import { z } from "zod";
 
-const categoryNameSchema = z
-  .string()
-  .trim()
-  .min(1, "Name is required.");
+import { nameSchema } from "@/lib/validators/common";
 
 export const createCategorySchema = z.object({
-  name: categoryNameSchema,
+  name: nameSchema,
 });
 
 export const updateCategorySchema = z.object({
-  name: categoryNameSchema,
+  name: nameSchema,
 });
 
 export const reorderCategoriesSchema = z.object({
