@@ -20,6 +20,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { cn } from "@/lib/utils";
 
 type AppShellProps = {
   children: React.ReactNode;
@@ -37,10 +38,24 @@ export function AppShell({ children, userEmail, userName }: AppShellProps) {
       appNavItems[0]
     );
   }, [pathname]);
+  const isTaskSurfaceRoute =
+    pathname === "/dashboard" ||
+    pathname === "/today" ||
+    pathname.startsWith("/dashboard/") ||
+    pathname === "/upcoming" ||
+    pathname.startsWith("/upcoming/") ||
+    pathname === "/calendar" ||
+    pathname.startsWith("/calendar/") ||
+    pathname === "/quests" ||
+    pathname.startsWith("/quests/") ||
+    pathname === "/categories" ||
+    pathname.startsWith("/categories/") ||
+    pathname === "/history" ||
+    pathname.startsWith("/history/");
 
   return (
-    <div className="min-h-screen bg-background lg:grid lg:grid-cols-[4rem_15.5rem_minmax(0,1fr)] xl:grid-cols-[4.25rem_16rem_minmax(0,1fr)]">
-      <aside className="hidden min-h-screen border-r border-sidebar-border bg-sidebar/95 lg:block">
+    <div className="min-h-screen bg-background lg:grid lg:grid-cols-[3rem_13.5rem_minmax(0,1fr)]">
+      <aside className="hidden min-h-screen bg-primary lg:block">
         <AppModuleRail pathname={pathname} userName={userName} />
       </aside>
 
@@ -54,7 +69,7 @@ export function AppShell({ children, userEmail, userName }: AppShellProps) {
         </div>
       </aside>
 
-      <div className="min-w-0 lg:min-h-screen">
+      <div className="min-w-0 bg-background lg:min-h-screen">
         <header className="sticky top-0 z-30 border-b border-border/70 bg-background/94 backdrop-blur lg:hidden">
           <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-4 py-3.5">
             <Button
@@ -85,7 +100,14 @@ export function AppShell({ children, userEmail, userName }: AppShellProps) {
           </div>
         </header>
 
-        <main className="px-4 pt-4 pb-8 sm:px-5 lg:px-5 lg:py-5 xl:px-6">
+        <main
+          className={cn(
+            "px-4 pt-4 pb-8 sm:px-5",
+            isTaskSurfaceRoute
+              ? "lg:h-screen lg:overflow-hidden lg:p-0"
+              : "lg:px-5 lg:py-5 xl:px-6",
+          )}
+        >
           {children}
         </main>
       </div>

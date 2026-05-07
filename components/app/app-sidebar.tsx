@@ -1,8 +1,12 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import {
   BookOpenText,
   CalendarDays,
   CheckSquare2,
+  Clock3,
   History,
   Layers3,
   ListTodo,
@@ -11,8 +15,19 @@ import {
 } from "lucide-react";
 
 import { SignOutButton } from "@/components/app/sign-out-button";
+import { getCategoryColor } from "@/lib/category-colors";
 import { cn } from "@/lib/utils";
 import type { AppNavGroup, AppNavItem } from "@/types/app";
+
+type SidebarCategory = {
+  id: string;
+  name: string;
+  sortOrder: number;
+};
+
+type CategoriesPayload = {
+  categories?: SidebarCategory[];
+};
 
 export const moduleNavItems: AppNavItem[] = [
   {
@@ -96,6 +111,45 @@ export function isAppNavItemActive(item: AppNavItem, pathname: string) {
   return paths.some((path) => pathname === path || pathname.startsWith(`${path}/`));
 }
 
+function useSidebarCategories() {
+  const [categories, setCategories] = useState<SidebarCategory[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function run() {
+      try {
+        const response = await fetch("/api/categories", { cache: "no-store" });
+
+        if (!response.ok) {
+          return;
+        }
+
+        const payload = (await response.json()) as CategoriesPayload;
+        const nextCategories = [...(payload.categories ?? [])].sort(
+          (left, right) => left.sortOrder - right.sortOrder,
+        );
+
+        if (!cancelled) {
+          setCategories(nextCategories);
+        }
+      } catch {
+        if (!cancelled) {
+          setCategories([]);
+        }
+      }
+    }
+
+    void run();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return categories;
+}
+
 function getInitials(name: string) {
   const parts = name.trim().split(/\s+/).filter(Boolean);
 
@@ -126,11 +180,12 @@ function ModuleItem({
   );
 
   const className = cn(
-    "flex size-9 items-center justify-center rounded-lg border text-muted-foreground transition-[background-color,border-color,color] duration-[160ms] ease-out",
+    "flex size-8 items-center justify-center rounded-lg border text-primary-foreground/60 transition-[background-color,border-color,color] duration-[160ms] ease-out",
     active
-      ? "border-sidebar-border bg-sidebar-accent text-sidebar-accent-foreground"
-      : "border-sidebar-border bg-background/70 hover:border-border hover:bg-background hover:text-foreground",
-    item.disabled && "cursor-not-allowed border-dashed opacity-45 hover:bg-background/70 hover:text-muted-foreground",
+      ? "border-white/25 bg-white/15 text-primary-foreground"
+      : "border-transparent hover:bg-white/10 hover:text-primary-foreground",
+    item.disabled &&
+      "cursor-not-allowed border-transparent text-primary-foreground/20 hover:bg-transparent hover:text-primary-foreground/20",
   );
 
   if (item.href && !item.disabled) {
@@ -153,6 +208,26 @@ function ModuleItem({
   );
 }
 
+function RailLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="px-3 pb-1 pt-2 font-mono text-[9px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+      {children}
+    </p>
+  );
+}
+
+function RailDivider({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="my-2 flex items-center gap-2 px-3">
+      <span className="h-px flex-1 bg-sidebar-border" />
+      <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-muted-foreground">
+        {children}
+      </span>
+      <span className="h-px flex-1 bg-sidebar-border" />
+    </div>
+  );
+}
+
 function TaskRailItem({
   item,
   pathname,
@@ -166,26 +241,25 @@ function TaskRailItem({
 
   const content = (
     <>
-      <item.icon
-        className={cn(
-          "size-4 shrink-0 text-muted-foreground",
-          active && "text-primary",
-        )}
-      />
       <span
         className={cn(
-          "min-w-0 flex-1 truncate text-sm font-medium",
-          active ? "text-foreground" : "text-foreground/90",
+          "min-w-0 flex-1 truncate text-[13px]",
+          active ? "font-semibold text-foreground" : "font-medium text-muted-foreground",
         )}
       >
         {item.label}
       </span>
       {item.disabled ? (
-        <span className="rounded-sm border border-border bg-background px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
+        <span className="font-mono text-[9px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
           Soon
         </span>
       ) : item.badge ? (
-        <span className="text-xs font-medium text-muted-foreground">
+        <span
+          className={cn(
+            "font-mono text-[11px]",
+            active ? "font-semibold text-primary" : "text-muted-foreground",
+          )}
+        >
           {item.badge}
         </span>
       ) : null}
@@ -193,11 +267,11 @@ function TaskRailItem({
   );
 
   const className = cn(
-    "group flex min-h-10 items-center gap-2 rounded-sm border px-2.5 py-2 transition-[background-color,border-color,color] duration-[160ms] ease-out",
+    "flex min-h-8 items-center justify-between gap-2 border-r-2 px-3 py-1.5 transition-[background-color,border-color,color] duration-[160ms] ease-out",
     active
-      ? "border-sidebar-border bg-sidebar-accent"
-      : "border-transparent bg-transparent hover:border-border/80 hover:bg-background/70",
-    item.disabled && "cursor-not-allowed opacity-70 hover:border-transparent hover:bg-transparent",
+      ? "border-primary bg-accent text-foreground"
+      : "border-transparent hover:bg-background/70 hover:text-foreground",
+    item.disabled && "cursor-not-allowed opacity-55 hover:bg-transparent",
   );
 
   if (item.href && !item.disabled) {
@@ -212,6 +286,91 @@ function TaskRailItem({
     <div aria-disabled className={className}>
       {content}
     </div>
+  );
+}
+
+function CategoryRailItem({
+  category,
+  onNavigate,
+}: {
+  category: SidebarCategory;
+  onNavigate?: () => void;
+}) {
+  return (
+    <Link
+      href="/categories"
+      onClick={onNavigate}
+      className="flex min-h-7 items-center gap-2 border-r-2 border-transparent px-3 py-1.5 text-[13px] font-medium text-muted-foreground transition-[background-color,color] duration-[160ms] ease-out hover:bg-background/70 hover:text-foreground"
+    >
+      <span
+        className="size-1.5 shrink-0 rounded-full"
+        style={{ backgroundColor: getCategoryColor(category.name) }}
+      />
+      <span className="truncate">{category.name}</span>
+    </Link>
+  );
+}
+
+function TaskRailNavigation({
+  categories,
+  onNavigate,
+  pathname,
+}: {
+  categories: SidebarCategory[];
+  onNavigate?: () => void;
+  pathname: string;
+}) {
+  const viewGroup = taskNavGroups[0];
+  const taskSpaceGroup = taskNavGroups[1];
+
+  return (
+    <nav aria-label="Tasks navigation" className="min-h-0 flex-1 overflow-y-auto py-3">
+      <RailLabel>{viewGroup.label}</RailLabel>
+      <div>
+        {viewGroup.items.map((item) => (
+          <TaskRailItem
+            key={item.label}
+            item={item}
+            pathname={pathname}
+            onNavigate={onNavigate}
+          />
+        ))}
+      </div>
+
+      <RailDivider>Task Spaces</RailDivider>
+
+      <div>
+        {taskSpaceGroup.items.map((item) => (
+          <TaskRailItem
+            key={item.label}
+            item={item}
+            pathname={pathname}
+            onNavigate={onNavigate}
+          />
+        ))}
+      </div>
+
+      <RailLabel>Habit Lists</RailLabel>
+      <div>
+        {categories.length ? (
+          categories.map((category) => (
+            <CategoryRailItem
+              key={category.id}
+              category={category}
+              onNavigate={onNavigate}
+            />
+          ))
+        ) : (
+          <Link
+            href="/categories"
+            onClick={onNavigate}
+            className="flex min-h-7 items-center border-r-2 border-transparent px-3 py-1.5 text-[13px] font-medium text-muted-foreground transition-[background-color,color] duration-[160ms] ease-out hover:bg-background/70 hover:text-foreground"
+          >
+            Manage habit lists
+          </Link>
+        )}
+      </div>
+    </nav>
   );
 }
 
@@ -230,23 +389,22 @@ export function AppModuleRail({
   pathname: string;
   userName: string;
 }) {
-  const initials = getInitials(userName);
   const tasksActive = appNavItems.some((item) =>
     isAppNavItemActive(item, pathname),
   );
 
   return (
-    <div className="flex h-screen flex-col items-center px-2 py-3">
+    <div className="flex h-screen flex-col items-center px-2 py-3 text-primary-foreground">
       <Link
         href="/dashboard"
-        className="flex size-9 items-center justify-center rounded-lg border border-sidebar-border bg-background text-sm font-semibold text-foreground"
+        className="flex size-8 items-center justify-center rounded-lg bg-white/15 text-primary-foreground transition-colors duration-[160ms] ease-out hover:bg-white/20"
         title="Open Today"
       >
-        R
+        <Clock3 className="size-4" />
         <span className="sr-only">Open Today</span>
       </Link>
 
-      <nav aria-label="Modules" className="mt-5 flex flex-col gap-2">
+      <nav aria-label="Modules" className="mt-4 flex flex-col gap-1.5">
         {moduleNavItems.map((item) => (
           <ModuleItem
             key={item.label}
@@ -256,13 +414,11 @@ export function AppModuleRail({
         ))}
       </nav>
 
-      <div className="mt-auto flex flex-col items-center gap-3">
-        <div
-          className="flex size-10 items-center justify-center rounded-full border border-border bg-background/80 text-xs font-semibold text-foreground"
-          title={userName}
-        >
-          {initials}
-        </div>
+      <div
+        className="mt-auto flex size-8 items-center justify-center rounded-full bg-white/10 font-mono text-[10px] font-semibold text-primary-foreground/80"
+        title={userName}
+      >
+        {getInitials(userName)}
       </div>
     </div>
   );
@@ -274,55 +430,41 @@ export function AppTaskRail({
   userName,
   onNavigate,
 }: AppSidebarProps) {
+  const categories = useSidebarCategories();
   const initials = getInitials(userName);
 
   return (
-    <div className="flex h-full min-h-0 flex-col px-2.5 py-3">
-      <div className="border-b border-sidebar-border px-2 pb-3">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+    <div className="flex h-full min-h-0 flex-col bg-sidebar">
+      <div className="border-b border-sidebar-border px-3 pb-3 pt-4">
+        <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
           Tasks workspace
         </p>
-        <h2 className="mt-1 text-lg font-semibold tracking-tight text-sidebar-foreground">
+        <h2 className="mt-1 text-base font-semibold tracking-tight text-sidebar-foreground">
           Rythm
         </h2>
       </div>
 
-      <nav
-        aria-label="Tasks navigation"
-        className="min-h-0 flex-1 space-y-5 overflow-y-auto px-1 py-4"
-      >
-        {taskNavGroups.map((group) => (
-          <section key={group.label} className="space-y-2">
-            <p className="px-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              {group.label}
-            </p>
-            <div className="space-y-1">
-              {group.items.map((item) => (
-                <TaskRailItem
-                  key={item.label}
-                  item={item}
-                  pathname={pathname}
-                  onNavigate={onNavigate}
-                />
-              ))}
-            </div>
-          </section>
-        ))}
-      </nav>
+      <TaskRailNavigation
+        categories={categories}
+        pathname={pathname}
+        onNavigate={onNavigate}
+      />
 
-      <div className="space-y-3 border-t border-sidebar-border px-2 pt-3">
-        <div className="flex items-center gap-3">
-          <div className="flex size-9 shrink-0 items-center justify-center rounded-full border border-border bg-background/80 text-xs font-semibold text-foreground">
+      <div className="border-t border-sidebar-border p-3">
+        <div className="mb-2 flex items-center gap-2">
+          <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary text-[11px] font-semibold text-primary-foreground">
             {initials}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium text-foreground">
+            <p className="truncate text-xs font-semibold text-foreground">
               {userName}
             </p>
-            <p className="truncate text-xs text-muted-foreground">{userEmail}</p>
+            <p className="truncate font-mono text-[10px] text-muted-foreground">
+              {userEmail}
+            </p>
           </div>
         </div>
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center justify-between gap-2">
           <p className="truncate text-xs font-medium text-muted-foreground">
             Personal workspace
           </p>
@@ -339,31 +481,39 @@ export function AppMobileNavigation({
   userName,
   onNavigate,
 }: AppSidebarProps) {
+  const categories = useSidebarCategories();
   const initials = getInitials(userName);
 
   return (
-    <div className="flex h-full flex-col gap-4 bg-sidebar p-4">
-      <div className="border-b border-sidebar-border pb-4">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-          Modules
-        </p>
-        <div className="mt-3 grid grid-cols-2 gap-2">
+    <div className="flex h-full flex-col bg-sidebar">
+      <div className="bg-primary p-4 text-primary-foreground">
+        <div className="flex items-center gap-3">
+          <div className="flex size-9 items-center justify-center rounded-lg bg-white/15">
+            <Clock3 className="size-4" />
+          </div>
+          <div>
+            <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-primary-foreground/60">
+              Tasks workspace
+            </p>
+            <p className="text-base font-semibold">Rythm</p>
+          </div>
+        </div>
+
+        <div className="mt-4 grid grid-cols-2 gap-2">
           {moduleNavItems.map((item) => (
             <div
               key={item.label}
               className={cn(
-                "flex items-center gap-3 rounded-sm border border-border bg-background/80 px-3 py-3",
-                item.disabled && "opacity-60",
+                "flex items-center gap-3 rounded-lg border border-white/15 bg-white/10 px-3 py-3",
+                item.disabled && "opacity-45",
               )}
             >
-              <div className="flex size-9 items-center justify-center rounded-lg border border-border bg-muted/60 text-foreground">
+              <div className="flex size-8 items-center justify-center rounded-lg bg-white/10">
                 <item.icon className="size-4" />
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-medium text-foreground">
-                  {item.label}
-                </p>
-                <p className="text-xs leading-5 text-muted-foreground">
+                <p className="text-sm font-semibold">{item.label}</p>
+                <p className="truncate text-xs text-primary-foreground/60">
                   {item.disabled ? "Coming later" : item.summary}
                 </p>
               </div>
@@ -372,45 +522,28 @@ export function AppMobileNavigation({
         </div>
       </div>
 
-      <nav aria-label="Tasks navigation" className="space-y-4">
-        {taskNavGroups.map((group) => (
-          <section key={group.label} className="space-y-2">
-            <p className="px-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              {group.label}
-            </p>
-            <div className="space-y-1">
-              {group.items.map((item) => (
-                <TaskRailItem
-                  key={item.label}
-                  item={item}
-                  pathname={pathname}
-                  onNavigate={onNavigate}
-                />
-              ))}
-            </div>
-          </section>
-        ))}
-      </nav>
+      <TaskRailNavigation
+        categories={categories}
+        pathname={pathname}
+        onNavigate={onNavigate}
+      />
 
-      <div className="mt-auto space-y-3 rounded-xl border border-sidebar-border bg-background/80 p-4 shadow-xs">
-        <div className="flex items-center gap-3">
-          <div className="flex size-11 items-center justify-center rounded-full border border-border bg-muted/70 text-sm font-semibold text-foreground">
+      <div className="mt-auto border-t border-sidebar-border p-4">
+        <div className="mb-3 flex items-center gap-3">
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
             {initials}
           </div>
           <div className="min-w-0">
-            <p className="truncate text-sm font-medium text-foreground">
+            <p className="truncate text-sm font-semibold text-foreground">
               {userName}
             </p>
             <p className="truncate text-xs text-muted-foreground">{userEmail}</p>
           </div>
         </div>
-        <div className="flex items-center justify-between gap-3 rounded-xl border border-border bg-background p-3">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-              Scope
-            </p>
-            <p className="mt-1 text-sm text-foreground">Personal workspace</p>
-          </div>
+        <div className="flex items-center justify-between gap-3">
+          <p className="truncate text-xs font-medium text-muted-foreground">
+            Personal workspace
+          </p>
           <SignOutButton />
         </div>
       </div>
@@ -424,8 +557,8 @@ export function AppSidebar(props: AppSidebarProps) {
   }
 
   return (
-    <div className="grid h-full overflow-hidden rounded-lg border border-sidebar-border bg-sidebar shadow-xs lg:grid-cols-[4.25rem_minmax(0,1fr)]">
-      <div className="border-r border-sidebar-border bg-sidebar/95">
+    <div className="grid h-full overflow-hidden rounded-lg border border-sidebar-border bg-sidebar shadow-xs lg:grid-cols-[3rem_minmax(0,1fr)]">
+      <div className="bg-primary">
         <AppModuleRail pathname={props.pathname} userName={props.userName} />
       </div>
       <AppTaskRail {...props} />

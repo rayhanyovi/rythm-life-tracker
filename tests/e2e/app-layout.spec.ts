@@ -13,6 +13,13 @@ async function expectNoHorizontalOverflow(page: Page) {
   expect(hasHorizontalOverflow).toBeFalsy();
 }
 
+function formatCurrentMonthLabel() {
+  return new Intl.DateTimeFormat("en-US", {
+    month: "long",
+    year: "numeric",
+  }).format(new Date());
+}
+
 test.describe("authenticated app shell", () => {
   test.use({
     extraHTTPHeaders: e2eAuthHeaders,
@@ -80,7 +87,7 @@ test.describe("authenticated app shell", () => {
     await expect(
       page.getByRole("heading", { name: "Calendar", exact: true }),
     ).toBeVisible();
-    await expect(page.getByText("March 2026").first()).toBeVisible();
+    await expect(page.locator("main")).toContainText(formatCurrentMonthLabel());
     await expect(page.getByText("Morning Run").first()).toBeVisible();
     await expect(page.getByLabel("Habit list")).toBeVisible();
     await expect(page.getByLabel("Cadence")).toBeVisible();

@@ -1,10 +1,19 @@
 "use client";
 
-import { useEffect, useMemo, useState, useTransition } from "react";
+import {
+  type DragEvent,
+  type PointerEvent,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
 import {
   ArrowDown,
   ArrowUp,
   Check,
+  GripVertical,
   Loader2,
   PencilLine,
   Plus,
@@ -29,6 +38,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { getCategoryColor } from "@/lib/category-colors";
 import { cn } from "@/lib/utils";
 
 type CategoryRecord = {
@@ -42,6 +52,12 @@ type CategoriesPayload = {
   categories?: CategoryRecord[];
   createdNames?: string[];
   error?: string;
+};
+
+type DragState = {
+  id: string;
+  mode: "native" | "pointer";
+  overId: string | null;
 };
 
 async function readPayload(response: Response) {
@@ -62,7 +78,20 @@ export function CategoryManager() {
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [dragState, setDragState] = useState<DragState | null>(null);
   const [isPending, startTransition] = useTransition();
+  const dragOverIdRef = useRef<string | null>(null);
+  const longPressTimerRef = useRef<number | null>(null);
+  const pointerDraggingRef = useRef(false);
+
+  const clearLongPressTimer = () => {
+    if (!longPressTimerRef.current) {
+      return;
+    }
+
+    window.clearTimeout(longPressTimerRef.current);
+    longPressTimerRef.current = null;
+  };
 
   const loadCategories = async () => {
     setErrorMessage(null);
@@ -138,6 +167,50 @@ export function CategoryManager() {
         );
       }
     });
+  };
+
+  const persistCategoryOrder = (
+    reordered: CategoryRecord[],
+    message = "List order updated.",
+  ) => {
+    runMutation(async () => {
+      const response = await fetch("/api/categories/reorder", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          categoryIds: reordered.map((category) => category.id),
+        }),
+      });
+      const payload = await readPayload(response);
+
+      if (!response.ok || !payload?.categories) {
+        throw new Error(payload?.error ?? "Failed to reorder habit lists.");
+      }
+
+      setCategories(payload.categories);
+      setStatusMessage(message);
+    });
+  };
+
+  const reorderByTarget = (sourceId: string, targetId: string | null) => {
+    if (!targetId || sourceId === targetId) {
+      return;
+    }
+
+    const sourceIndex = categories.findIndex((category) => category.id === sourceId);
+    const targetIndex = categories.findIndex((category) => category.id === targetId);
+
+    if (sourceIndex < 0 || targetIndex < 0) {
+      return;
+    }
+
+    const reordered = [...categories];
+    const [movedCategory] = reordered.splice(sourceIndex, 1);
+
+    reordered.splice(targetIndex, 0, movedCategory);
+    persistCategoryOrder(reordered, `Moved "${movedCategory.name}".`);
   };
 
   const handleCreate = () => {
@@ -236,25 +309,102 @@ export function CategoryManager() {
     const [movedCategory] = reordered.splice(currentIndex, 1);
     reordered.splice(targetIndex, 0, movedCategory);
 
-    runMutation(async () => {
-      const response = await fetch("/api/categories/reorder", {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({
-          categoryIds: reordered.map((category) => category.id),
-        }),
-      });
-      const payload = await readPayload(response);
+    persistCategoryOrder(reordered);
+  };
 
-      if (!response.ok || !payload?.categories) {
-        throw new Error(payload?.error ?? "Failed to reorder habit lists.");
+  const handleNativeDragStart = (
+    event: DragEvent<HTMLButtonElement>,
+    categoryId: string,
+  ) => {
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData("text/plain", categoryId);
+    dragOverIdRef.current = categoryId;
+    setDragState({ id: categoryId, mode: "native", overId: categoryId });
+  };
+
+  const handleNativeDrop = (
+    event: DragEvent<HTMLElement>,
+    targetId: string,
+  ) => {
+    event.preventDefault();
+    const sourceId = event.dataTransfer.getData("text/plain") || dragState?.id;
+
+    setDragState(null);
+    dragOverIdRef.current = null;
+
+    if (sourceId) {
+      reorderByTarget(sourceId, targetId);
+    }
+  };
+
+  const handlePointerDragStart = (
+    event: PointerEvent<HTMLButtonElement>,
+    categoryId: string,
+  ) => {
+    if (event.pointerType === "mouse" || isPending) {
+      return;
+    }
+
+    const pointerId = event.pointerId;
+
+    pointerDraggingRef.current = false;
+    dragOverIdRef.current = categoryId;
+    clearLongPressTimer();
+
+    const handlePointerMove = (moveEvent: globalThis.PointerEvent) => {
+      if (moveEvent.pointerId !== pointerId || !pointerDraggingRef.current) {
+        return;
       }
 
-      setCategories(payload.categories);
-      setStatusMessage("List order updated.");
-    });
+      moveEvent.preventDefault();
+
+      const target = document
+        .elementFromPoint(moveEvent.clientX, moveEvent.clientY)
+        ?.closest<HTMLElement>("[data-category-id]");
+      const overId = target?.dataset.categoryId ?? categoryId;
+
+      dragOverIdRef.current = overId;
+      setDragState({ id: categoryId, mode: "pointer", overId });
+    };
+
+    const finishPointerDrag = (cancelled = false) => {
+      clearLongPressTimer();
+      window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("pointerup", handlePointerUp);
+      window.removeEventListener("pointercancel", handlePointerCancel);
+
+      const overId = dragOverIdRef.current;
+      const wasDragging = pointerDraggingRef.current;
+
+      pointerDraggingRef.current = false;
+      dragOverIdRef.current = null;
+      setDragState(null);
+
+      if (!cancelled && wasDragging) {
+        reorderByTarget(categoryId, overId);
+      }
+    };
+
+    const handlePointerUp = (upEvent: globalThis.PointerEvent) => {
+      if (upEvent.pointerId === pointerId) {
+        finishPointerDrag(false);
+      }
+    };
+
+    const handlePointerCancel = (cancelEvent: globalThis.PointerEvent) => {
+      if (cancelEvent.pointerId === pointerId) {
+        finishPointerDrag(true);
+      }
+    };
+
+    window.addEventListener("pointermove", handlePointerMove, { passive: false });
+    window.addEventListener("pointerup", handlePointerUp);
+    window.addEventListener("pointercancel", handlePointerCancel);
+
+    longPressTimerRef.current = window.setTimeout(() => {
+      pointerDraggingRef.current = true;
+      setDragState({ id: categoryId, mode: "pointer", overId: categoryId });
+    }, 280);
   };
 
   const handleSeedDefaults = () => {
@@ -279,49 +429,25 @@ export function CategoryManager() {
 
   return (
     <>
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_20rem] 2xl:grid-cols-[minmax(0,1fr)_22rem]">
-        <div className="min-w-0 space-y-5">
-          <section className="border-b border-border/70 pb-4">
-            <div className="space-y-3">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                Tasks / Habit Lists
-              </p>
-              <div className="space-y-1">
-                <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+      <div className="min-h-[calc(100vh-4.25rem)] bg-card lg:h-screen lg:min-h-0 xl:grid xl:grid-cols-[minmax(0,1fr)_20rem] 2xl:grid-cols-[minmax(0,1fr)_22rem]">
+        <div className="min-w-0 border-border bg-card xl:h-screen xl:overflow-y-auto xl:border-r">
+          <section className="border-b border-border bg-card lg:sticky lg:top-0 lg:z-10">
+            <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-start sm:justify-between">
+              <div className="min-w-0">
+                <h1 className="text-[22px] font-semibold leading-7 tracking-tight text-foreground">
                   Habit Lists
                 </h1>
-                <p className="max-w-3xl text-sm leading-6 text-muted-foreground">
-                  Organize recurring tasks into stable list containers, keep their
-                  order intentional, and seed a starter pack when you want a faster
-                  setup.
-                </p>
-                <p className="text-xs font-medium text-muted-foreground">
+                <p className="mt-1 font-mono text-xs text-muted-foreground">
                   {isLoading
-                    ? "Loading habit lists"
-                    : `${categories.length} lists | ${DEFAULT_CATEGORY_NAMES.length} starter options | selected ${selectedCategory?.name ?? "none"}`}
+                    ? "loading habit lists"
+                    : `${categories.length} lists | Starter pack: ${DEFAULT_CATEGORY_NAMES.length} options | selected ${selectedCategory?.name ?? "none"}`}
                 </p>
               </div>
-            </div>
-
-            <div className="mt-5 grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto_auto]">
-              <Input
-                value={newCategoryName}
-                onChange={(event) => setNewCategoryName(event.target.value)}
-                placeholder="Add a new habit list"
-                disabled={isPending}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter") {
-                    handleCreate();
-                  }
-                }}
-              />
-              <Button onClick={handleCreate} disabled={isPending}>
-                {isPending ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />}
-                Add list
-              </Button>
               <Button
+                aria-label="Seed starter pack"
+                size="sm"
                 variant="outline"
-                className="xl:hidden"
+                className="w-fit xl:hidden"
                 onClick={handleSeedDefaults}
                 disabled={isPending}
               >
@@ -330,82 +456,160 @@ export function CategoryManager() {
                 ) : (
                   <RotateCw className="size-4" />
                 )}
-                Seed starter pack
+                Seed
               </Button>
             </div>
 
+            <div className="grid gap-2 border-t border-border px-5 py-3 md:grid-cols-[minmax(0,1fr)_auto_auto]">
+              <Input
+                value={newCategoryName}
+                onChange={(event) => setNewCategoryName(event.target.value)}
+                placeholder="Add a new habit list"
+                disabled={isPending}
+                className="h-9 rounded-lg bg-background px-3 py-2 text-sm shadow-none"
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    handleCreate();
+                  }
+                }}
+              />
+              <Button size="sm" onClick={handleCreate} disabled={isPending}>
+                {isPending ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <Plus className="size-4" />
+                )}
+                Add list
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="hidden xl:inline-flex"
+                aria-label="Seed default lists"
+                onClick={handleSeedDefaults}
+                disabled={isPending}
+              >
+                {isPending ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <RotateCw className="size-4" />
+                )}
+                Seed defaults
+              </Button>
+            </div>
           </section>
 
           {errorMessage ? (
-            <Alert variant="destructive">
-              <X className="size-4" />
-              <AlertTitle>Habit list update failed</AlertTitle>
-              <AlertDescription>{errorMessage}</AlertDescription>
-            </Alert>
+            <div className="px-5 pt-4">
+              <Alert variant="destructive">
+                <X className="size-4" />
+                <AlertTitle>Habit list update failed</AlertTitle>
+                <AlertDescription>{errorMessage}</AlertDescription>
+              </Alert>
+            </div>
           ) : null}
 
           {statusMessage ? (
-            <Alert>
-              <Check className="size-4" />
-              <AlertTitle>Saved</AlertTitle>
-              <AlertDescription>{statusMessage}</AlertDescription>
-            </Alert>
+            <div className="px-5 pt-4">
+              <Alert>
+                <Check className="size-4" />
+                <AlertTitle>Saved</AlertTitle>
+                <AlertDescription>{statusMessage}</AlertDescription>
+              </Alert>
+            </div>
           ) : null}
 
           {isLoading ? (
-            <div className="space-y-4">
+            <div className="py-2">
               {Array.from({ length: 4 }).map((_, index) => (
-                <section
-                  key={index}
-                  className="overflow-hidden rounded-lg border border-border/80 bg-card/95 shadow-sm"
-                >
-                  <div className="grid gap-3 px-4 py-3.5 sm:grid-cols-[auto_minmax(0,1fr)_auto]">
-                    <Skeleton className="h-9 w-18 rounded-md" />
+                <section key={index}>
+                  <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b border-border px-5 py-3">
+                    <Skeleton className="size-8 rounded-sm" />
                     <div className="space-y-2">
-                      <Skeleton className="h-4 w-36" />
-                      <Skeleton className="h-3 w-24" />
+                      <Skeleton className="h-3.5 w-36 rounded-sm" />
+                      <Skeleton className="h-3 w-24 rounded-sm" />
                     </div>
-                    <Skeleton className="h-8 w-20 rounded-md" />
+                    <Skeleton className="h-3 w-20 rounded-sm" />
                   </div>
                 </section>
               ))}
             </div>
           ) : categories.length === 0 ? (
-            <EmptyState
-              title="No habit lists yet"
-              description="Create your first list or seed the starter pack to get structure faster."
-              action={
-                <div className="flex flex-wrap gap-3">
-                  <Button onClick={handleSeedDefaults}>
-                    <RotateCw className="size-4" />
-                    Seed starter pack
-                  </Button>
-                </div>
-              }
-            />
+            <div className="p-5">
+              <EmptyState
+                title="No habit lists yet"
+                description="Create your first list or seed the starter pack to get structure faster."
+                action={
+                  <div className="flex flex-wrap gap-3">
+                    <Button onClick={handleSeedDefaults}>
+                      <RotateCw className="size-4" />
+                      Seed starter pack
+                    </Button>
+                  </div>
+                }
+              />
+            </div>
           ) : (
-            <div className="space-y-4">
+            <div className="pb-5">
               {categories.map((category, index) => {
                 const isEditing = editingId === category.id;
                 const selected = selectedCategory?.id === category.id;
+                const isDragged = dragState?.id === category.id;
+                const isDragTarget = dragState?.overId === category.id;
 
                 return (
                   <section
                     key={category.id}
+                    data-category-id={category.id}
+                    onDragOver={(event) => {
+                      if (!dragState) {
+                        return;
+                      }
+
+                      event.preventDefault();
+                      dragOverIdRef.current = category.id;
+                      setDragState((current) =>
+                        current ? { ...current, overId: category.id } : current,
+                      );
+                    }}
+                    onDrop={(event) => handleNativeDrop(event, category.id)}
                     className={cn(
-                      "overflow-hidden rounded-lg border border-border/80 bg-card/95 shadow-sm",
-                      selected && "ring-1 ring-border",
+                      "border-b border-border transition-colors duration-[160ms] ease-out",
+                      selected ? "bg-accent" : "bg-card hover:bg-muted/35",
+                      isDragged && "opacity-60",
+                      isDragTarget && dragState?.id !== category.id && "bg-muted",
                     )}
                   >
-                    <div className={cn("grid gap-3 px-4 py-3.5 sm:grid-cols-[auto_minmax(0,1fr)_auto]", selected && "bg-accent/20")}>
-                      <div className="flex items-center gap-2">
+                    <div className="grid gap-3 px-5 py-2.5 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center">
+                      <div className="flex items-center gap-1.5">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          draggable={!isPending}
+                          onDragStart={(event) =>
+                            handleNativeDragStart(event, category.id)
+                          }
+                          onDragEnd={() => {
+                            dragOverIdRef.current = null;
+                            setDragState(null);
+                          }}
+                          onPointerDown={(event) =>
+                            handlePointerDragStart(event, category.id)
+                          }
+                          disabled={isPending}
+                          className="size-8 cursor-grab text-muted-foreground active:cursor-grabbing"
+                        >
+                          <GripVertical className="size-4" />
+                          <span className="sr-only">Reorder {category.name}</span>
+                        </Button>
                         <Button
                           type="button"
                           variant="outline"
                           size="icon"
                           onClick={() => handleMove(category.id, "up")}
                           disabled={isPending || index === 0}
-                          className="size-9"
+                          className="size-8"
                         >
                           <ArrowUp className="size-4" />
                         </Button>
@@ -415,18 +619,19 @@ export function CategoryManager() {
                           size="icon"
                           onClick={() => handleMove(category.id, "down")}
                           disabled={isPending || index === categories.length - 1}
-                          className="size-9"
+                          className="size-8"
                         >
                           <ArrowDown className="size-4" />
                         </Button>
                       </div>
 
                       {isEditing ? (
-                        <div className="flex flex-col gap-3 sm:flex-row">
+                        <div className="flex flex-col gap-2 sm:flex-row">
                           <Input
                             value={editingName}
                             onChange={(event) => setEditingName(event.target.value)}
                             disabled={isPending}
+                            className="h-9 rounded-lg bg-background px-3 py-2 text-sm shadow-none"
                             onKeyDown={(event) => {
                               if (event.key === "Enter") {
                                 handleRename(category.id);
@@ -439,7 +644,7 @@ export function CategoryManager() {
                             }}
                             autoFocus
                           />
-                          <div className="flex gap-2">
+                          <div className="flex gap-1.5">
                             <Button
                               size="sm"
                               onClick={() => handleRename(category.id)}
@@ -468,21 +673,29 @@ export function CategoryManager() {
                           onClick={() => setSelectedCategoryId(category.id)}
                           className="min-w-0 text-left"
                         >
-                          <p className="truncate text-sm font-medium text-foreground">
-                            {category.name}
-                          </p>
-                          <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                            Order {index + 1} in the Tasks workspace.
+                          <div className="flex min-w-0 items-center gap-2">
+                            <span
+                              className="size-2 shrink-0 rounded-full"
+                              style={{
+                                backgroundColor: getCategoryColor(category.name),
+                              }}
+                            />
+                            <p className="truncate text-[13px] font-medium leading-5 text-foreground">
+                              {category.name}
+                            </p>
+                          </div>
+                          <p className="mt-1 font-mono text-[10px] leading-5 text-muted-foreground">
+                            Order {index + 1} in the Tasks workspace
                           </p>
                         </button>
                       )}
 
                       {!isEditing ? (
-                        <div className="flex items-center gap-2 sm:justify-self-end">
+                        <div className="flex items-center gap-1.5 sm:justify-self-end">
                           <Button
                             size="sm"
                             variant="outline"
-                            className="h-8 px-3"
+                            className="h-8 px-2 text-xs"
                             onClick={() => {
                               setEditingId(category.id);
                               setEditingName(category.name);
@@ -495,7 +708,7 @@ export function CategoryManager() {
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="h-8 px-3 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                            className="h-8 px-2 text-xs text-destructive hover:bg-destructive/10 hover:text-destructive"
                             onClick={() => setDeleteTarget(category)}
                             disabled={isPending}
                           >
@@ -512,14 +725,22 @@ export function CategoryManager() {
           )}
         </div>
 
-        <aside className="hidden xl:block">
-          <div className="sticky top-5 space-y-4">
-            <div className="rounded-lg border border-border/80 bg-card/95 p-5 shadow-xs">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+        <aside className="hidden bg-background xl:block xl:h-screen xl:overflow-y-auto">
+          <div className="space-y-6 p-5">
+            <div>
+              <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                 Selected list
               </p>
-              <div className="mt-3 space-y-2">
-                <h2 className="text-xl font-semibold tracking-tight text-foreground">
+              <div className="mt-4 space-y-2">
+                <h2 className="inline-flex items-center gap-2 text-[15px] font-semibold leading-6 tracking-tight text-foreground">
+                  {selectedCategory ? (
+                    <span
+                      className="size-2 rounded-full"
+                      style={{
+                        backgroundColor: getCategoryColor(selectedCategory.name),
+                      }}
+                    />
+                  ) : null}
                   {selectedCategory?.name ?? "No list selected"}
                 </h2>
                 <p className="text-sm leading-6 text-muted-foreground">
@@ -529,8 +750,8 @@ export function CategoryManager() {
               </div>
             </div>
 
-            <div className="rounded-lg border border-border/80 bg-card/95 p-5 shadow-xs">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            <div>
+              <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                 Starter pack
               </p>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
@@ -540,8 +761,12 @@ export function CategoryManager() {
                 {DEFAULT_CATEGORY_NAMES.map((name) => (
                   <div
                     key={name}
-                    className="rounded-lg border border-border/80 bg-background/80 px-4 py-3 text-sm text-foreground"
+                    className="flex items-center gap-2 border-b border-border py-2 text-sm text-foreground last:border-b-0"
                   >
+                    <span
+                      className="size-1.5 rounded-full"
+                      style={{ backgroundColor: getCategoryColor(name) }}
+                    />
                     {name}
                   </div>
                 ))}

@@ -31,6 +31,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
+import { getCategoryColor } from "@/lib/category-colors";
 import { cn } from "@/lib/utils";
 
 type QuestType = "DAILY" | "WEEKLY" | "MONTHLY";
@@ -138,6 +139,31 @@ function formatQuestType(value: QuestType) {
   return QUEST_TYPE_LABELS[value];
 }
 
+function CadenceBadge({ type }: { type: QuestType }) {
+  return (
+    <span className="rounded-lg border border-border bg-muted px-1.5 py-0.5 font-mono text-[10px] font-medium tracking-[0.04em] text-muted-foreground">
+      {formatQuestType(type)}
+    </span>
+  );
+}
+
+function DetailRow({
+  children,
+  label,
+}: {
+  children: React.ReactNode;
+  label: string;
+}) {
+  return (
+    <div className="space-y-1">
+      <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
+        {label}
+      </p>
+      <div className="text-sm leading-6 text-foreground/85">{children}</div>
+    </div>
+  );
+}
+
 function getItemKey(item: CalendarItem) {
   return `${item.questId}:${item.periodKey}`;
 }
@@ -162,17 +188,17 @@ function CalendarDetail({
     return (
       <div className="space-y-4">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
             Selected day
           </p>
-          <h2 className="mt-1 text-xl font-semibold tracking-tight text-foreground">
+          <h2 className="mt-1 text-[15px] font-semibold leading-6 tracking-tight text-foreground">
             {formatDateLabel(day.date)}
           </h2>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
             No recurring tasks are projected for this date with the current filters.
           </p>
         </div>
-        <Button asChild variant="outline">
+        <Button asChild size="sm" variant="outline">
           <Link href="/quests">
             <ExternalLink className="size-4" />
             Open Lists
@@ -185,19 +211,12 @@ function CalendarDetail({
   return (
     <div className="space-y-5">
       <div className="space-y-2">
-        <div className="space-y-1">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            {formatDateLabel(day.date)}
-          </p>
-          <h2 className="text-xl font-semibold tracking-tight text-foreground">
-            {item.title}
-          </h2>
-        </div>
-        <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-          <span>{item.categoryName}</span>
-          <span className="size-1 rounded-full bg-border" />
-          <span>{formatQuestType(item.questType)}</span>
-        </div>
+        <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+          {formatDateLabel(day.date)}
+        </p>
+        <h2 className="text-[15px] font-semibold leading-6 tracking-tight text-foreground">
+          {item.title}
+        </h2>
         {item.description ? (
           <p className="text-sm leading-6 text-muted-foreground">
             {item.description}
@@ -205,33 +224,36 @@ function CalendarDetail({
         ) : null}
       </div>
 
-      <div className="grid gap-3">
-        <div className="rounded-xl border border-border/80 bg-background/80 px-4 py-3">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-            Status
-          </p>
-          <p className="mt-2 text-sm font-semibold text-foreground">
-            {item.isCompleted ? "Already completed" : "Not completed yet"}
-          </p>
-        </div>
-        <div className="rounded-xl border border-border/80 bg-background/80 px-4 py-3">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-            Completion note
-          </p>
-          <p className="mt-2 text-sm leading-6 text-foreground">
-            {item.note ?? "No completion note for this period."}
-          </p>
-        </div>
+      <div className="space-y-4 border-y border-border py-4">
+        <DetailRow label="Habit list">
+          <span className="inline-flex items-center gap-2">
+            <span
+              className="size-2 rounded-full"
+              style={{ backgroundColor: getCategoryColor(item.categoryName) }}
+            />
+            {item.categoryName}
+          </span>
+        </DetailRow>
+        <DetailRow label="Cadence">
+          <CadenceBadge type={item.questType} />
+        </DetailRow>
+        <DetailRow label="Status">
+          {item.isCompleted ? "Already completed" : "Not completed yet"}
+        </DetailRow>
+        <DetailRow label="Period">{item.periodKey}</DetailRow>
+        <DetailRow label="Completion note">
+          {item.note ?? "No completion note for this period."}
+        </DetailRow>
       </div>
 
-      <div className="flex flex-wrap gap-3">
-        <Button asChild>
+      <div className="flex flex-wrap gap-2">
+        <Button asChild size="sm">
           <Link href="/dashboard">
             <CalendarDays className="size-4" />
             Open Today
           </Link>
         </Button>
-        <Button asChild variant="outline">
+        <Button asChild size="sm" variant="outline">
           <Link href="/quests">
             <ExternalLink className="size-4" />
             Manage task
@@ -452,26 +474,21 @@ export function CalendarScreen() {
     Boolean(categoryId || questType) || month !== getInitialMonth();
 
   return (
-    <div className="mx-auto grid w-full max-w-[118rem] gap-4 xl:grid-cols-[minmax(0,1fr)_22rem]">
-      <section className="min-w-0 space-y-4">
-        <div className="rounded-lg border border-border/80 bg-card shadow-xs">
-          <div className="grid gap-4 border-b border-border/70 p-4 sm:p-5 lg:grid-cols-[minmax(0,1fr)_auto]">
-            <div className="min-w-0 space-y-1">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                Tasks / Calendar
+    <div className="min-h-[calc(100vh-4.25rem)] bg-card lg:h-screen lg:min-h-0 xl:grid xl:grid-cols-[minmax(0,1fr)_20rem] 2xl:grid-cols-[minmax(0,1fr)_22rem]">
+      <section className="min-w-0 border-border bg-card xl:h-screen xl:overflow-y-auto xl:border-r">
+        <div className="border-b border-border bg-card lg:sticky lg:top-0 lg:z-10">
+          <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <h1 className="text-[22px] font-semibold leading-7 tracking-tight text-foreground">
+                Calendar
+              </h1>
+              <p className="mt-1 font-mono text-xs text-muted-foreground">
+                {isLoading
+                  ? "loading month"
+                  : `${monthStats.totalCount} tasks across ${monthStats.activeDays} days | ${monthStats.completedCount} already complete`}
               </p>
-              <div className="flex flex-wrap items-end gap-x-3 gap-y-1">
-                <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-                  Calendar
-                </h1>
-                <p className="pb-0.5 text-sm text-muted-foreground">
-                  {isLoading
-                    ? "Loading month"
-                    : `${monthStats.totalCount} tasks across ${monthStats.activeDays} days | ${monthStats.completedCount} already complete`}
-                </p>
-              </div>
             </div>
-            <div className="flex flex-wrap items-center gap-2 lg:justify-end">
+            <div className="flex flex-wrap gap-2">
               <Button
                 variant="outline"
                 size="sm"
@@ -491,30 +508,30 @@ export function CalendarScreen() {
             </div>
           </div>
 
-          <div className="grid gap-3 border-b border-border/70 p-4 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_minmax(11rem,14rem)_minmax(11rem,14rem)_auto]">
+          <div className="grid gap-2 border-t border-border px-5 py-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_minmax(11rem,14rem)_minmax(11rem,14rem)_auto] lg:items-end">
             <div className="flex min-w-0 items-end gap-2">
               <Button
                 variant="outline"
                 size="icon"
-                className="size-10 shrink-0"
+                className="size-9 shrink-0"
                 onClick={() => handleMonthChange(shiftMonth(month, -1))}
                 disabled={isPending}
               >
                 <ChevronLeft className="size-4" />
                 <span className="sr-only">Previous month</span>
               </Button>
-              <div className="min-w-0 flex-1 rounded-md border border-border bg-background px-3 py-2.5">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+              <div className="min-w-0 flex-1 rounded-lg border border-border bg-background px-3 py-2">
+                <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
                   Month
                 </p>
-                <p className="mt-0.5 truncate text-sm font-semibold text-foreground">
+                <p className="mt-0.5 truncate text-sm font-medium text-foreground">
                   {formatMonthLabel(month)}
                 </p>
               </div>
               <Button
                 variant="outline"
                 size="icon"
-                className="size-10 shrink-0"
+                className="size-9 shrink-0"
                 onClick={() => handleMonthChange(shiftMonth(month, 1))}
                 disabled={isPending}
               >
@@ -523,8 +540,13 @@ export function CalendarScreen() {
               </Button>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="calendar-category">Habit list</Label>
+            <div className="space-y-1.5">
+              <Label
+                htmlFor="calendar-category"
+                className="font-mono text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground"
+              >
+                Habit list
+              </Label>
               <Select
                 value={categoryId ?? ALL_CATEGORY_VALUE}
                 onValueChange={(value) => {
@@ -535,7 +557,10 @@ export function CalendarScreen() {
                 }}
                 disabled={isPending || isLoadingCategories}
               >
-                <SelectTrigger id="calendar-category">
+                <SelectTrigger
+                  id="calendar-category"
+                  className="h-9 rounded-lg bg-background px-3 py-2 text-sm shadow-none"
+                >
                   <SelectValue placeholder="All habit lists" />
                 </SelectTrigger>
                 <SelectContent>
@@ -549,8 +574,13 @@ export function CalendarScreen() {
               </Select>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="calendar-cadence">Cadence</Label>
+            <div className="space-y-1.5">
+              <Label
+                htmlFor="calendar-cadence"
+                className="font-mono text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground"
+              >
+                Cadence
+              </Label>
               <Select
                 value={questType ?? ALL_QUEST_TYPE_VALUE}
                 onValueChange={(value) => {
@@ -561,7 +591,10 @@ export function CalendarScreen() {
                 }}
                 disabled={isPending}
               >
-                <SelectTrigger id="calendar-cadence">
+                <SelectTrigger
+                  id="calendar-cadence"
+                  className="h-9 rounded-lg bg-background px-3 py-2 text-sm shadow-none"
+                >
                   <SelectValue placeholder="All cadences" />
                 </SelectTrigger>
                 <SelectContent>
@@ -577,8 +610,9 @@ export function CalendarScreen() {
 
             <div className="flex items-end">
               <Button
-                variant="outline"
-                className="w-full lg:w-auto"
+                variant="ghost"
+                size="sm"
+                className="h-9 w-full lg:w-auto"
                 onClick={handleResetToThisMonth}
                 disabled={isPending || !canResetFilters}
               >
@@ -587,17 +621,19 @@ export function CalendarScreen() {
             </div>
           </div>
 
-          {errorMessage ? (
-            <div className="p-4">
-              <Alert variant="destructive">
-                <CircleAlert className="size-4" />
-                <AlertTitle>Calendar needs attention</AlertTitle>
-                <AlertDescription>{errorMessage}</AlertDescription>
-              </Alert>
-            </div>
-          ) : null}
+        </div>
 
-          <div className="p-3 sm:p-4">
+        {errorMessage ? (
+          <div className="px-5 pt-4">
+            <Alert variant="destructive">
+              <CircleAlert className="size-4" />
+              <AlertTitle>Calendar needs attention</AlertTitle>
+              <AlertDescription>{errorMessage}</AlertDescription>
+            </Alert>
+          </div>
+        ) : null}
+
+        <div className="px-5 py-4">
             {isLoading ? (
               <div className="grid grid-cols-7 gap-px overflow-hidden rounded-lg border border-border bg-border">
                 {Array.from({ length: 42 }, (_, index) => (
@@ -683,27 +719,26 @@ export function CalendarScreen() {
                 }
               />
             )}
-          </div>
         </div>
 
-        <div className="rounded-lg border border-border/80 bg-card shadow-xs">
-          <div className="flex items-center justify-between gap-3 border-b border-border/70 px-4 py-3.5">
+        <div className="pb-5">
+          <div className="flex items-center justify-between gap-3 border-t border-border px-5 pb-1.5 pt-4">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                 Selected day agenda
               </p>
-              <p className="mt-1 text-sm font-semibold text-foreground">
+              <p className="mt-1 text-xs text-muted-foreground">
                 {selectedDay ? formatDateLabel(selectedDay.date) : "No day selected"}
               </p>
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="font-mono text-[10px] text-muted-foreground">
               {selectedDay?.totalCount ?? 0} task
               {(selectedDay?.totalCount ?? 0) === 1 ? "" : "s"}
             </p>
           </div>
 
           {selectedDay?.items.length ? (
-            <div>
+            <div className="border-t border-border">
               {selectedDay.items.map((item) => {
                 const itemKey = getItemKey(item);
                 const selected = selectedItem && getItemKey(selectedItem) === itemKey;
@@ -712,8 +747,8 @@ export function CalendarScreen() {
                   <div
                     key={itemKey}
                     className={cn(
-                      "grid gap-3 border-b border-border/70 px-4 py-3.5 last:border-b-0 sm:grid-cols-[minmax(0,1fr)_auto]",
-                      selected && "bg-accent/30",
+                      "grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 border-b border-border px-5 py-2.5 transition-colors duration-[160ms] ease-out last:border-b-0",
+                      selected ? "bg-accent" : "bg-card hover:bg-muted/35",
                     )}
                   >
                     <button
@@ -721,36 +756,41 @@ export function CalendarScreen() {
                       onClick={() => setSelectedItemKey(itemKey)}
                       className="min-w-0 text-left"
                     >
-                      <div className="flex flex-wrap items-center gap-2">
-                        <p className="truncate text-sm font-medium text-foreground">
+                      <div className="flex min-w-0 items-center gap-2">
+                        <p className="truncate text-[13px] font-medium leading-5 text-foreground">
                           {item.title}
                         </p>
-                        <span className="rounded-full border border-border bg-background px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                          {formatQuestType(item.questType)}
-                        </span>
+                        <CadenceBadge type={item.questType} />
                         {item.isCompleted ? (
-                          <span className="rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-primary">
+                          <span className="shrink-0 rounded-lg border border-primary/20 bg-primary/10 px-1.5 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-[0.1em] text-primary">
                             Done
                           </span>
                         ) : null}
                       </div>
-                      <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
-                        <span>{item.categoryName}</span>
-                        <span className="size-1 rounded-full bg-border" />
-                        <span>{formatQuestType(item.questType)}</span>
+                      <div className="mt-1 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+                        <span className="inline-flex min-w-0 items-center gap-1.5">
+                          <span
+                            className="size-1.5 shrink-0 rounded-full"
+                            style={{
+                              backgroundColor: getCategoryColor(item.categoryName),
+                            }}
+                          />
+                          <span className="truncate">{item.categoryName}</span>
+                        </span>
+                        <span className="font-mono text-[10px]">{item.periodKey}</span>
                       </div>
                       {item.description ? (
-                        <p className="mt-2 truncate text-xs leading-5 text-muted-foreground">
+                        <p className="mt-1 truncate text-xs leading-5 text-muted-foreground">
                           {item.description}
                         </p>
                       ) : null}
                     </button>
 
-                    <div className="flex items-center gap-2 sm:justify-self-end">
+                    <div className="flex items-center gap-1.5">
                       <Button
                         size="sm"
                         variant={selected ? "secondary" : "outline"}
-                        className="hidden h-8 px-3 xl:inline-flex"
+                        className="hidden h-8 px-2 text-xs xl:inline-flex"
                         onClick={() => setSelectedItemKey(itemKey)}
                       >
                         Detail
@@ -758,7 +798,7 @@ export function CalendarScreen() {
                       <Button
                         size="sm"
                         variant="outline"
-                        className="h-8 px-3 xl:hidden"
+                        className="h-8 px-2 text-xs xl:hidden"
                         onClick={() => {
                           setSelectedItemKey(itemKey);
                           setIsMobileDetailOpen(true);
@@ -787,14 +827,22 @@ export function CalendarScreen() {
         </div>
       </section>
 
-      <aside className="hidden xl:block">
-        <div className="sticky top-5 rounded-lg border border-border/80 bg-card p-5 shadow-xs">
-          <CalendarDetail day={selectedDay} item={selectedItem} />
+      <aside className="hidden bg-background xl:block xl:h-screen xl:overflow-y-auto">
+        <div className="p-5">
+          <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+            Context pane
+          </p>
+          <div className="mt-4">
+            <CalendarDetail day={selectedDay} item={selectedItem} />
+          </div>
         </div>
       </aside>
 
       <Sheet open={isMobileDetailOpen} onOpenChange={setIsMobileDetailOpen}>
-        <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto">
+        <SheetContent
+          side="bottom"
+          className="max-h-[88vh] overflow-y-auto rounded-t-[1.25rem]"
+        >
           <SheetHeader>
             <SheetTitle>Calendar detail</SheetTitle>
             <SheetDescription>

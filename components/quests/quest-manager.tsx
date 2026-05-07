@@ -52,6 +52,7 @@ import {
 } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
+import { getCategoryColor } from "@/lib/category-colors";
 import { cn } from "@/lib/utils";
 
 type QuestType = "DAILY" | "WEEKLY" | "MONTHLY" | "MAIN";
@@ -154,6 +155,54 @@ function formatTimestamp(value: string) {
   }).format(new Date(value));
 }
 
+function CadenceBadge({ type }: { type: QuestType }) {
+  return (
+    <span className="rounded-lg border border-border bg-muted px-1.5 py-0.5 font-mono text-[10px] font-medium tracking-[0.04em] text-muted-foreground">
+      {formatQuestType(type)}
+    </span>
+  );
+}
+
+function SectionLabel({
+  count,
+  label,
+}: {
+  count: number;
+  label: string;
+}) {
+  return (
+    <div className="flex items-center gap-2 px-5 pb-1.5 pt-4">
+      <span className="inline-flex items-center gap-2 font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+        <span
+          className="size-1.5 rounded-full"
+          style={{ backgroundColor: getCategoryColor(label) }}
+        />
+        {label}
+      </span>
+      <span className="font-mono text-[10px] text-muted-foreground">
+        {count}
+      </span>
+    </div>
+  );
+}
+
+function DetailRow({
+  children,
+  label,
+}: {
+  children: React.ReactNode;
+  label: string;
+}) {
+  return (
+    <div className="space-y-1">
+      <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
+        {label}
+      </p>
+      <div className="text-sm leading-6 text-foreground/85">{children}</div>
+    </div>
+  );
+}
+
 function QuestFormFields({
   categories,
   formError,
@@ -177,8 +226,13 @@ function QuestFormFields({
         </Alert>
       ) : null}
 
-      <div className="space-y-2">
-        <Label htmlFor="list-task-title">Title</Label>
+      <div className="space-y-1.5">
+        <Label
+          htmlFor="list-task-title"
+          className="font-mono text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground"
+        >
+          Title
+        </Label>
         <Input
           id="list-task-title"
           value={formState.title}
@@ -187,11 +241,17 @@ function QuestFormFields({
           }
           placeholder="Morning review, QA pass, Read 10 pages"
           disabled={isPending}
+          className="h-9 rounded-lg bg-background px-3 py-2 text-sm shadow-none"
         />
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="list-task-description">Description</Label>
+      <div className="space-y-1.5">
+        <Label
+          htmlFor="list-task-description"
+          className="font-mono text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground"
+        >
+          Description
+        </Label>
         <Textarea
           id="list-task-description"
           value={formState.description}
@@ -203,11 +263,17 @@ function QuestFormFields({
           }
           placeholder="Optional context for this recurring task."
           disabled={isPending}
+          className="min-h-28 resize-none rounded-lg bg-background text-sm shadow-none"
         />
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="list-task-category">List</Label>
+      <div className="space-y-1.5">
+        <Label
+          htmlFor="list-task-category"
+          className="font-mono text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground"
+        >
+          Habit list
+        </Label>
         <Select
           value={formState.categoryId}
           onValueChange={(value) =>
@@ -215,7 +281,10 @@ function QuestFormFields({
           }
           disabled={isPending || categories.length === 0}
         >
-          <SelectTrigger id="list-task-category">
+          <SelectTrigger
+            id="list-task-category"
+            className="h-9 rounded-lg bg-background px-3 py-2 text-sm shadow-none"
+          >
             <SelectValue placeholder="Choose a list" />
           </SelectTrigger>
           <SelectContent>
@@ -228,8 +297,13 @@ function QuestFormFields({
         </Select>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="list-task-type">Type</Label>
+      <div className="space-y-1.5">
+        <Label
+          htmlFor="list-task-type"
+          className="font-mono text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground"
+        >
+          Cadence
+        </Label>
         <Select
           value={formState.questType}
           onValueChange={(value) =>
@@ -237,7 +311,10 @@ function QuestFormFields({
           }
           disabled={isPending}
         >
-          <SelectTrigger id="list-task-type">
+          <SelectTrigger
+            id="list-task-type"
+            className="h-9 rounded-lg bg-background px-3 py-2 text-sm shadow-none"
+          >
             <SelectValue placeholder="Choose a recurrence" />
           </SelectTrigger>
           <SelectContent>
@@ -250,9 +327,11 @@ function QuestFormFields({
         </Select>
       </div>
 
-      <div className="space-y-2">
-        <Label>Status</Label>
-        <label className="flex min-h-11 items-center gap-3 rounded-xl border border-border/80 bg-background/80 px-4 py-3 text-sm shadow-xs">
+      <div className="space-y-1.5">
+        <Label className="font-mono text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
+          Status
+        </Label>
+        <label className="flex min-h-10 items-center gap-3 rounded-lg border border-border bg-background px-3 py-2 text-sm shadow-none">
           <Checkbox
             checked={formState.isActive}
             onCheckedChange={(checked) =>
@@ -283,54 +362,52 @@ function QuestDetailContent({
   return (
     <div className="space-y-5">
       <div className="space-y-2">
-        <div className="space-y-1">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            Selected task
-          </p>
-          <h2 className="text-xl font-semibold tracking-tight text-foreground">
-            {quest.title}
-          </h2>
-        </div>
-        <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-          <span>{quest.category.name}</span>
-          <span className="size-1 rounded-full bg-border" />
-          <span>{formatQuestType(quest.questType)}</span>
-          {!quest.isActive ? (
-            <>
-              <span className="size-1 rounded-full bg-border" />
-              <span>Inactive</span>
-            </>
-          ) : null}
-        </div>
+        <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+          Selected task
+        </p>
+        <h2 className="text-[15px] font-semibold leading-6 tracking-tight text-foreground">
+          {quest.title}
+        </h2>
         <p className="text-sm leading-6 text-muted-foreground">
           {quest.description ?? "No description yet."}
         </p>
       </div>
 
-      <dl className="space-y-2 border-y border-border/70 py-3 text-sm">
-        <div className="flex items-center justify-between gap-4">
-          <dt className="text-muted-foreground">Created</dt>
-          <dd className="text-right font-medium text-foreground">
-            {formatTimestamp(quest.createdAt)}
-          </dd>
-        </div>
-        <div className="flex items-center justify-between gap-4">
-          <dt className="text-muted-foreground">Last updated</dt>
-          <dd className="text-right font-medium text-foreground">
-            {formatTimestamp(quest.updatedAt)}
-          </dd>
-        </div>
-      </dl>
+      <div className="space-y-4 border-y border-border py-4">
+        <DetailRow label="Habit list">
+          <span className="inline-flex items-center gap-2">
+            <span
+              className="size-2 rounded-full"
+              style={{ backgroundColor: getCategoryColor(quest.category.name) }}
+            />
+            {quest.category.name}
+          </span>
+        </DetailRow>
+        <DetailRow label="Cadence">
+          <CadenceBadge type={quest.questType} />
+        </DetailRow>
+        <DetailRow label="Status">
+          {quest.isActive ? "Active" : "Inactive"}
+        </DetailRow>
+        <DetailRow label="Created">{formatTimestamp(quest.createdAt)}</DetailRow>
+        <DetailRow label="Last updated">{formatTimestamp(quest.updatedAt)}</DetailRow>
+      </div>
 
-      <div className="flex flex-wrap gap-3">
-        <Button onClick={onEdit} disabled={isPending}>
+      <div className="flex flex-wrap gap-2">
+        <Button size="sm" onClick={onEdit} disabled={isPending}>
           <PencilLine className="size-4" />
           Edit task
         </Button>
-        <Button variant="outline" onClick={onToggleActive} disabled={isPending}>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={onToggleActive}
+          disabled={isPending}
+        >
           {quest.isActive ? "Deactivate" : "Activate"}
         </Button>
         <Button
+          size="sm"
           variant="ghost"
           className="text-destructive hover:bg-destructive/10 hover:text-destructive"
           onClick={onDelete}
@@ -341,7 +418,7 @@ function QuestDetailContent({
         </Button>
       </div>
 
-      <Alert>
+      <Alert className="bg-card">
         <CircleAlert className="size-4" />
         <AlertTitle>Deletion is permanent</AlertTitle>
         <AlertDescription>
@@ -692,50 +769,44 @@ export function QuestManager() {
 
   return (
     <>
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_20rem] 2xl:grid-cols-[minmax(0,1fr)_22rem]">
-        <div className="min-w-0 space-y-5">
-          <section className="border-b border-border/70 pb-4">
-            <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-              <div className="space-y-3">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                  Tasks / Lists
+      <div className="min-h-[calc(100vh-4.25rem)] bg-card lg:h-screen lg:min-h-0 xl:grid xl:grid-cols-[minmax(0,1fr)_20rem] 2xl:grid-cols-[minmax(0,1fr)_22rem]">
+        <div className="min-w-0 border-border bg-card xl:h-screen xl:overflow-y-auto xl:border-r">
+          <section className="border-b border-border bg-card lg:sticky lg:top-0 lg:z-10">
+            <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-start sm:justify-between">
+              <div className="min-w-0">
+                <h1 className="text-[22px] font-semibold leading-7 tracking-tight text-foreground">
+                  Lists
+                </h1>
+                <p className="mt-1 font-mono text-xs text-muted-foreground">
+                  {isLoadingQuests
+                    ? "loading task library"
+                    : `${stats.visible} visible | ${stats.active} active | ${stats.inactive} inactive`}
                 </p>
-                <div className="space-y-1">
-                  <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-                    Lists
-                  </h1>
-                  <p className="max-w-3xl text-sm leading-6 text-muted-foreground">
-                    Manage recurring task definitions inside the list they belong to.
-                    Search, filter, edit, activate, or remove without leaving the
-                    workspace.
-                  </p>
-                  <p className="text-xs font-medium text-muted-foreground">
-                    {isLoadingQuests
-                      ? "Loading task library"
-                      : `${stats.visible} visible | ${stats.active} active | ${stats.inactive} inactive`}
-                  </p>
-                </div>
               </div>
 
-              <div className="flex flex-col gap-2 sm:flex-row">
-                <Button onClick={openCreateForm} disabled={isPending || hasNoCategories}>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  size="sm"
+                  onClick={openCreateForm}
+                  disabled={isPending || hasNoCategories}
+                >
                   <Plus className="size-4" />
                   Add task
                 </Button>
-                <Button asChild variant="outline">
+                <Button asChild size="sm" variant="outline">
                   <Link href="/categories">Open Habit Lists</Link>
                 </Button>
               </div>
             </div>
 
-            <div className="mt-5 grid gap-3 lg:grid-cols-[minmax(0,1fr)_16rem_14rem]">
+            <div className="grid gap-2 border-t border-border px-5 py-3 md:grid-cols-[minmax(0,1fr)_13rem_11rem] md:items-center">
               <div className="relative">
-                <Search className="absolute top-1/2 left-4 size-4 -translate-y-1/2 text-muted-foreground" />
+                <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   value={searchInput}
                   onChange={(event) => setSearchInput(event.target.value)}
                   placeholder="Search tasks by title or description"
-                  className="pl-11"
+                  className="h-9 rounded-lg bg-background px-3 py-2 pl-9 text-sm shadow-none"
                 />
               </div>
               <Select
@@ -745,7 +816,10 @@ export function QuestManager() {
                 }
                 disabled={isPending || isLoadingCategories}
               >
-                <SelectTrigger aria-label="Filter tasks by list">
+                <SelectTrigger
+                  aria-label="Filter tasks by list"
+                  className="h-9 rounded-lg bg-background px-3 py-2 text-sm shadow-none"
+                >
                   <SelectValue placeholder="All lists" />
                 </SelectTrigger>
                 <SelectContent>
@@ -766,7 +840,10 @@ export function QuestManager() {
                 }
                 disabled={isPending}
               >
-                <SelectTrigger aria-label="Filter tasks by type">
+                <SelectTrigger
+                  aria-label="Filter tasks by type"
+                  className="h-9 rounded-lg bg-background px-3 py-2 text-sm shadow-none"
+                >
                   <SelectValue placeholder="All types" />
                 </SelectTrigger>
                 <SelectContent>
@@ -780,8 +857,8 @@ export function QuestManager() {
               </Select>
             </div>
 
-            <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto]">
-              <label className="flex min-h-11 items-center gap-3 rounded-xl border border-border/80 bg-background/80 px-4 py-3 text-sm shadow-xs">
+            <div className="grid gap-2 border-t border-border px-5 py-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
+              <label className="flex min-h-9 items-center gap-3 rounded-lg border border-border bg-background px-3 py-2 text-sm shadow-none">
                 <Checkbox
                   checked={includeInactive}
                   onCheckedChange={(checked) => setIncludeInactive(checked === true)}
@@ -790,7 +867,8 @@ export function QuestManager() {
                 <span className="font-medium text-foreground">Show inactive tasks</span>
               </label>
               <Button
-                variant="outline"
+                variant="ghost"
+                size="sm"
                 onClick={() => {
                   setSearchInput("");
                   setSelectedCategoryId(null);
@@ -805,34 +883,34 @@ export function QuestManager() {
           </section>
 
           {errorMessage ? (
-            <Alert variant="destructive">
-              <CircleAlert className="size-4" />
-              <AlertTitle>Lists update failed</AlertTitle>
-              <AlertDescription>{errorMessage}</AlertDescription>
-            </Alert>
+            <div className="px-5 pt-4">
+              <Alert variant="destructive">
+                <CircleAlert className="size-4" />
+                <AlertTitle>Lists update failed</AlertTitle>
+                <AlertDescription>{errorMessage}</AlertDescription>
+              </Alert>
+            </div>
           ) : null}
 
           {isLoadingCategories || isLoadingQuests ? (
-            <div className="space-y-5">
+            <div className="py-2">
               {Array.from({ length: 3 }).map((_, index) => (
-                <section
-                  key={index}
-                  className="overflow-hidden rounded-lg border border-border/80 bg-card/95 shadow-sm"
-                >
-                  <div className="border-b border-border/70 px-4 py-3.5">
-                    <Skeleton className="h-3 w-32" />
+                <section key={index}>
+                  <div className="flex items-center gap-2 px-5 pb-1.5 pt-4">
+                    <Skeleton className="h-3 w-32 rounded-sm" />
+                    <Skeleton className="h-3 w-5 rounded-sm" />
                   </div>
-                  <div>
+                  <div className="border-t border-border">
                     {Array.from({ length: 3 }).map((__, rowIndex) => (
                       <div
                         key={rowIndex}
-                        className="grid gap-3 border-b border-border/70 px-4 py-3.5 last:border-b-0 sm:grid-cols-[minmax(0,1fr)_auto]"
+                        className="grid grid-cols-[minmax(0,1fr)_4.5rem] items-center gap-2 border-b border-border px-5 py-3"
                       >
                         <div className="space-y-2">
-                          <Skeleton className="h-4 w-40" />
-                          <Skeleton className="h-3 w-28" />
+                          <Skeleton className="h-3.5 w-40 rounded-sm" />
+                          <Skeleton className="h-3 w-28 rounded-sm" />
                         </div>
-                        <Skeleton className="h-8 w-20 rounded-md" />
+                        <Skeleton className="h-3 w-14 justify-self-end rounded-sm" />
                       </div>
                     ))}
                   </div>
@@ -840,48 +918,44 @@ export function QuestManager() {
               ))}
             </div>
           ) : hasNoCategories ? (
-            <EmptyState
-              title="Create lists before tasks"
-              description="Tasks always belong to a list container. Set up at least one habit list first, then come back here to build the recurring library."
-              action={
-                <Button asChild>
-                  <Link href="/categories">Manage Habit Lists</Link>
-                </Button>
-              }
-            />
+            <div className="p-5">
+              <EmptyState
+                title="Create lists before tasks"
+                description="Tasks always belong to a list container. Set up at least one habit list first, then come back here to build the recurring library."
+                action={
+                  <Button asChild>
+                    <Link href="/categories">Manage Habit Lists</Link>
+                  </Button>
+                }
+              />
+            </div>
           ) : hasNoVisibleQuests ? (
-            <EmptyState
-              title="No tasks match the current view"
-              description="Add your first task or relax the filters if this list view is too narrow."
-              action={
-                <div className="flex flex-wrap gap-3">
-                  <Button onClick={openCreateForm}>
-                    <Plus className="size-4" />
-                    Add task
-                  </Button>
-                  <Button asChild variant="outline">
-                    <Link href="/categories">Open Habit Lists</Link>
-                  </Button>
-                </div>
-              }
-            />
-          ) : (
-            <div className="space-y-5">
-              {groupedQuests.map((group) => (
-                <section
-                  key={group.categoryId}
-                  className="overflow-hidden rounded-lg border border-border/80 bg-card/95 shadow-sm"
-                >
-                  <div className="flex items-center justify-between gap-3 border-b border-border/70 bg-muted/30 px-4 py-3.5">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                      {group.categoryName}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {group.items.length} task{group.items.length === 1 ? "" : "s"}
-                    </p>
+            <div className="p-5">
+              <EmptyState
+                title="No tasks match the current view"
+                description="Add your first task or relax the filters if this list view is too narrow."
+                action={
+                  <div className="flex flex-wrap gap-3">
+                    <Button onClick={openCreateForm}>
+                      <Plus className="size-4" />
+                      Add task
+                    </Button>
+                    <Button asChild variant="outline">
+                      <Link href="/categories">Open Habit Lists</Link>
+                    </Button>
                   </div>
-
-                  <div>
+                }
+              />
+            </div>
+          ) : (
+            <div className="pb-5">
+              {groupedQuests.map((group) => (
+                <section key={group.categoryId}>
+                  <SectionLabel
+                    label={group.categoryName}
+                    count={group.items.length}
+                  />
+                  <div className="border-t border-border">
                     {group.items.map((quest) => {
                       const selected = selectedQuest?.id === quest.id;
 
@@ -889,8 +963,8 @@ export function QuestManager() {
                         <div
                           key={quest.id}
                           className={cn(
-                            "grid gap-3 border-b border-border/70 px-4 py-3.5 last:border-b-0 sm:grid-cols-[minmax(0,1fr)_auto]",
-                            selected && "bg-accent/30",
+                            "grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 border-b border-border px-5 py-2.5 transition-colors duration-[160ms] ease-out last:border-b-0",
+                            selected ? "bg-accent" : "bg-card hover:bg-muted/35",
                           )}
                         >
                           <button
@@ -898,29 +972,43 @@ export function QuestManager() {
                             onClick={() => setSelectedQuestId(quest.id)}
                             className="min-w-0 text-left"
                           >
-                            <div className="flex flex-wrap items-center gap-2">
-                              <p className="truncate text-sm font-medium text-foreground">
+                            <div className="flex min-w-0 items-center gap-2">
+                              <p className="truncate text-[13px] font-medium leading-5 text-foreground">
                                 {quest.title}
                               </p>
-                              <span className="rounded-full border border-border bg-background px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                                {formatQuestType(quest.questType)}
-                              </span>
+                              <CadenceBadge type={quest.questType} />
                               {!quest.isActive ? (
-                                <span className="rounded-full border border-border bg-background px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                                <span className="shrink-0 rounded-lg border border-border bg-muted px-1.5 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
                                   Inactive
                                 </span>
                               ) : null}
                             </div>
-                            <p className="mt-2 text-xs leading-5 text-muted-foreground">
+                            <div className="mt-1 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+                              <span className="inline-flex min-w-0 items-center gap-1.5">
+                                <span
+                                  className="size-1.5 shrink-0 rounded-full"
+                                  style={{
+                                    backgroundColor: getCategoryColor(
+                                      quest.category.name,
+                                    ),
+                                  }}
+                                />
+                                <span className="truncate">{quest.category.name}</span>
+                              </span>
+                              <span className="font-mono text-[10px]">
+                                Updated {formatTimestamp(quest.updatedAt)}
+                              </span>
+                            </div>
+                            <p className="mt-1 truncate text-xs leading-5 text-muted-foreground">
                               {quest.description ?? "No description yet."}
                             </p>
                           </button>
 
-                          <div className="flex items-center gap-2 sm:justify-self-end">
+                          <div className="flex items-center gap-1.5">
                             <Button
                               size="sm"
                               variant={selected ? "secondary" : "outline"}
-                              className="hidden h-8 px-3 xl:inline-flex"
+                              className="hidden h-8 px-2 text-xs xl:inline-flex"
                               onClick={() => setSelectedQuestId(quest.id)}
                             >
                               Detail
@@ -928,7 +1016,7 @@ export function QuestManager() {
                             <Button
                               size="sm"
                               variant="outline"
-                              className="h-8 px-3 xl:hidden"
+                              className="h-8 px-2 text-xs xl:hidden"
                               onClick={() => {
                                 setSelectedQuestId(quest.id);
                                 setIsMobileDetailOpen(true);
@@ -939,7 +1027,7 @@ export function QuestManager() {
                             <Button
                               size="sm"
                               variant="outline"
-                              className="h-8 px-3"
+                              className="h-8 px-2 text-xs"
                               onClick={() => openEditForm(quest)}
                             >
                               <PencilLine className="size-4" />
@@ -956,17 +1044,13 @@ export function QuestManager() {
           )}
         </div>
 
-        <aside className="hidden xl:block">
-          <div className="sticky top-5 rounded-lg border border-border/80 bg-card/95 p-5 shadow-xs">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+        <aside className="hidden bg-background xl:block xl:h-screen xl:overflow-y-auto">
+          <div className="p-5">
+            <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
               Context pane
             </p>
-            <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              Review the selected task, then edit, deactivate, or delete without
-              leaving the list surface.
-            </p>
 
-            <div className="mt-5">
+            <div className="mt-4">
               {selectedQuest ? (
                 <QuestDetailContent
                   quest={selectedQuest}

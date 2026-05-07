@@ -25,6 +25,7 @@
     "test:watch": "node --test --watch --import tsx tests/index.test.ts",
     "test:e2e": "cross-env NEXT_PUBLIC_PWA_DEV_ENABLED=true RYTHM_E2E_AUTH_BYPASS=true PLAYWRIGHT_APP_PORT=3100 BETTER_AUTH_URL=http://localhost:3100 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/rythm_e2e?schema=public DIRECT_URL=postgresql://postgres:postgres@localhost:5432/rythm_e2e?schema=public playwright test",
     "seed:demo": "node --import tsx scripts/seed-demo.ts",
+    "migrate:tasks": "node --env-file=.env.local --import tsx scripts/migrate-to-tasks.ts",
     "prisma:generate": "prisma generate",
     "prisma:validate": "prisma validate",
     "prisma:migrate:dev": "prisma migrate dev",

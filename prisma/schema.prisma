@@ -6,6 +6,7 @@ datasource db {
   provider = "postgresql"
 }
 
+// ===== LEGACY ENUM — kept during transition, removed in migration 2 =====
 enum QuestType {
   DAILY
   WEEKLY
@@ -13,19 +14,61 @@ enum QuestType {
   MAIN
 }
 
+// ===== NEW ENUMS =====
+
+enum TaskKind {
+  RECURRING
+  TODO
+  HABIT
+}
+
+enum TaskCadence {
+  DAILY
+  WEEKLY
+  MONTHLY
+  ONCE
+}
+
+enum HabitMode {
+  POSITIVE_ONLY
+  NEGATIVE_RESETS
+  SCORE_BASED
+}
+
+enum ProjectStatus {
+  ACTIVE
+  PAUSED
+  COMPLETED
+  ARCHIVED
+}
+
+enum HabitSign {
+  POSITIVE
+  NEGATIVE
+}
+
+// ===== AUTH / IDENTITY MODELS (unchanged) =====
+
 model User {
-  id            String            @id
-  email         String            @unique
-  name          String
-  emailVerified Boolean           @default(false) @map("email_verified")
-  image         String?           @db.Text
-  createdAt     DateTime          @default(now()) @map("created_at")
-  updatedAt     DateTime          @default(now()) @updatedAt @map("updated_at")
-  sessions      Session[]
-  accounts      Account[]
-  categories    Category[]
-  quests        Quest[]
-  completions   QuestCompletion[]
+  id               String           @id
+  email            String           @unique
+  name             String
+  emailVerified    Boolean          @default(false) @map("email_verified")
+  image            String?          @db.Text
+  createdAt        DateTime         @default(now()) @map("created_at")
+  updatedAt        DateTime         @default(now()) @updatedAt @map("updated_at")
+  sessions         Session[]
+  accounts         Account[]
+  // Legacy relations — removed in migration 2
+  categories       Category[]
+  quests           Quest[]
+  questCompletions QuestCompletion[]
+  // New relations
+  attributes       Attribute[]
+  projects         Project[]
+  tasks            Task[]
+  completions      TaskCompletion[]
+  habitEntries     HabitEntry[]
 
   @@map("user")
 }
@@ -77,6 +120,8 @@ model Verification {
   @@map("verification")
 }
 
+// ===== LEGACY MODELS — kept during transition, removed in migration 2 =====
+
 model Category {
   id        String   @id @default(cuid())
   userId    String   @map("user_id")
@@ -126,4 +171,102 @@ model QuestCompletion {
   @@index([userId, questId, periodType, periodKey], map: "idx_completions_user_quest_period")
   @@index([userId, completedAt(sort: Desc)], map: "idx_completions_user_completed_at")
   @@map("quest_completions")
+}
+
+// ===== NEW MODELS =====
+
+model Attribute {
+  id        String    @id @default(cuid())
+  userId    String    @map("user_id")
+  name      String
+  sortOrder Int       @default(0) @map("sort_order")
+  createdAt DateTime  @default(now()) @map("created_at")
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tasks     Task[]
+  projects  Project[]
+
+  @@unique([userId, name], map: "attribute_user_name_unique")
+  @@index([userId, sortOrder], map: "idx_attributes_user_sort")
+  @@map("attributes")
+}
+
+model Project {
+  id          String        @id @default(cuid())
+  userId      String        @map("user_id")
+  attributeId String?       @map("attribute_id")
+  name        String
+  description String?
+  status      ProjectStatus @default(ACTIVE)
+  sortOrder   Int           @default(0) @map("sort_order")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @default(now()) @updatedAt @map("updated_at")
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  attribute   Attribute?    @relation(fields: [attributeId], references: [id], onDelete: SetNull)
+  tasks       Task[]
+
+  @@unique([userId, name], map: "project_user_name_unique")
+  @@index([userId, status], map: "idx_projects_user_status")
+  @@map("projects")
+}
+
+model Task {
+  id           String           @id @default(cuid())
+  userId       String           @map("user_id")
+  attributeId  String           @map("attribute_id")
+  projectId    String?          @map("project_id")
+  title        String
+  description  String?
+  taskKind     TaskKind         @map("task_kind")
+  cadence      TaskCadence?
+  dueDate      DateTime?        @map("due_date")
+  habitMode    HabitMode?       @map("habit_mode")
+  isActive     Boolean          @default(true) @map("is_active")
+  createdAt    DateTime         @default(now()) @map("created_at")
+  updatedAt    DateTime         @default(now()) @updatedAt @map("updated_at")
+  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  attribute    Attribute        @relation(fields: [attributeId], references: [id], onDelete: Restrict)
+  project      Project?         @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  completions  TaskCompletion[]
+  habitEntries HabitEntry[]
+
+  @@index([userId, attributeId], map: "idx_tasks_user_attribute")
+  @@index([userId, taskKind, isActive], map: "idx_tasks_user_kind_active")
+  @@index([userId, projectId], map: "idx_tasks_user_project")
+  @@index([userId, dueDate], map: "idx_tasks_user_due_date")
+  @@map("tasks")
+}
+
+model TaskCompletion {
+  id          String      @id @default(cuid())
+  userId      String      @map("user_id")
+  taskId      String      @map("task_id")
+  cadence     TaskCadence
+  periodKey   String      @map("period_key")
+  completedAt DateTime    @default(now()) @map("completed_at")
+  note        String?
+  createdAt   DateTime    @default(now()) @map("created_at")
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  task        Task        @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, taskId, cadence, periodKey], map: "completion_user_task_cadence_period_unique")
+  @@index([userId, taskId, cadence, periodKey], map: "idx_completions_user_task_cadence_period")
+  @@index([userId, completedAt(sort: Desc)], map: "idx_task_completions_user_completed_at")
+  @@map("task_completions")
+}
+
+model HabitEntry {
+  id        String     @id @default(cuid())
+  userId    String     @map("user_id")
+  taskId    String     @map("task_id")
+  sign      HabitSign
+  entryDate String     @map("entry_date")
+  markedAt  DateTime   @default(now()) @map("marked_at")
+  note      String?
+  createdAt DateTime   @default(now()) @map("created_at")
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  task      Task       @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@index([userId, taskId, entryDate], map: "idx_habit_entries_user_task_date")
+  @@index([userId, entryDate], map: "idx_habit_entries_user_date")
+  @@map("habit_entries")
 }
