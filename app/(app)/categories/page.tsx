@@ -1,5 +1,5 @@
-import { CategoryManager } from "@/components/categories/category-manager";
+import { permanentRedirect } from "next/navigation";
 
-export default function CategoriesPage() {
-  return <CategoryManager />;
+export default function CategoriesRedirectPage() {
+  permanentRedirect("/attributes");
 }

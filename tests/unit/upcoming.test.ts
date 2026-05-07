@@ -1,31 +1,36 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { QuestType } from "@prisma/client";
+import { TaskCadence, TaskKind } from "@prisma/client";
 
 import { mapUpcomingAgenda } from "../../lib/upcoming";
 
-const category = {
+const attribute = {
   createdAt: new Date("2026-01-01T00:00:00.000Z"),
-  id: "cat-health",
+  id: "attr-health",
   name: "Health",
   sortOrder: 0,
   userId: "user-1",
 };
 
-function createQuest(
+function createTask(
   id: string,
   title: string,
-  questType: QuestType,
+  taskKind: TaskKind,
+  cadence: TaskCadence | null,
 ) {
   return {
-    category,
-    categoryId: category.id,
+    attribute,
+    attributeId: attribute.id,
+    cadence,
     createdAt: new Date("2026-01-01T00:00:00.000Z"),
     description: null,
+    dueDate: null,
+    habitMode: null,
     id,
     isActive: true,
-    questType,
+    projectId: null,
+    taskKind,
     title,
     updatedAt: new Date("2026-01-01T00:00:00.000Z"),
     userId: "user-1",
@@ -33,14 +38,14 @@ function createQuest(
 }
 
 describe("mapUpcomingAgenda", () => {
-  it("projects recurring quests into future date groups without duplicating the current period", () => {
+  it("projects recurring tasks into future date groups without duplicating the current period", () => {
     const agenda = mapUpcomingAgenda({
       completions: [],
       horizonDays: 10,
-      quests: [
-        createQuest("quest-daily", "Morning Run", QuestType.DAILY),
-        createQuest("quest-weekly", "Weekly Review", QuestType.WEEKLY),
-        createQuest("quest-main", "One-time Move", QuestType.MAIN),
+      tasks: [
+        createTask("task-daily", "Morning Run", TaskKind.RECURRING, TaskCadence.DAILY),
+        createTask("task-weekly", "Weekly Review", TaskKind.RECURRING, TaskCadence.WEEKLY),
+        createTask("task-todo", "One-time Move", TaskKind.TODO, null),
       ],
       referenceDate: new Date("2026-05-05T05:00:00.000Z"),
     });
@@ -49,16 +54,16 @@ describe("mapUpcomingAgenda", () => {
     assert.equal(agenda.endDate, "2026-05-15");
     assert.equal(
       agenda.groups.some((group) =>
-        group.items.some((item) => item.questId === "quest-main"),
+        group.items.some((item) => item.taskId === "task-todo"),
       ),
       false,
     );
 
     const dailyItems = agenda.groups.flatMap((group) =>
-      group.items.filter((item) => item.questId === "quest-daily"),
+      group.items.filter((item) => item.taskId === "task-daily"),
     );
     const weeklyItems = agenda.groups.flatMap((group) =>
-      group.items.filter((item) => item.questId === "quest-weekly"),
+      group.items.filter((item) => item.taskId === "task-weekly"),
     );
 
     assert.equal(dailyItems.length, 10);
@@ -72,18 +77,18 @@ describe("mapUpcomingAgenda", () => {
     const agenda = mapUpcomingAgenda({
       completions: [
         {
+          cadence: TaskCadence.DAILY,
           completedAt: new Date("2026-05-06T08:00:00.000Z"),
           createdAt: new Date("2026-05-06T08:00:00.000Z"),
           id: "completion-1",
           note: "Done early",
           periodKey: "2026-05-06",
-          periodType: QuestType.DAILY,
-          questId: "quest-daily",
+          taskId: "task-daily",
           userId: "user-1",
         },
       ],
       horizonDays: 1,
-      quests: [createQuest("quest-daily", "Morning Run", QuestType.DAILY)],
+      tasks: [createTask("task-daily", "Morning Run", TaskKind.RECURRING, TaskCadence.DAILY)],
       referenceDate: new Date("2026-05-05T05:00:00.000Z"),
     });
     const item = agenda.groups[0]?.items[0];

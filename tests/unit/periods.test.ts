@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { QuestType } from "@prisma/client";
+import { TaskCadence } from "@prisma/client";
 
 import {
   getAppTimezone,
@@ -66,30 +66,30 @@ describe("period helpers", () => {
     assert.equal(getDateForLocalDateInput("2026/03/11", "Asia/Jakarta"), null);
   });
 
-  it("builds the right period key for each quest type", () => {
+  it("builds the right period key for each cadence", () => {
     const date = new Date("2021-01-01T12:00:00.000Z");
 
-    assert.equal(getCurrentPeriodKey(QuestType.MAIN, date, "UTC"), "ONE_TIME");
-    assert.equal(getCurrentPeriodKey(QuestType.DAILY, date, "UTC"), "2021-01-01");
-    assert.equal(getCurrentPeriodKey(QuestType.WEEKLY, date, "UTC"), "2020-W53");
-    assert.equal(getCurrentPeriodKey(QuestType.MONTHLY, date, "UTC"), "2021-01");
+    assert.equal(getCurrentPeriodKey(TaskCadence.ONCE, date, "UTC"), "ONCE");
+    assert.equal(getCurrentPeriodKey(TaskCadence.DAILY, date, "UTC"), "2021-01-01");
+    assert.equal(getCurrentPeriodKey(TaskCadence.WEEKLY, date, "UTC"), "2020-W53");
+    assert.equal(getCurrentPeriodKey(TaskCadence.MONTHLY, date, "UTC"), "2021-01");
   });
 
   it("shifts daily, weekly, and monthly cursor dates predictably", () => {
     assert.equal(
-      shiftPeriodDate(QuestType.DAILY, new Date("2026-03-11T00:00:00.000Z"), 1)
+      shiftPeriodDate(TaskCadence.DAILY, new Date("2026-03-11T00:00:00.000Z"), 1)
         .toISOString(),
       "2026-03-12T00:00:00.000Z",
     );
 
     assert.equal(
-      shiftPeriodDate(QuestType.WEEKLY, new Date("2026-03-11T00:00:00.000Z"), -1)
+      shiftPeriodDate(TaskCadence.WEEKLY, new Date("2026-03-11T00:00:00.000Z"), -1)
         .toISOString(),
       "2026-03-04T00:00:00.000Z",
     );
 
     assert.equal(
-      shiftPeriodDate(QuestType.MONTHLY, new Date("2026-03-20T00:00:00.000Z"), -1)
+      shiftPeriodDate(TaskCadence.MONTHLY, new Date("2026-03-20T00:00:00.000Z"), -1)
         .toISOString(),
       "2026-02-01T00:00:00.000Z",
     );

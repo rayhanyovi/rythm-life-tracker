@@ -114,18 +114,18 @@ describe("dashboard and history validators", () => {
   it("accepts valid history filters", () => {
     assert.deepEqual(
       historyQuerySchema.parse({
-        categoryId: "cat-1",
+        attributeId: "attr-1",
         from: "2026-03-01",
-        questId: "quest-1",
-        questType: "WEEKLY",
+        taskId: "task-1",
+        cadence: "WEEKLY",
         to: "2026-03-31",
       }),
       {
-      categoryId: "cat-1",
-      from: "2026-03-01",
-      questId: "quest-1",
-      questType: "WEEKLY",
-      to: "2026-03-31",
+        attributeId: "attr-1",
+        cadence: "WEEKLY",
+        from: "2026-03-01",
+        taskId: "task-1",
+        to: "2026-03-31",
       },
     );
   });
@@ -135,14 +135,14 @@ describe("calendar validators", () => {
   it("accepts valid month and recurring task filters", () => {
     assert.deepEqual(
       calendarQuerySchema.parse({
-        categoryId: "cat-1",
+        attributeId: "attr-1",
         month: "2026-05",
-        questType: "WEEKLY",
+        cadence: "WEEKLY",
       }),
       {
-        categoryId: "cat-1",
+        attributeId: "attr-1",
+        cadence: "WEEKLY",
         month: "2026-05",
-        questType: "WEEKLY",
       },
     );
   });

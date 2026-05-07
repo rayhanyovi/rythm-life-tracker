@@ -1,48 +1,53 @@
 import {
-  type Category,
-  QuestType,
-  type Quest,
-  type QuestCompletion,
+  type Attribute,
+  TaskCadence,
+  TaskKind,
+  type Task,
+  type TaskCompletion,
 } from "@prisma/client";
 
 import { getCurrentPeriodKey, getLocalDateKey } from "@/lib/periods";
 
-type CalendarQuestRecord = Quest & {
-  category: Category;
+type CalendarTaskRecord = Task & {
+  attribute: Attribute;
 };
 
 type CalendarMonthInput = {
-  completions: QuestCompletion[];
+  completions: TaskCompletion[];
   month: string;
-  quests: CalendarQuestRecord[];
+  tasks: CalendarTaskRecord[];
   referenceDate?: Date;
 };
 
 type CalendarAgendaItem = {
-  categoryId: string;
-  categoryName: string;
+  attributeId: string;
+  attributeName: string;
+  cadence: Exclude<TaskCadence, "ONCE">;
   completionId: string | null;
   description: string | null;
   isCompleted: boolean;
   note: string | null;
   periodKey: string;
-  questId: string;
-  questType: Exclude<QuestType, typeof QuestType.MAIN>;
+  taskId: string;
   title: string;
 };
 
-function isRecurringQuestType(
-  questType: QuestType,
-): questType is Exclude<QuestType, typeof QuestType.MAIN> {
-  return questType !== QuestType.MAIN;
+function isRecurringCadence(
+  cadence: TaskCadence | null,
+): cadence is Exclude<TaskCadence, "ONCE"> {
+  return (
+    cadence === TaskCadence.DAILY ||
+    cadence === TaskCadence.WEEKLY ||
+    cadence === TaskCadence.MONTHLY
+  );
 }
 
 function getCompletionLookupKey(item: {
+  cadence: TaskCadence;
   periodKey: string;
-  questId: string;
-  questType: QuestType;
+  taskId: string;
 }) {
-  return `${item.questId}:${item.questType}:${item.periodKey}`;
+  return `${item.taskId}:${item.cadence}:${item.periodKey}`;
 }
 
 function parseMonthInput(month: string) {
@@ -84,7 +89,7 @@ function getCalendarGridDates(year: number, monthIndex: number) {
 export function mapCalendarMonth({
   completions,
   month,
-  quests,
+  tasks,
   referenceDate = new Date(),
 }: CalendarMonthInput) {
   const parsedMonth = parseMonthInput(month);
@@ -93,12 +98,12 @@ export function mapCalendarMonth({
     throw new Error("Invalid calendar month.");
   }
 
-  const completionByQuestPeriod = new Map(
+  const completionByTaskPeriod = new Map(
     completions.map((completion) => [
       getCompletionLookupKey({
+        cadence: completion.cadence,
         periodKey: completion.periodKey,
-        questId: completion.questId,
-        questType: completion.periodType,
+        taskId: completion.taskId,
       }),
       completion,
     ]),
@@ -112,44 +117,44 @@ export function mapCalendarMonth({
     const dateKey = getLocalDateKey(date);
     const items: CalendarAgendaItem[] = [];
 
-    for (const quest of quests) {
-      if (!isRecurringQuestType(quest.questType)) {
+    for (const task of tasks) {
+      if (task.taskKind !== TaskKind.RECURRING || !isRecurringCadence(task.cadence)) {
         continue;
       }
 
-      const periodKey = getCurrentPeriodKey(quest.questType, date);
+      const periodKey = getCurrentPeriodKey(task.cadence, date);
       const emissionKey = getCompletionLookupKey({
+        cadence: task.cadence,
         periodKey,
-        questId: quest.id,
-        questType: quest.questType,
+        taskId: task.id,
       });
 
-      if (quest.questType !== QuestType.DAILY && emittedPeriods.has(emissionKey)) {
+      if (task.cadence !== TaskCadence.DAILY && emittedPeriods.has(emissionKey)) {
         continue;
       }
 
       emittedPeriods.add(emissionKey);
 
-      const completion = completionByQuestPeriod.get(emissionKey) ?? null;
+      const completion = completionByTaskPeriod.get(emissionKey) ?? null;
 
       items.push({
-        categoryId: quest.categoryId,
-        categoryName: quest.category.name,
+        attributeId: task.attributeId,
+        attributeName: task.attribute.name,
+        cadence: task.cadence,
         completionId: completion?.id ?? null,
-        description: quest.description,
+        description: task.description,
         isCompleted: Boolean(completion),
         note: completion?.note ?? null,
         periodKey,
-        questId: quest.id,
-        questType: quest.questType,
-        title: quest.title,
+        taskId: task.id,
+        title: task.title,
       });
     }
 
     const sortedItems = items.sort((left, right) => {
-      const categorySort = left.categoryName.localeCompare(right.categoryName);
+      const attributeSort = left.attributeName.localeCompare(right.attributeName);
 
-      return categorySort || left.title.localeCompare(right.title);
+      return attributeSort || left.title.localeCompare(right.title);
     });
 
     return {

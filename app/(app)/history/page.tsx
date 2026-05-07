@@ -1,5 +1,5 @@
-import { HistoryScreen } from "@/components/history/history-screen";
+import { permanentRedirect } from "next/navigation";
 
-export default function HistoryPage() {
-  return <HistoryScreen />;
+export default function HistoryRedirectPage() {
+  permanentRedirect("/activity-log");
 }

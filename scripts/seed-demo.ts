@@ -1,4 +1,4 @@
-import { QuestType } from "@prisma/client";
+import { QuestType, TaskCadence } from "@prisma/client";
 import { hashPassword } from "better-auth/crypto";
 
 import { bootstrapDefaultCategories } from "@/lib/categories";
@@ -112,6 +112,11 @@ async function createQuest(options: {
   });
 }
 
+function questTypeToTaskCadence(questType: QuestType): TaskCadence {
+  if (questType === "MAIN") return TaskCadence.ONCE;
+  return questType as unknown as TaskCadence;
+}
+
 function buildCompletion(options: {
   date: Date;
   note?: string;
@@ -122,7 +127,7 @@ function buildCompletion(options: {
   return {
     completedAt: options.date,
     note: options.note ?? null,
-    periodKey: getPeriodKeyForDate(options.questType, options.date),
+    periodKey: getPeriodKeyForDate(questTypeToTaskCadence(options.questType), options.date),
     periodType: options.questType,
     questId: options.questId,
     userId: options.userId,

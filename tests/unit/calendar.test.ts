@@ -1,27 +1,36 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { QuestType } from "@prisma/client";
+import { TaskCadence, TaskKind } from "@prisma/client";
 
 import { mapCalendarMonth } from "../../lib/calendar";
 
-const category = {
+const attribute = {
   createdAt: new Date("2026-01-01T00:00:00.000Z"),
-  id: "cat-health",
+  id: "attr-health",
   name: "Health",
   sortOrder: 0,
   userId: "user-1",
 };
 
-function createQuest(id: string, title: string, questType: QuestType) {
+function createTask(
+  id: string,
+  title: string,
+  taskKind: TaskKind,
+  cadence: TaskCadence | null,
+) {
   return {
-    category,
-    categoryId: category.id,
+    attribute,
+    attributeId: attribute.id,
+    cadence,
     createdAt: new Date("2026-01-01T00:00:00.000Z"),
     description: null,
+    dueDate: null,
+    habitMode: null,
     id,
     isActive: true,
-    questType,
+    projectId: null,
+    taskKind,
     title,
     updatedAt: new Date("2026-01-01T00:00:00.000Z"),
     userId: "user-1",
@@ -29,15 +38,15 @@ function createQuest(id: string, title: string, questType: QuestType) {
 }
 
 describe("mapCalendarMonth", () => {
-  it("builds a stable month grid and excludes one-time tasks", () => {
+  it("builds a stable month grid and excludes non-recurring tasks", () => {
     const calendar = mapCalendarMonth({
       completions: [],
       month: "2026-05",
-      quests: [
-        createQuest("quest-daily", "Morning Run", QuestType.DAILY),
-        createQuest("quest-weekly", "Weekly Review", QuestType.WEEKLY),
-        createQuest("quest-monthly", "Budget Review", QuestType.MONTHLY),
-        createQuest("quest-main", "One-time Move", QuestType.MAIN),
+      tasks: [
+        createTask("task-daily", "Morning Run", TaskKind.RECURRING, TaskCadence.DAILY),
+        createTask("task-weekly", "Weekly Review", TaskKind.RECURRING, TaskCadence.WEEKLY),
+        createTask("task-monthly", "Budget Review", TaskKind.RECURRING, TaskCadence.MONTHLY),
+        createTask("task-todo", "One-time Move", TaskKind.TODO, null),
       ],
       referenceDate: new Date("2026-05-06T05:00:00.000Z"),
     });
@@ -48,19 +57,19 @@ describe("mapCalendarMonth", () => {
     assert.equal(calendar.days.some((day) => day.isToday), true);
     assert.equal(
       calendar.days.some((day) =>
-        day.items.some((item) => item.questId === "quest-main"),
+        day.items.some((item) => item.taskId === "task-todo"),
       ),
       false,
     );
 
     const dailyItems = calendar.days.flatMap((day) =>
-      day.items.filter((item) => item.questId === "quest-daily"),
+      day.items.filter((item) => item.taskId === "task-daily"),
     );
     const weeklyItems = calendar.days.flatMap((day) =>
-      day.items.filter((item) => item.questId === "quest-weekly"),
+      day.items.filter((item) => item.taskId === "task-weekly"),
     );
     const monthlyItems = calendar.days.flatMap((day) =>
-      day.items.filter((item) => item.questId === "quest-monthly"),
+      day.items.filter((item) => item.taskId === "task-monthly"),
     );
 
     assert.equal(dailyItems.length, 42);
@@ -86,18 +95,18 @@ describe("mapCalendarMonth", () => {
     const calendar = mapCalendarMonth({
       completions: [
         {
+          cadence: TaskCadence.DAILY,
           completedAt: new Date("2026-05-06T08:00:00.000Z"),
           createdAt: new Date("2026-05-06T08:00:00.000Z"),
           id: "completion-1",
           note: "Done early",
           periodKey: "2026-05-06",
-          periodType: QuestType.DAILY,
-          questId: "quest-daily",
+          taskId: "task-daily",
           userId: "user-1",
         },
       ],
       month: "2026-05",
-      quests: [createQuest("quest-daily", "Morning Run", QuestType.DAILY)],
+      tasks: [createTask("task-daily", "Morning Run", TaskKind.RECURRING, TaskCadence.DAILY)],
       referenceDate: new Date("2026-05-06T05:00:00.000Z"),
     });
     const selectedDay = calendar.days.find((day) => day.date === "2026-05-06");

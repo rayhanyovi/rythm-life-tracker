@@ -1,94 +1,105 @@
 import {
-  type Category,
-  QuestType,
-  type Quest,
-  type QuestCompletion,
+  type Attribute,
+  TaskCadence,
+  TaskKind,
+  type Task,
+  type TaskCompletion,
 } from "@prisma/client";
 
 import { getCurrentPeriodKey, getLocalDateKey } from "@/lib/periods";
 import { calculateCurrentStreak } from "@/lib/streaks";
 
-type DashboardQuestRecord = Quest & {
-  category: Category;
+type DashboardTaskRecord = Task & {
+  attribute: Attribute;
 };
 
-export function mapDashboardCategories(
-  quests: DashboardQuestRecord[],
-  currentCompletions: QuestCompletion[],
-  recentCompletions: QuestCompletion[],
+/** For TODOs (cadence=null), use ONCE for completion lookups */
+function getEffectiveCadence(task: Task): TaskCadence {
+  return task.cadence ?? TaskCadence.ONCE;
+}
+
+export function mapDashboardAttributes(
+  tasks: DashboardTaskRecord[],
+  currentCompletions: TaskCompletion[],
+  recentCompletions: TaskCompletion[],
   date = new Date(),
 ) {
-  const currentCompletionByQuestId = new Map(
-    currentCompletions.map((completion) => [completion.questId, completion]),
+  const currentCompletionByTaskId = new Map(
+    currentCompletions.map((completion) => [completion.taskId, completion]),
   );
-  const completionPeriodKeysByQuestId = new Map<string, string[]>();
+  const completionPeriodKeysByTaskId = new Map<string, string[]>();
 
   for (const completion of recentCompletions) {
-    const nextKeys = completionPeriodKeysByQuestId.get(completion.questId) ?? [];
+    const nextKeys = completionPeriodKeysByTaskId.get(completion.taskId) ?? [];
     nextKeys.push(completion.periodKey);
-    completionPeriodKeysByQuestId.set(completion.questId, nextKeys);
+    completionPeriodKeysByTaskId.set(completion.taskId, nextKeys);
   }
 
-  const categories = new Map<
+  const attributes = new Map<
     string,
     {
-      categoryId: string;
-      categoryName: string;
+      attributeId: string;
+      attributeName: string;
       items: Array<{
-        categoryId: string;
-        categoryName: string;
+        attributeId: string;
+        attributeName: string;
+        cadence: TaskCadence | null;
         completionId: string | null;
         currentPeriodKey: string;
         description: string | null;
+        dueDate: string | null;
         isActive: boolean;
         isCompletedNow: boolean;
         note: string | null;
-        questId: string;
-        questType: QuestType;
         streak: number | null;
+        taskId: string;
+        taskKind: TaskKind;
         title: string;
       }>;
       sortOrder: number;
     }
   >();
 
-  for (const quest of quests) {
-    const currentPeriodKey = getCurrentPeriodKey(quest.questType, date);
-    const currentCompletion = currentCompletionByQuestId.get(quest.id) ?? null;
-    const completionKeys = completionPeriodKeysByQuestId.get(quest.id) ?? [];
-    const categoryEntry = categories.get(quest.categoryId) ?? {
-      categoryId: quest.categoryId,
-      categoryName: quest.category.name,
+  for (const task of tasks) {
+    const effectiveCadence = getEffectiveCadence(task);
+    const currentPeriodKey = getCurrentPeriodKey(effectiveCadence, date);
+    const currentCompletion = currentCompletionByTaskId.get(task.id) ?? null;
+    const completionKeys = completionPeriodKeysByTaskId.get(task.id) ?? [];
+    const attributeEntry = attributes.get(task.attributeId) ?? {
+      attributeId: task.attributeId,
+      attributeName: task.attribute.name,
       items: [],
-      sortOrder: quest.category.sortOrder,
+      sortOrder: task.attribute.sortOrder,
     };
 
-    categoryEntry.items.push({
-      questId: quest.id,
-      categoryId: quest.categoryId,
-      categoryName: quest.category.name,
-      title: quest.title,
-      description: quest.description,
-      questType: quest.questType,
-      isActive: quest.isActive,
+    attributeEntry.items.push({
+      taskId: task.id,
+      attributeId: task.attributeId,
+      attributeName: task.attribute.name,
+      taskKind: task.taskKind,
+      cadence: task.cadence,
+      dueDate: task.dueDate ? task.dueDate.toISOString() : null,
+      title: task.title,
+      description: task.description,
+      isActive: task.isActive,
       isCompletedNow: Boolean(currentCompletion),
       currentPeriodKey,
-      streak: calculateCurrentStreak(quest.questType, completionKeys, date),
+      streak: calculateCurrentStreak(effectiveCadence, completionKeys, date),
       completionId: currentCompletion?.id ?? null,
       note: currentCompletion?.note ?? null,
     });
 
-    categories.set(quest.categoryId, categoryEntry);
+    attributes.set(task.attributeId, attributeEntry);
   }
 
   return {
     date: getLocalDateKey(date),
-    categories: [...categories.values()]
+    attributes: [...attributes.values()]
       .sort((left, right) => left.sortOrder - right.sortOrder)
-      .map((category) => ({
-        categoryId: category.categoryId,
-        categoryName: category.categoryName,
-        items: category.items,
+      .map((attribute) => ({
+        attributeId: attribute.attributeId,
+        attributeName: attribute.attributeName,
+        items: attribute.items,
       })),
   };
 }

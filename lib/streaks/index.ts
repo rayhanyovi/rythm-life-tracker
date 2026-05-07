@@ -1,4 +1,4 @@
-import { QuestType } from "@prisma/client";
+import { TaskCadence } from "@prisma/client";
 
 import {
   getAppTimezone,
@@ -8,33 +8,33 @@ import {
 } from "@/lib/periods";
 
 export function calculateCurrentStreak(
-  questType: QuestType,
+  cadence: TaskCadence,
   completionPeriodKeys: string[],
   date = new Date(),
   timeZone = getAppTimezone(),
 ) {
-  if (questType === QuestType.MAIN) {
+  if (cadence === TaskCadence.ONCE) {
     return null;
   }
 
   const completionSet = new Set(completionPeriodKeys);
-  const currentPeriodKey = getPeriodKeyForDate(questType, date, timeZone);
+  const currentPeriodKey = getPeriodKeyForDate(cadence, date, timeZone);
   let cursorDate = getCurrentLocalDate(date, timeZone);
 
   if (!completionSet.has(currentPeriodKey)) {
-    cursorDate = shiftPeriodDate(questType, cursorDate, -1);
+    cursorDate = shiftPeriodDate(cadence, cursorDate, -1);
   }
 
   let streak = 0;
 
   while (true) {
-    const periodKey = getPeriodKeyForDate(questType, cursorDate, timeZone);
+    const periodKey = getPeriodKeyForDate(cadence, cursorDate, timeZone);
 
     if (!completionSet.has(periodKey)) {
       return streak;
     }
 
     streak += 1;
-    cursorDate = shiftPeriodDate(questType, cursorDate, -1);
+    cursorDate = shiftPeriodDate(cadence, cursorDate, -1);
   }
 }

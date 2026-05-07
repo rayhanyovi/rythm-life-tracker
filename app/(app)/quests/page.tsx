@@ -1,5 +1,5 @@
-import { QuestManager } from "@/components/quests/quest-manager";
+import { permanentRedirect } from "next/navigation";
 
-export default function QuestsPage() {
-  return <QuestManager />;
+export default function QuestsRedirectPage() {
+  permanentRedirect("/lists");
 }

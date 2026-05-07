@@ -1,4 +1,4 @@
-import { QuestType } from "@prisma/client";
+import { TaskCadence, TaskKind } from "@prisma/client";
 
 import { db } from "@/lib/db";
 import { jsonError, jsonResponse, validationErrorResponse } from "@/lib/http";
@@ -19,9 +19,13 @@ export async function GET(request: Request) {
 
   const url = new URL(request.url);
   const result = calendarQuerySchema.safeParse({
-    categoryId: url.searchParams.get("categoryId") ?? undefined,
+    attributeId: url.searchParams.get("attributeId") ??
+      url.searchParams.get("categoryId") ??
+      undefined,
     month: url.searchParams.get("month") ?? undefined,
-    questType: url.searchParams.get("questType") ?? undefined,
+    cadence: url.searchParams.get("cadence") ??
+      url.searchParams.get("questType") ??
+      undefined,
   });
 
   if (!result.success) {
@@ -29,40 +33,43 @@ export async function GET(request: Request) {
   }
 
   const month = result.data.month ?? getLocalDateKey(new Date()).slice(0, 7);
-  const quests = await db.quest.findMany({
+  const tasks = await db.task.findMany({
     where: {
       userId: session.user.id,
       isActive: true,
-      questType: result.data.questType
-        ? result.data.questType
+      taskKind: TaskKind.RECURRING,
+      ...(result.data.cadence
+        ? { cadence: result.data.cadence as TaskCadence }
         : {
-            not: QuestType.MAIN,
-          },
-      ...(result.data.categoryId
+            cadence: {
+              in: [TaskCadence.DAILY, TaskCadence.WEEKLY, TaskCadence.MONTHLY],
+            },
+          }),
+      ...(result.data.attributeId
         ? {
-            categoryId: result.data.categoryId,
+            attributeId: result.data.attributeId,
           }
         : {}),
     },
     include: {
-      category: true,
+      attribute: true,
     },
-    orderBy: [{ category: { sortOrder: "asc" } }, { title: "asc" }],
+    orderBy: [{ attribute: { sortOrder: "asc" } }, { title: "asc" }],
   });
   const calendarWithoutCompletions = mapCalendarMonth({
     completions: [],
     month,
-    quests,
+    tasks,
   });
   const completionFilters = calendarWithoutCompletions.days.flatMap((day) =>
     day.items.map((item) => ({
+      cadence: item.cadence as TaskCadence,
       periodKey: item.periodKey,
-      periodType: item.questType,
-      questId: item.questId,
+      taskId: item.taskId,
     })),
   );
   const completions = completionFilters.length
-    ? await db.questCompletion.findMany({
+    ? await db.taskCompletion.findMany({
         where: {
           userId: session.user.id,
           OR: completionFilters,
@@ -74,7 +81,7 @@ export async function GET(request: Request) {
     mapCalendarMonth({
       completions,
       month,
-      quests,
+      tasks,
     }),
   );
 }

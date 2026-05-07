@@ -1,11 +1,12 @@
-import { QuestType } from "@prisma/client";
+import { TaskCadence, TaskKind } from "@prisma/client";
 
-import { mapDashboardCategories } from "@/lib/dashboard";
+import { mapDashboardAttributes } from "@/lib/dashboard";
 import { db } from "@/lib/db";
 import { jsonError, jsonResponse, validationErrorResponse } from "@/lib/http";
 import {
   getDateForLocalDateInput,
   getCurrentPeriodKey,
+  getLocalDateKey,
   shiftPeriodDate,
 } from "@/lib/periods";
 import { getSessionFromRequest } from "@/lib/session";
@@ -24,7 +25,9 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const result = dashboardQuerySchema.safeParse({
     date: url.searchParams.get("date") ?? undefined,
-    categoryId: url.searchParams.get("categoryId") ?? undefined,
+    categoryId: url.searchParams.get("categoryId") ??
+      url.searchParams.get("attributeId") ??
+      undefined,
     includeInactive: url.searchParams.get("includeInactive") ?? undefined,
   });
 
@@ -41,50 +44,70 @@ export async function GET(request: Request) {
   }
 
   const effectiveDate = referenceDate ?? new Date();
-  const quests = await db.quest.findMany({
+
+  // End of today (for dueDate <= today check on TODOs)
+  const todayKey = getLocalDateKey(effectiveDate);
+  const endOfToday = getDateForLocalDateInput(todayKey, undefined, 23);
+
+  const tasks = await db.task.findMany({
     where: {
       userId: session.user.id,
       ...(result.data.categoryId
         ? {
-            categoryId: result.data.categoryId,
+            attributeId: result.data.categoryId,
           }
         : {}),
       ...(result.data.includeInactive ? {} : { isActive: true }),
+      OR: [
+        // RECURRING tasks always appear
+        { taskKind: TaskKind.RECURRING },
+        // TODO tasks: only if dueDate <= today
+        {
+          taskKind: TaskKind.TODO,
+          ...(endOfToday
+            ? { dueDate: { lte: endOfToday } }
+            : { dueDate: { not: null } }),
+        },
+      ],
     },
     include: {
-      category: true,
+      attribute: true,
     },
-    orderBy: [{ category: { sortOrder: "asc" } }, { title: "asc" }],
+    orderBy: [{ attribute: { sortOrder: "asc" } }, { title: "asc" }],
   });
+
   const currentPeriodKeysByType = new Map(
-    [QuestType.DAILY, QuestType.WEEKLY, QuestType.MONTHLY, QuestType.MAIN].map(
-      (questType) => [questType, getCurrentPeriodKey(questType, effectiveDate)],
-    ),
+    [
+      TaskCadence.DAILY,
+      TaskCadence.WEEKLY,
+      TaskCadence.MONTHLY,
+      TaskCadence.ONCE,
+    ].map((cadence) => [cadence, getCurrentPeriodKey(cadence, effectiveDate)]),
   );
 
-  const currentCompletions = quests.length
-    ? await db.questCompletion.findMany({
+  const currentCompletions = tasks.length
+    ? await db.taskCompletion.findMany({
         where: {
           userId: session.user.id,
-          questId: {
-            in: quests.map((quest) => quest.id),
+          taskId: {
+            in: tasks.map((task) => task.id),
           },
           OR: [
             {
-              periodType: QuestType.DAILY,
-              periodKey: currentPeriodKeysByType.get(QuestType.DAILY),
+              cadence: TaskCadence.DAILY,
+              periodKey: currentPeriodKeysByType.get(TaskCadence.DAILY),
             },
             {
-              periodType: QuestType.WEEKLY,
-              periodKey: currentPeriodKeysByType.get(QuestType.WEEKLY),
+              cadence: TaskCadence.WEEKLY,
+              periodKey: currentPeriodKeysByType.get(TaskCadence.WEEKLY),
             },
             {
-              periodType: QuestType.MONTHLY,
-              periodKey: currentPeriodKeysByType.get(QuestType.MONTHLY),
+              cadence: TaskCadence.MONTHLY,
+              periodKey: currentPeriodKeysByType.get(TaskCadence.MONTHLY),
             },
             {
-              periodType: QuestType.MAIN,
-              periodKey: currentPeriodKeysByType.get(QuestType.MAIN),
+              cadence: TaskCadence.ONCE,
+              periodKey: currentPeriodKeysByType.get(TaskCadence.ONCE),
             },
           ],
         },
@@ -92,16 +115,16 @@ export async function GET(request: Request) {
     : [];
 
   const recentCompletionFloor = shiftPeriodDate(
-    QuestType.MONTHLY,
+    TaskCadence.MONTHLY,
     effectiveDate,
     -24,
   );
-  const recentCompletions = quests.length
-    ? await db.questCompletion.findMany({
+  const recentCompletions = tasks.length
+    ? await db.taskCompletion.findMany({
         where: {
           userId: session.user.id,
-          questId: {
-            in: quests.map((quest) => quest.id),
+          taskId: {
+            in: tasks.map((task) => task.id),
           },
           completedAt: {
             gte: recentCompletionFloor,
@@ -114,8 +137,8 @@ export async function GET(request: Request) {
     : [];
 
   return jsonResponse(
-    mapDashboardCategories(
-      quests,
+    mapDashboardAttributes(
+      tasks,
       currentCompletions,
       recentCompletions,
       effectiveDate,

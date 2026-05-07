@@ -1,4 +1,4 @@
-import { QuestType } from "@prisma/client";
+import { TaskCadence } from "@prisma/client";
 
 import { getAppTimezone as getConfiguredAppTimezone } from "@/lib/env";
 
@@ -128,48 +128,49 @@ export function getDateForLocalDateInput(
 }
 
 export function shiftPeriodDate(
-  questType: QuestType,
+  cadence: TaskCadence,
   date: Date,
   amount: number,
 ) {
   const nextDate = new Date(date.getTime());
 
-  if (questType === QuestType.MONTHLY) {
+  if (cadence === TaskCadence.MONTHLY) {
     nextDate.setUTCDate(1);
     nextDate.setUTCMonth(nextDate.getUTCMonth() + amount);
 
     return nextDate;
   }
 
-  if (questType === QuestType.WEEKLY) {
+  if (cadence === TaskCadence.WEEKLY) {
     nextDate.setUTCDate(nextDate.getUTCDate() + amount * 7);
 
     return nextDate;
   }
 
-  if (questType === QuestType.DAILY) {
+  if (cadence === TaskCadence.DAILY) {
     nextDate.setUTCDate(nextDate.getUTCDate() + amount);
   }
 
+  // ONCE cadence: no shift
   return nextDate;
 }
 
 export function getPeriodKeyForDate(
-  questType: QuestType,
+  cadence: TaskCadence,
   date = new Date(),
   timeZone = getAppTimezone(),
 ) {
-  if (questType === QuestType.MAIN) {
-    return "ONE_TIME";
+  if (cadence === TaskCadence.ONCE) {
+    return "ONCE";
   }
 
   const localParts = getDatePartsInTimeZone(date, timeZone);
 
-  if (questType === QuestType.DAILY) {
+  if (cadence === TaskCadence.DAILY) {
     return `${localParts.year}-${pad(localParts.month)}-${pad(localParts.day)}`;
   }
 
-  if (questType === QuestType.MONTHLY) {
+  if (cadence === TaskCadence.MONTHLY) {
     return `${localParts.year}-${pad(localParts.month)}`;
   }
 
@@ -180,9 +181,9 @@ export function getPeriodKeyForDate(
 }
 
 export function getCurrentPeriodKey(
-  questType: QuestType,
+  cadence: TaskCadence,
   date = new Date(),
   timeZone = getAppTimezone(),
 ) {
-  return getPeriodKeyForDate(questType, date, timeZone);
+  return getPeriodKeyForDate(cadence, date, timeZone);
 }

@@ -1,20 +1,11 @@
-import { type QuestType, TaskCadence } from "@prisma/client";
+import { TaskCadence } from "@prisma/client";
 
 import { jsonError, jsonResponse, validationErrorResponse } from "@/lib/http";
 import { db } from "@/lib/db";
 import { getCurrentPeriodKey } from "@/lib/periods";
-import { findOwnedQuest } from "@/lib/quests";
+import { findOwnedTask } from "@/lib/tasks";
 import { getSessionFromRequest } from "@/lib/session";
 import { upsertCurrentCompletionSchema } from "@/lib/validators/completion";
-
-/**
- * Bridge: legacy QuestType → TaskCadence for period key helpers.
- * DAILY/WEEKLY/MONTHLY are identical string values; MAIN maps to ONCE.
- */
-function toTaskCadence(questType: QuestType): TaskCadence {
-  if (questType === "MAIN") return TaskCadence.ONCE;
-  return questType as unknown as TaskCadence;
-}
 
 type CompletionRouteContext = {
   params: Promise<{
@@ -24,6 +15,11 @@ type CompletionRouteContext = {
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+/** For TODO tasks cadence=null → use ONCE */
+function getEffectiveCadence(cadence: TaskCadence | null): TaskCadence {
+  return cadence ?? TaskCadence.ONCE;
+}
 
 export async function PUT(request: Request, context: CompletionRouteContext) {
   const session = await getSessionFromRequest(request);
@@ -47,21 +43,21 @@ export async function PUT(request: Request, context: CompletionRouteContext) {
   }
 
   const { id } = await context.params;
-  const quest = await findOwnedQuest(session.user.id, id);
+  const task = await findOwnedTask(session.user.id, id);
 
-  if (!quest) {
+  if (!task) {
     return jsonError(404, "Task not found.");
   }
 
-  const periodType = quest.questType;
-  const periodKey = getCurrentPeriodKey(toTaskCadence(periodType));
+  const cadence = getEffectiveCadence(task.cadence);
+  const periodKey = getCurrentPeriodKey(cadence);
 
-  const completion = await db.questCompletion.upsert({
+  const completion = await db.taskCompletion.upsert({
     where: {
-      userId_questId_periodType_periodKey: {
+      userId_taskId_cadence_periodKey: {
         userId: session.user.id,
-        questId: quest.id,
-        periodType,
+        taskId: task.id,
+        cadence,
         periodKey,
       },
     },
@@ -71,8 +67,8 @@ export async function PUT(request: Request, context: CompletionRouteContext) {
     },
     create: {
       userId: session.user.id,
-      questId: quest.id,
-      periodType,
+      taskId: task.id,
+      cadence,
       periodKey,
       completedAt: new Date(),
       note: result.data.note ?? null,
@@ -92,20 +88,20 @@ export async function DELETE(request: Request, context: CompletionRouteContext) 
   }
 
   const { id } = await context.params;
-  const quest = await findOwnedQuest(session.user.id, id);
+  const task = await findOwnedTask(session.user.id, id);
 
-  if (!quest) {
+  if (!task) {
     return jsonError(404, "Task not found.");
   }
 
-  const periodType = quest.questType;
-  const periodKey = getCurrentPeriodKey(toTaskCadence(periodType));
-  const existingCompletion = await db.questCompletion.findUnique({
+  const cadence = getEffectiveCadence(task.cadence);
+  const periodKey = getCurrentPeriodKey(cadence);
+  const existingCompletion = await db.taskCompletion.findUnique({
     where: {
-      userId_questId_periodType_periodKey: {
+      userId_taskId_cadence_periodKey: {
         userId: session.user.id,
-        questId: quest.id,
-        periodType,
+        taskId: task.id,
+        cadence,
         periodKey,
       },
     },
@@ -115,7 +111,7 @@ export async function DELETE(request: Request, context: CompletionRouteContext) 
     return new Response(null, { status: 204 });
   }
 
-  await db.questCompletion.delete({
+  await db.taskCompletion.delete({
     where: { id: existingCompletion.id },
   });
 

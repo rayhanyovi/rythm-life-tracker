@@ -1,8 +1,9 @@
 import {
-  type Category,
-  QuestType,
-  type Quest,
-  type QuestCompletion,
+  type Attribute,
+  TaskCadence,
+  TaskKind,
+  type Task,
+  type TaskCompletion,
 } from "@prisma/client";
 
 import {
@@ -12,66 +13,69 @@ import {
   shiftPeriodDate,
 } from "@/lib/periods";
 
-type UpcomingQuestRecord = Quest & {
-  category: Category;
+type UpcomingTaskRecord = Task & {
+  attribute: Attribute;
 };
 
 type UpcomingAgendaInput = {
-  completions: QuestCompletion[];
+  completions: TaskCompletion[];
   horizonDays: number;
-  quests: UpcomingQuestRecord[];
+  tasks: UpcomingTaskRecord[];
   referenceDate?: Date;
 };
 
 type UpcomingAgendaItem = {
-  categoryId: string;
-  categoryName: string;
+  attributeId: string;
+  attributeName: string;
+  cadence: Exclude<TaskCadence, "ONCE">;
   completionId: string | null;
   description: string | null;
   isCompleted: boolean;
   note: string | null;
   periodKey: string;
-  questId: string;
-  questType: Exclude<QuestType, typeof QuestType.MAIN>;
+  taskId: string;
   title: string;
 };
 
-function isRecurringQuestType(
-  questType: QuestType,
-): questType is Exclude<QuestType, typeof QuestType.MAIN> {
-  return questType !== QuestType.MAIN;
+function isRecurringCadence(
+  cadence: TaskCadence | null,
+): cadence is Exclude<TaskCadence, "ONCE"> {
+  return (
+    cadence === TaskCadence.DAILY ||
+    cadence === TaskCadence.WEEKLY ||
+    cadence === TaskCadence.MONTHLY
+  );
 }
 
 function getCompletionLookupKey(item: {
+  cadence: TaskCadence;
   periodKey: string;
-  questId: string;
-  questType: QuestType;
+  taskId: string;
 }) {
-  return `${item.questId}:${item.questType}:${item.periodKey}`;
+  return `${item.taskId}:${item.cadence}:${item.periodKey}`;
 }
 
 export function mapUpcomingAgenda({
   completions,
   horizonDays,
-  quests,
+  tasks,
   referenceDate = new Date(),
 }: UpcomingAgendaInput) {
-  const completionByQuestPeriod = new Map(
+  const completionByTaskPeriod = new Map(
     completions.map((completion) => [
       getCompletionLookupKey({
+        cadence: completion.cadence,
         periodKey: completion.periodKey,
-        questId: completion.questId,
-        questType: completion.periodType,
+        taskId: completion.taskId,
       }),
       completion,
     ]),
   );
   const startDate = getCurrentLocalDate(referenceDate);
   const currentPeriodKeyByType = new Map(
-    [QuestType.DAILY, QuestType.WEEKLY, QuestType.MONTHLY].map((questType) => [
-      questType,
-      getCurrentPeriodKey(questType, startDate),
-    ]),
+    [TaskCadence.DAILY, TaskCadence.WEEKLY, TaskCadence.MONTHLY].map(
+      (cadence) => [cadence, getCurrentPeriodKey(cadence, startDate)],
+    ),
   );
   const emittedPeriods = new Set<string>();
   const groups = new Map<
@@ -83,24 +87,24 @@ export function mapUpcomingAgenda({
   >();
 
   for (let dayOffset = 1; dayOffset <= horizonDays; dayOffset += 1) {
-    const date = shiftPeriodDate(QuestType.DAILY, startDate, dayOffset);
+    const date = shiftPeriodDate(TaskCadence.DAILY, startDate, dayOffset);
     const dateKey = getLocalDateKey(date);
 
-    for (const quest of quests) {
-      if (!isRecurringQuestType(quest.questType)) {
+    for (const task of tasks) {
+      if (task.taskKind !== TaskKind.RECURRING || !isRecurringCadence(task.cadence)) {
         continue;
       }
 
-      const periodKey = getCurrentPeriodKey(quest.questType, date);
+      const periodKey = getCurrentPeriodKey(task.cadence, date);
 
-      if (periodKey === currentPeriodKeyByType.get(quest.questType)) {
+      if (periodKey === currentPeriodKeyByType.get(task.cadence)) {
         continue;
       }
 
       const emissionKey = getCompletionLookupKey({
+        cadence: task.cadence,
         periodKey,
-        questId: quest.id,
-        questType: quest.questType,
+        taskId: task.id,
       });
 
       if (emittedPeriods.has(emissionKey)) {
@@ -109,30 +113,30 @@ export function mapUpcomingAgenda({
 
       emittedPeriods.add(emissionKey);
 
-      const completion = completionByQuestPeriod.get(emissionKey) ?? null;
+      const completion = completionByTaskPeriod.get(emissionKey) ?? null;
       const group = groups.get(dateKey) ?? {
         date: dateKey,
         items: [],
       };
 
       group.items.push({
-        categoryId: quest.categoryId,
-        categoryName: quest.category.name,
+        attributeId: task.attributeId,
+        attributeName: task.attribute.name,
+        cadence: task.cadence,
         completionId: completion?.id ?? null,
-        description: quest.description,
+        description: task.description,
         isCompleted: Boolean(completion),
         note: completion?.note ?? null,
         periodKey,
-        questId: quest.id,
-        questType: quest.questType,
-        title: quest.title,
+        taskId: task.id,
+        title: task.title,
       });
 
       groups.set(dateKey, group);
     }
   }
 
-  const endDate = shiftPeriodDate(QuestType.DAILY, startDate, horizonDays);
+  const endDate = shiftPeriodDate(TaskCadence.DAILY, startDate, horizonDays);
 
   return {
     endDate: getLocalDateKey(endDate),
@@ -140,9 +144,9 @@ export function mapUpcomingAgenda({
       .map((group) => ({
         ...group,
         items: group.items.sort((left, right) => {
-          const categorySort = left.categoryName.localeCompare(right.categoryName);
+          const attributeSort = left.attributeName.localeCompare(right.attributeName);
 
-          return categorySort || left.title.localeCompare(right.title);
+          return attributeSort || left.title.localeCompare(right.title);
         }),
       }))
       .filter((group) => group.items.length > 0),

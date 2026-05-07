@@ -1,3 +1,5 @@
+import { TaskCadence } from "@prisma/client";
+
 import { jsonError, jsonResponse, validationErrorResponse } from "@/lib/http";
 import { decodeHistoryCursor, encodeHistoryCursor } from "@/lib/history";
 import {
@@ -44,9 +46,11 @@ export async function GET(request: Request) {
   const result = historyQuerySchema.safeParse({
     from: url.searchParams.get("from") ?? undefined,
     to: url.searchParams.get("to") ?? undefined,
-    questId: url.searchParams.get("questId") ?? undefined,
-    categoryId: url.searchParams.get("categoryId") ?? undefined,
-    questType: url.searchParams.get("questType") ?? undefined,
+    taskId: url.searchParams.get("taskId") ?? undefined,
+    attributeId: url.searchParams.get("attributeId") ??
+      url.searchParams.get("categoryId") ??
+      undefined,
+    cadence: url.searchParams.get("cadence") ?? undefined,
     cursor: url.searchParams.get("cursor") ?? undefined,
   });
 
@@ -73,7 +77,7 @@ export async function GET(request: Request) {
     return jsonError(400, "cursor is invalid.");
   }
 
-  const completions = await db.questCompletion.findMany({
+  const completions = await db.taskCompletion.findMany({
     where: {
       userId: session.user.id,
       ...(fromDate || toDate
@@ -101,29 +105,29 @@ export async function GET(request: Request) {
             ],
           }
         : {}),
-      quest: {
+      task: {
         userId: session.user.id,
-        ...(result.data.questId
+        ...(result.data.taskId
           ? {
-              id: result.data.questId,
+              id: result.data.taskId,
             }
           : {}),
-        ...(result.data.categoryId
+        ...(result.data.attributeId
           ? {
-              categoryId: result.data.categoryId,
+              attributeId: result.data.attributeId,
             }
           : {}),
-        ...(result.data.questType
+        ...(result.data.cadence
           ? {
-              questType: result.data.questType,
+              cadence: result.data.cadence as TaskCadence,
             }
           : {}),
       },
     },
     include: {
-      quest: {
+      task: {
         include: {
-          category: true,
+          attribute: true,
         },
       },
     },
@@ -137,11 +141,11 @@ export async function GET(request: Request) {
       completionId: completion.id,
       completedAt: completion.completedAt.toISOString(),
       note: completion.note,
-      questId: completion.questId,
-      questTitle: completion.quest.title,
-      questType: completion.quest.questType,
-      categoryId: completion.quest.categoryId,
-      categoryName: completion.quest.category.name,
+      taskId: completion.taskId,
+      taskTitle: completion.task.title,
+      cadence: completion.cadence,
+      attributeId: completion.task.attributeId,
+      attributeName: completion.task.attribute.name,
       periodKey: completion.periodKey,
     }),
   );

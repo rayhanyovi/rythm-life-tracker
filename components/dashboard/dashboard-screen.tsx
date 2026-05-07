@@ -43,52 +43,57 @@ import { Textarea } from "@/components/ui/textarea";
 import { getCategoryColor } from "@/lib/category-colors";
 import { cn } from "@/lib/utils";
 
-type CategoryOption = {
+type TaskKind = "RECURRING" | "TODO" | "HABIT";
+type TaskCadence = "DAILY" | "WEEKLY" | "MONTHLY" | "ONCE";
+
+type AttributeOption = {
   id: string;
   name: string;
   sortOrder: number;
 };
 
-type DashboardQuestItem = {
-  categoryId: string;
-  categoryName: string;
+type DashboardTaskItem = {
+  attributeId: string;
+  attributeName: string;
+  cadence: TaskCadence | null;
   completionId: string | null;
   currentPeriodKey: string;
   description: string | null;
+  dueDate: string | null;
   isActive: boolean;
   isCompletedNow: boolean;
   note: string | null;
-  questId: string;
-  questType: "DAILY" | "WEEKLY" | "MONTHLY" | "MAIN";
   streak: number | null;
+  taskId: string;
+  taskKind: TaskKind;
   title: string;
 };
 
 type DashboardPayload = {
   date: string;
-  categories: Array<{
-    categoryId: string;
-    categoryName: string;
-    items: DashboardQuestItem[];
+  attributes: Array<{
+    attributeId: string;
+    attributeName: string;
+    items: DashboardTaskItem[];
   }>;
   error?: string;
 };
 
-type CategoriesPayload = {
-  categories?: CategoryOption[];
+type AttributesPayload = {
+  attributes?: AttributeOption[];
   error?: string;
 };
 
-type QuestDetailContentProps = {
+type TaskDetailContentProps = {
   isPending: boolean;
   noteDraft: string;
   onChangeNote: (value: string) => void;
   onClearNote: () => void;
   onSaveNote: () => void;
-  quest: DashboardQuestItem;
+  task: DashboardTaskItem;
 };
 
-const ALL_CATEGORY_VALUE = "__all__";
+const ALL_ATTRIBUTE_VALUE = "__all__";
 
 async function readJson<T>(response: Response) {
   try {
@@ -108,63 +113,67 @@ function formatDashboardDate(value: string) {
   }).format(date);
 }
 
-function formatQuestType(value: DashboardQuestItem["questType"]) {
-  switch (value) {
+function formatCadence(cadence: TaskCadence | null, taskKind: TaskKind) {
+  if (taskKind === "TODO") {
+    return "To-do";
+  }
+
+  switch (cadence) {
     case "DAILY":
       return "Daily";
     case "WEEKLY":
       return "Weekly";
     case "MONTHLY":
       return "Monthly";
-    case "MAIN":
-      return "Main";
+    case "ONCE":
+      return "Once";
     default:
-      return value;
+      return taskKind;
   }
 }
 
-function formatStreakLabel(quest: DashboardQuestItem) {
-  const streak = quest.streak ?? 0;
+function formatStreakLabel(task: DashboardTaskItem) {
+  const streak = task.streak ?? 0;
 
-  if (quest.questType === "MAIN") {
-    return streak > 0 ? `${streak} period streak` : "Primary focus";
+  if (task.taskKind === "TODO") {
+    return "One-time task";
   }
 
   if (!streak) {
-    return `${formatQuestType(quest.questType)} cadence`;
+    return `${formatCadence(task.cadence, task.taskKind)} cadence`;
   }
 
   const unit =
-    quest.questType === "DAILY"
+    task.cadence === "DAILY"
       ? "day"
-      : quest.questType === "WEEKLY"
+      : task.cadence === "WEEKLY"
         ? "week"
         : "month";
 
   return `${streak} ${unit} streak`;
 }
 
-function formatQuestSelectionHint(quest: DashboardQuestItem) {
-  return quest.isCompletedNow
+function formatTaskSelectionHint(task: DashboardTaskItem) {
+  return task.isCompletedNow
     ? "Completed in the active period"
     : "Open in the active period";
 }
 
-function CadenceBadge({ type }: { type: DashboardQuestItem["questType"] }) {
+function CadenceBadge({ task }: { task: DashboardTaskItem }) {
   return (
     <span className="rounded-lg border border-border bg-muted px-1.5 py-0.5 font-mono text-[10px] font-medium tracking-[0.04em] text-muted-foreground">
-      {formatQuestType(type)}
+      {formatCadence(task.cadence, task.taskKind)}
     </span>
   );
 }
 
-function StreakBadge({ quest }: { quest: DashboardQuestItem }) {
-  const streak = quest.streak ?? 0;
+function StreakBadge({ task }: { task: DashboardTaskItem }) {
+  const streak = task.streak ?? 0;
 
-  if (quest.questType === "MAIN") {
+  if (task.taskKind === "TODO") {
     return (
       <span className="font-mono text-[10px] font-medium text-muted-foreground">
-        Focus
+        To-do
       </span>
     );
   }
@@ -211,15 +220,15 @@ function DetailRow({
   );
 }
 
-function QuestDetailContent({
+function TaskDetailContent({
   isPending,
   noteDraft,
   onChangeNote,
   onClearNote,
   onSaveNote,
-  quest,
-}: QuestDetailContentProps) {
-  const canEditNote = quest.isCompletedNow;
+  task,
+}: TaskDetailContentProps) {
+  const canEditNote = task.isCompletedNow;
   const hasNoteDraft = noteDraft.trim().length > 0;
 
   return (
@@ -229,32 +238,41 @@ function QuestDetailContent({
           Selected task
         </p>
         <h2 className="text-[15px] font-semibold leading-6 tracking-tight text-foreground">
-          {quest.title}
+          {task.title}
         </h2>
-        {quest.description ? (
+        {task.description ? (
           <p className="text-sm leading-6 text-muted-foreground">
-            {quest.description}
+            {task.description}
           </p>
         ) : null}
       </div>
 
       <div className="space-y-4 border-y border-border py-4">
-        <DetailRow label="Habit List">
+        <DetailRow label="Attribute">
           <span className="inline-flex items-center gap-2">
             <span
               className="size-2 rounded-full"
-              style={{ backgroundColor: getCategoryColor(quest.categoryName) }}
+              style={{ backgroundColor: getCategoryColor(task.attributeName) }}
             />
-            {quest.categoryName}
+            {task.attributeName}
           </span>
         </DetailRow>
-        <DetailRow label="Cadence">
-          <CadenceBadge type={quest.questType} />
+        <DetailRow label="Kind">
+          <CadenceBadge task={task} />
         </DetailRow>
-        <DetailRow label="Status">{formatQuestSelectionHint(quest)}</DetailRow>
-        <DetailRow label="Streak">{formatStreakLabel(quest)}</DetailRow>
-        {quest.questType !== "MAIN" ? (
-          <DetailRow label="Period">{quest.currentPeriodKey}</DetailRow>
+        <DetailRow label="Status">{formatTaskSelectionHint(task)}</DetailRow>
+        <DetailRow label="Streak">{formatStreakLabel(task)}</DetailRow>
+        {task.taskKind !== "TODO" ? (
+          <DetailRow label="Period">{task.currentPeriodKey}</DetailRow>
+        ) : null}
+        {task.dueDate ? (
+          <DetailRow label="Due">
+            {new Intl.DateTimeFormat("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            }).format(new Date(task.dueDate))}
+          </DetailRow>
         ) : null}
       </div>
 
@@ -287,7 +305,7 @@ function QuestDetailContent({
           size="sm"
           onClick={onSaveNote}
           disabled={
-            isPending || !canEditNote || noteDraft.trim() === (quest.note ?? "")
+            isPending || !canEditNote || noteDraft.trim() === (task.note ?? "")
           }
         >
           {isPending ? (
@@ -310,19 +328,19 @@ function QuestDetailContent({
   );
 }
 
-function QuestRow({
+function TaskRow({
   isPending,
   onOpenMobileDetail,
   onSelect,
   onToggle,
-  quest,
+  task,
   selected,
 }: {
   isPending: boolean;
   onOpenMobileDetail: () => void;
   onSelect: () => void;
   onToggle: () => void;
-  quest: DashboardQuestItem;
+  task: DashboardTaskItem;
   selected: boolean;
 }) {
   return (
@@ -331,7 +349,7 @@ function QuestRow({
         "grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-2 border-b border-border px-5 py-2.5 transition-colors duration-[160ms] ease-out last:border-b-0",
         selected
           ? "bg-accent"
-          : quest.isCompletedNow
+          : task.isCompletedNow
             ? "bg-background/45"
             : "bg-card hover:bg-muted/35",
       )}
@@ -342,18 +360,18 @@ function QuestRow({
         disabled={isPending}
         className={cn(
           "flex size-5 items-center justify-center rounded-full border transition-[background-color,border-color,color] duration-[160ms] ease-out disabled:opacity-50",
-          quest.isCompletedNow
+          task.isCompletedNow
             ? "border-primary bg-primary text-primary-foreground"
             : "border-border bg-transparent text-muted-foreground hover:border-primary",
         )}
       >
-        {quest.isCompletedNow ? (
+        {task.isCompletedNow ? (
           <Check className="size-3" />
         ) : (
           <Circle className="size-3.5" />
         )}
         <span className="sr-only">
-          {quest.isCompletedNow ? "Uncheck task" : "Check task"}
+          {task.isCompletedNow ? "Uncheck task" : "Check task"}
         </span>
       </button>
 
@@ -362,14 +380,14 @@ function QuestRow({
           <p
             className={cn(
               "truncate text-[13px] font-medium leading-5",
-              quest.isCompletedNow
+              task.isCompletedNow
                 ? "text-muted-foreground line-through"
                 : "text-foreground",
             )}
           >
-            {quest.title}
+            {task.title}
           </p>
-          {!quest.isActive ? (
+          {!task.isActive ? (
             <span className="shrink-0 rounded-lg border border-border bg-background px-1.5 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
               Inactive
             </span>
@@ -380,19 +398,19 @@ function QuestRow({
           <span className="inline-flex min-w-0 items-center gap-1.5">
             <span
               className="size-1.5 shrink-0 rounded-full"
-              style={{ backgroundColor: getCategoryColor(quest.categoryName) }}
+              style={{ backgroundColor: getCategoryColor(task.attributeName) }}
             />
-            <span className="truncate">{quest.categoryName}</span>
+            <span className="truncate">{task.attributeName}</span>
           </span>
-          <CadenceBadge type={quest.questType} />
-          {quest.note ? (
-            <span className="max-w-[14rem] truncate italic">{quest.note}</span>
+          <CadenceBadge task={task} />
+          {task.note ? (
+            <span className="max-w-[14rem] truncate italic">{task.note}</span>
           ) : null}
         </div>
       </button>
 
       <div className="flex items-center gap-2 justify-self-end">
-        <StreakBadge quest={quest} />
+        <StreakBadge task={task} />
         <Button
           size="sm"
           variant={selected ? "secondary" : "outline"}
@@ -439,11 +457,11 @@ function DashboardSkeleton() {
 
 export function DashboardScreen() {
   const [dashboard, setDashboard] = useState<DashboardPayload | null>(null);
-  const [categories, setCategories] = useState<CategoryOption[]>([]);
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
+  const [attributeOptions, setAttributeOptions] = useState<AttributeOption[]>([]);
+  const [selectedAttributeId, setSelectedAttributeId] = useState<string | null>(
     null,
   );
-  const [selectedQuestId, setSelectedQuestId] = useState<string | null>(null);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [includeInactive, setIncludeInactive] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -453,15 +471,15 @@ export function DashboardScreen() {
 
   const loadDashboard = useCallback(
     async (options?: {
-      categoryId?: string | null;
+      attributeId?: string | null;
       includeInactive?: boolean;
     }) => {
-      const categoryId = options?.categoryId ?? selectedCategoryId;
+      const attributeId = options?.attributeId ?? selectedAttributeId;
       const nextIncludeInactive = options?.includeInactive ?? includeInactive;
       const searchParams = new URLSearchParams();
 
-      if (categoryId) {
-        searchParams.set("categoryId", categoryId);
+      if (attributeId) {
+        searchParams.set("attributeId", attributeId);
       }
 
       if (nextIncludeInactive) {
@@ -482,20 +500,20 @@ export function DashboardScreen() {
 
       setDashboard(payload);
     },
-    [includeInactive, selectedCategoryId],
+    [includeInactive, selectedAttributeId],
   );
 
-  const loadCategories = useCallback(async () => {
-    const response = await fetch("/api/categories", {
+  const loadAttributes = useCallback(async () => {
+    const response = await fetch("/api/attributes", {
       cache: "no-store",
     });
-    const payload = await readJson<CategoriesPayload>(response);
+    const payload = await readJson<AttributesPayload>(response);
 
-    if (!response.ok || !payload?.categories) {
-      throw new Error(payload?.error ?? "Failed to load habit lists.");
+    if (!response.ok || !payload?.attributes) {
+      throw new Error(payload?.error ?? "Failed to load attributes.");
     }
 
-    setCategories(payload.categories);
+    setAttributeOptions(payload.attributes);
   }, []);
 
   useEffect(() => {
@@ -503,7 +521,7 @@ export function DashboardScreen() {
 
     async function run() {
       try {
-        await Promise.all([loadDashboard(), loadCategories()]);
+        await Promise.all([loadDashboard(), loadAttributes()]);
       } catch (error) {
         if (!cancelled) {
           setErrorMessage(
@@ -522,57 +540,57 @@ export function DashboardScreen() {
     return () => {
       cancelled = true;
     };
-  }, [loadCategories, loadDashboard]);
+  }, [loadAttributes, loadDashboard]);
 
-  const questItems = useMemo(() => {
-    return dashboard?.categories.flatMap((category) => category.items) ?? [];
+  const taskItems = useMemo(() => {
+    return dashboard?.attributes.flatMap((attribute) => attribute.items) ?? [];
   }, [dashboard]);
 
-  const visibleCategories = useMemo(() => {
+  const visibleAttributes = useMemo(() => {
     return (
-      dashboard?.categories.filter((category) => category.items.length > 0) ??
+      dashboard?.attributes.filter((attribute) => attribute.items.length > 0) ??
       []
     );
   }, [dashboard]);
 
-  const selectedQuest = useMemo(() => {
-    if (!questItems.length) {
+  const selectedTask = useMemo(() => {
+    if (!taskItems.length) {
       return null;
     }
 
     return (
-      questItems.find((quest) => quest.questId === selectedQuestId) ??
-      questItems[0]
+      taskItems.find((task) => task.taskId === selectedTaskId) ??
+      taskItems[0]
     );
-  }, [questItems, selectedQuestId]);
+  }, [taskItems, selectedTaskId]);
 
   useEffect(() => {
-    if (!selectedQuest) {
+    if (!selectedTask) {
       setNoteDraft("");
       return;
     }
 
-    setSelectedQuestId(selectedQuest.questId);
-    setNoteDraft(selectedQuest.note ?? "");
-  }, [selectedQuest]);
+    setSelectedTaskId(selectedTask.taskId);
+    setNoteDraft(selectedTask.note ?? "");
+  }, [selectedTask]);
 
   const stats = useMemo(() => {
-    const completedItems = questItems.filter(
-      (quest) => quest.isCompletedNow,
+    const completedItems = taskItems.filter(
+      (task) => task.isCompletedNow,
     ).length;
-    const bestStreak = questItems.reduce((best, quest) => {
-      return Math.max(best, quest.streak ?? 0);
+    const bestStreak = taskItems.reduce((best, task) => {
+      return Math.max(best, task.streak ?? 0);
     }, 0);
 
     return {
       bestStreak,
       completedItems,
-      totalItems: questItems.length,
+      totalItems: taskItems.length,
     };
-  }, [questItems]);
+  }, [taskItems]);
 
   const refreshDashboard = (nextState?: {
-    categoryId?: string | null;
+    attributeId?: string | null;
     includeInactive?: boolean;
   }) => {
     setErrorMessage(null);
@@ -588,18 +606,18 @@ export function DashboardScreen() {
     });
   };
 
-  const handleToggleQuest = (quest: DashboardQuestItem) => {
+  const handleToggleTask = (task: DashboardTaskItem) => {
     setErrorMessage(null);
 
     startTransition(async () => {
       const response = await fetch(
-        `/api/quests/${quest.questId}/current-completion`,
+        `/api/tasks/${task.taskId}/current-completion`,
         {
-          method: quest.isCompletedNow ? "DELETE" : "PUT",
+          method: task.isCompletedNow ? "DELETE" : "PUT",
           headers: {
             "content-type": "application/json",
           },
-          body: quest.isCompletedNow ? undefined : JSON.stringify({}),
+          body: task.isCompletedNow ? undefined : JSON.stringify({}),
         },
       );
       const payload = await readJson<{ error?: string }>(response);
@@ -610,16 +628,16 @@ export function DashboardScreen() {
       }
 
       toast.success(
-        quest.isCompletedNow
-          ? `Unchecked "${quest.title}" for the active period.`
-          : `Completed "${quest.title}" for the active period.`,
+        task.isCompletedNow
+          ? `Unchecked "${task.title}" for the active period.`
+          : `Completed "${task.title}" for the active period.`,
       );
       await loadDashboard();
     });
   };
 
   const persistNote = (nextNote: string | null) => {
-    if (!selectedQuest?.completionId) {
+    if (!selectedTask?.completionId) {
       return;
     }
 
@@ -627,7 +645,7 @@ export function DashboardScreen() {
 
     startTransition(async () => {
       const response = await fetch(
-        `/api/completions/${selectedQuest.completionId}`,
+        `/api/completions/${selectedTask.completionId}`,
         {
           method: "PATCH",
           headers: {
@@ -647,8 +665,8 @@ export function DashboardScreen() {
 
       toast.success(
         nextNote
-          ? `Saved note for "${selectedQuest.title}".`
-          : `Cleared note for "${selectedQuest.title}".`,
+          ? `Saved note for "${selectedTask.title}".`
+          : `Cleared note for "${selectedTask.title}".`,
       );
       await loadDashboard();
     });
@@ -663,13 +681,13 @@ export function DashboardScreen() {
     persistNote(null);
   };
 
-  const openMobileDetail = (questId: string) => {
-    setSelectedQuestId(questId);
+  const openMobileDetail = (taskId: string) => {
+    setSelectedTaskId(taskId);
     setIsMobileDetailOpen(true);
   };
 
-  const hasNoItems = !isLoading && !questItems.length;
-  const canResetFilters = Boolean(selectedCategoryId || includeInactive);
+  const hasNoItems = !isLoading && !taskItems.length;
+  const canResetFilters = Boolean(selectedAttributeId || includeInactive);
   const currentDateLabel = dashboard
     ? formatDashboardDate(dashboard.date)
     : "Loading today";
@@ -707,7 +725,7 @@ export function DashboardScreen() {
                   Refresh
                 </Button>
                 <Button asChild size="sm">
-                  <Link href="/quests">
+                  <Link href="/lists">
                     <Plus className="size-4" />
                     Add task
                   </Link>
@@ -718,35 +736,36 @@ export function DashboardScreen() {
             <div className="grid gap-2 border-t border-border px-5 py-3 md:grid-cols-[minmax(0,1fr)_14rem_auto] md:items-end">
               <div className="space-y-1.5">
                 <Label
-                  htmlFor="today-category-filter"
+                  htmlFor="today-attribute-filter"
                   className="font-mono text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground"
                 >
-                  Filter by list
+                  Filter by attribute
                 </Label>
                 <Select
-                  value={selectedCategoryId ?? ALL_CATEGORY_VALUE}
+                  value={selectedAttributeId ?? ALL_ATTRIBUTE_VALUE}
                   onValueChange={(value) => {
-                    const nextCategoryId =
-                      value === ALL_CATEGORY_VALUE ? null : value;
+                    const nextAttributeId =
+                      value === ALL_ATTRIBUTE_VALUE ? null : value;
 
-                    setSelectedCategoryId(nextCategoryId);
-                    refreshDashboard({ categoryId: nextCategoryId });
+                    setSelectedAttributeId(nextAttributeId);
+                    refreshDashboard({ attributeId: nextAttributeId });
                   }}
                   disabled={isPending || isLoading}
                 >
                   <SelectTrigger
-                    id="today-category-filter"
+                    id="today-attribute-filter"
+                    aria-label="Filter by attribute"
                     className="h-9 rounded-lg bg-background px-3 py-2 text-sm shadow-none"
                   >
-                    <SelectValue placeholder="All lists" />
+                    <SelectValue placeholder="All attributes" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value={ALL_CATEGORY_VALUE}>
-                      All lists
+                    <SelectItem value={ALL_ATTRIBUTE_VALUE}>
+                      All attributes
                     </SelectItem>
-                    {categories.map((category) => (
-                      <SelectItem key={category.id} value={category.id}>
-                        {category.name}
+                    {attributeOptions.map((attribute) => (
+                      <SelectItem key={attribute.id} value={attribute.id}>
+                        {attribute.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -772,10 +791,10 @@ export function DashboardScreen() {
                 variant="ghost"
                 size="sm"
                 onClick={() => {
-                  setSelectedCategoryId(null);
+                  setSelectedAttributeId(null);
                   setIncludeInactive(false);
                   refreshDashboard({
-                    categoryId: null,
+                    attributeId: null,
                     includeInactive: false,
                   });
                 }}
@@ -807,10 +826,10 @@ export function DashboardScreen() {
                 action={
                   <div className="flex flex-wrap gap-3">
                     <Button asChild>
-                      <Link href="/quests">Open Lists</Link>
+                      <Link href="/lists">Open Lists</Link>
                     </Button>
                     <Button asChild variant="outline">
-                      <Link href="/categories">Open Habit Lists</Link>
+                      <Link href="/attributes">Open Attributes</Link>
                     </Button>
                   </div>
                 }
@@ -818,26 +837,26 @@ export function DashboardScreen() {
             </div>
           ) : (
             <div className="pb-5">
-              {visibleCategories.map((category) => (
-                <section key={category.categoryId}>
+              {visibleAttributes.map((attribute) => (
+                <section key={attribute.attributeId}>
                   <SectionLabel
-                    label={category.categoryName}
-                    count={category.items.length}
+                    label={attribute.attributeName}
+                    count={attribute.items.length}
                   />
                   <div className="border-t border-border">
-                    {category.items.map((quest) => {
-                      const selected = selectedQuest?.questId === quest.questId;
+                    {attribute.items.map((task) => {
+                      const selected = selectedTask?.taskId === task.taskId;
 
                       return (
-                        <QuestRow
-                          key={quest.questId}
-                          quest={quest}
+                        <TaskRow
+                          key={task.taskId}
+                          task={task}
                           selected={selected}
                           isPending={isPending}
-                          onToggle={() => handleToggleQuest(quest)}
-                          onSelect={() => setSelectedQuestId(quest.questId)}
+                          onToggle={() => handleToggleTask(task)}
+                          onSelect={() => setSelectedTaskId(task.taskId)}
                           onOpenMobileDetail={() =>
-                            openMobileDetail(quest.questId)
+                            openMobileDetail(task.taskId)
                           }
                         />
                       );
@@ -849,16 +868,16 @@ export function DashboardScreen() {
           )}
         </div>
 
-        <aside className="hidden bg-background xl:block xl:h-screen xl:overflow-y-auto cols-pan-3 border-red-500 border-2">
+        <aside className="hidden bg-background xl:block xl:h-screen xl:overflow-y-auto">
           <div className="p-5">
             <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
               Context pane
             </p>
 
             <div className="mt-4">
-              {selectedQuest ? (
-                <QuestDetailContent
-                  quest={selectedQuest}
+              {selectedTask ? (
+                <TaskDetailContent
+                  task={selectedTask}
                   noteDraft={noteDraft}
                   onChangeNote={setNoteDraft}
                   onClearNote={handleClearNote}
@@ -888,10 +907,10 @@ export function DashboardScreen() {
             </SheetDescription>
           </SheetHeader>
 
-          {selectedQuest ? (
+          {selectedTask ? (
             <div className="mt-5">
-              <QuestDetailContent
-                quest={selectedQuest}
+              <TaskDetailContent
+                task={selectedTask}
                 noteDraft={noteDraft}
                 onChangeNote={setNoteDraft}
                 onClearNote={handleClearNote}

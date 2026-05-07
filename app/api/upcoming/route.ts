@@ -1,4 +1,4 @@
-import { QuestType } from "@prisma/client";
+import { TaskCadence, TaskKind } from "@prisma/client";
 
 import { db } from "@/lib/db";
 import { jsonError, jsonResponse, validationErrorResponse } from "@/lib/http";
@@ -19,9 +19,13 @@ export async function GET(request: Request) {
 
   const url = new URL(request.url);
   const result = upcomingQuerySchema.safeParse({
-    categoryId: url.searchParams.get("categoryId") ?? undefined,
+    attributeId: url.searchParams.get("attributeId") ??
+      url.searchParams.get("categoryId") ??
+      undefined,
     horizon: url.searchParams.get("horizon") ?? undefined,
-    questType: url.searchParams.get("questType") ?? undefined,
+    cadence: url.searchParams.get("cadence") ??
+      url.searchParams.get("questType") ??
+      undefined,
     start: url.searchParams.get("start") ?? undefined,
   });
 
@@ -37,41 +41,44 @@ export async function GET(request: Request) {
     return jsonError(400, "start must use YYYY-MM-DD format.");
   }
 
-  const quests = await db.quest.findMany({
+  const tasks = await db.task.findMany({
     where: {
       userId: session.user.id,
       isActive: true,
-      questType: result.data.questType
-        ? result.data.questType
+      taskKind: TaskKind.RECURRING,
+      ...(result.data.cadence
+        ? { cadence: result.data.cadence as TaskCadence }
         : {
-            not: QuestType.MAIN,
-          },
-      ...(result.data.categoryId
+            cadence: {
+              in: [TaskCadence.DAILY, TaskCadence.WEEKLY, TaskCadence.MONTHLY],
+            },
+          }),
+      ...(result.data.attributeId
         ? {
-            categoryId: result.data.categoryId,
+            attributeId: result.data.attributeId,
           }
         : {}),
     },
     include: {
-      category: true,
+      attribute: true,
     },
-    orderBy: [{ category: { sortOrder: "asc" } }, { title: "asc" }],
+    orderBy: [{ attribute: { sortOrder: "asc" } }, { title: "asc" }],
   });
   const agendaWithoutCompletions = mapUpcomingAgenda({
     completions: [],
     horizonDays: result.data.horizon,
-    quests,
+    tasks,
     referenceDate: referenceDate ?? new Date(),
   });
   const completionFilters = agendaWithoutCompletions.groups.flatMap((group) =>
     group.items.map((item) => ({
+      cadence: item.cadence as TaskCadence,
       periodKey: item.periodKey,
-      periodType: item.questType,
-      questId: item.questId,
+      taskId: item.taskId,
     })),
   );
   const completions = completionFilters.length
-    ? await db.questCompletion.findMany({
+    ? await db.taskCompletion.findMany({
         where: {
           userId: session.user.id,
           OR: completionFilters,
@@ -83,7 +90,7 @@ export async function GET(request: Request) {
     mapUpcomingAgenda({
       completions,
       horizonDays: result.data.horizon,
-      quests,
+      tasks,
       referenceDate: referenceDate ?? new Date(),
     }),
   );

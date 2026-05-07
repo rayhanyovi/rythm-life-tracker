@@ -1,4 +1,6 @@
-import type { QuestType } from "@prisma/client";
+import type { TaskCadence, TaskKind, QuestType } from "@prisma/client";
+
+// ─── Legacy types (kept for old route tests) ────────────────────────────────
 
 type CategoryRecord = {
   createdAt: Date;
@@ -31,6 +33,45 @@ type QuestCompletionRecord = {
   userId: string;
 };
 
+// ─── New types ──────────────────────────────────────────────────────────────
+
+type AttributeRecord = {
+  createdAt: Date;
+  id: string;
+  name: string;
+  sortOrder: number;
+  userId: string;
+};
+
+type TaskRecord = {
+  attributeId: string;
+  cadence: TaskCadence | null;
+  createdAt: Date;
+  description: string | null;
+  dueDate: Date | null;
+  habitMode: string | null;
+  id: string;
+  isActive: boolean;
+  projectId: string | null;
+  taskKind: TaskKind;
+  title: string;
+  updatedAt: Date;
+  userId: string;
+};
+
+type TaskCompletionRecord = {
+  cadence: TaskCadence;
+  completedAt: Date;
+  createdAt: Date;
+  id: string;
+  note: string | null;
+  periodKey: string;
+  taskId: string;
+  userId: string;
+};
+
+// ─── Utilities ──────────────────────────────────────────────────────────────
+
 type SortDirection = "asc" | "desc";
 
 function applySelect<T extends object, TResult extends object>(
@@ -56,7 +97,11 @@ function applySelect<T extends object, TResult extends object>(
   return output as TResult;
 }
 
-function sortByDirection<T>(records: T[], getValue: (record: T) => number | string, direction: SortDirection) {
+function sortByDirection<T>(
+  records: T[],
+  getValue: (record: T) => number | string,
+  direction: SortDirection,
+) {
   return [...records].sort((left, right) => {
     const leftValue = getValue(left);
     const rightValue = getValue(right);
@@ -105,15 +150,56 @@ function matchesQuestWhere(
   );
 }
 
+function matchesAttributeWhere(
+  record: AttributeRecord,
+  where?: Partial<Pick<AttributeRecord, "id" | "userId">>,
+) {
+  if (!where) {
+    return true;
+  }
+
+  return Object.entries(where).every(
+    ([key, value]) => record[key as keyof AttributeRecord] === value,
+  );
+}
+
+function matchesTaskWhere(
+  record: TaskRecord,
+  where?: {
+    attributeId?: string;
+    id?: string;
+    isActive?: boolean;
+    taskKind?: TaskKind;
+    userId?: string;
+  },
+) {
+  if (!where) {
+    return true;
+  }
+
+  return Object.entries(where).every(
+    ([key, value]) => record[key as keyof TaskRecord] === value,
+  );
+}
+
+// ─── Factory ────────────────────────────────────────────────────────────────
+
 export function createInMemoryAppDb() {
+  // Legacy stores
   const categories: CategoryRecord[] = [];
   const quests: QuestRecord[] = [];
   const completions: QuestCompletionRecord[] = [];
-  let idCounter = 0;
 
+  // New stores
+  const attributes: AttributeRecord[] = [];
+  const tasks: TaskRecord[] = [];
+  const taskCompletions: TaskCompletionRecord[] = [];
+
+  let idCounter = 0;
   const nextId = (prefix: string) => `${prefix}_${++idCounter}`;
 
   const db = {
+    // ── Legacy: category ───────────────────────────────────────────────────
     category: {
       async create({
         data,
@@ -146,7 +232,9 @@ export function createInMemoryAppDb() {
         select?: Record<string, boolean>;
         where?: Partial<Pick<CategoryRecord, "id" | "userId">>;
       }) {
-        const matching = categories.filter((record) => matchesCategoryWhere(record, where));
+        const matching = categories.filter((record) =>
+          matchesCategoryWhere(record, where),
+        );
         const ordered = orderBy
           ? sortByDirection(matching, (record) => record.sortOrder, orderBy.sortOrder)
           : matching;
@@ -160,7 +248,9 @@ export function createInMemoryAppDb() {
         orderBy?: { sortOrder: SortDirection };
         where?: Partial<Pick<CategoryRecord, "id" | "userId">>;
       }) {
-        const matching = categories.filter((record) => matchesCategoryWhere(record, where));
+        const matching = categories.filter((record) =>
+          matchesCategoryWhere(record, where),
+        );
 
         return orderBy
           ? sortByDirection(matching, (record) => record.sortOrder, orderBy.sortOrder)
@@ -184,6 +274,8 @@ export function createInMemoryAppDb() {
         return record;
       },
     },
+
+    // ── Legacy: quest ──────────────────────────────────────────────────────
     quest: {
       async count({
         where,
@@ -267,7 +359,11 @@ export function createInMemoryAppDb() {
 
         for (const ordering of orderBy ?? []) {
           if ("title" in ordering) {
-            matching = sortByDirection(matching, (record) => record.title, ordering.title);
+            matching = sortByDirection(
+              matching,
+              (record) => record.title,
+              ordering.title,
+            );
           }
 
           if ("category" in ordering) {
@@ -290,6 +386,8 @@ export function createInMemoryAppDb() {
         }));
       },
     },
+
+    // ── Legacy: questCompletion ────────────────────────────────────────────
     questCompletion: {
       async delete({ where }: { where: Pick<QuestCompletionRecord, "id"> }) {
         const index = completions.findIndex((record) => record.id === where.id);
@@ -318,16 +416,10 @@ export function createInMemoryAppDb() {
         where,
       }: {
         include?: { quest?: { include?: { category?: boolean } } };
-        orderBy?: Array<
-          | { completedAt: SortDirection }
-          | { id: SortDirection }
-        >;
+        orderBy?: Array<{ completedAt: SortDirection } | { id: SortDirection }>;
         take?: number;
         where?: {
-          completedAt?: {
-            gte?: Date;
-            lte?: Date;
-          };
+          completedAt?: { gte?: Date; lte?: Date };
           quest?: {
             categoryId?: string;
             id?: string;
@@ -477,13 +569,337 @@ export function createInMemoryAppDb() {
 
         const record: QuestCompletionRecord = {
           createdAt: new Date(),
-          id: nextId("completion"),
+          id: nextId("qcomp"),
           ...create,
         };
 
         completions.push(record);
 
         return record;
+      },
+    },
+
+    // ── New: attribute ─────────────────────────────────────────────────────
+    attribute: {
+      async create({
+        data,
+      }: {
+        data: Pick<AttributeRecord, "name" | "sortOrder" | "userId">;
+      }) {
+        const record: AttributeRecord = {
+          createdAt: new Date(),
+          id: nextId("attr"),
+          ...data,
+        };
+
+        attributes.push(record);
+
+        return record;
+      },
+      async findFirst<TResult extends object>({
+        orderBy,
+        select,
+        where,
+      }: {
+        orderBy?: { sortOrder: SortDirection };
+        select?: Record<string, boolean>;
+        where?: Partial<Pick<AttributeRecord, "id" | "userId">>;
+      }) {
+        const matching = attributes.filter((record) =>
+          matchesAttributeWhere(record, where),
+        );
+        const ordered = orderBy
+          ? sortByDirection(matching, (record) => record.sortOrder, orderBy.sortOrder)
+          : matching;
+
+        return applySelect<AttributeRecord, TResult>(ordered[0] ?? null, select);
+      },
+      async findMany({
+        orderBy,
+        where,
+      }: {
+        orderBy?: { sortOrder: SortDirection };
+        where?: Partial<Pick<AttributeRecord, "id" | "userId">>;
+      } = {}) {
+        const matching = attributes.filter((record) =>
+          matchesAttributeWhere(record, where),
+        );
+
+        return orderBy
+          ? sortByDirection(matching, (record) => record.sortOrder, orderBy.sortOrder)
+          : [...matching];
+      },
+      async count({
+        where,
+      }: {
+        where?: Partial<Pick<AttributeRecord, "id" | "userId">>;
+      } = {}) {
+        return attributes.filter((record) => matchesAttributeWhere(record, where)).length;
+      },
+    },
+
+    // ── New: task ──────────────────────────────────────────────────────────
+    task: {
+      async create({
+        data,
+        include,
+      }: {
+        data: Pick<
+          TaskRecord,
+          | "attributeId"
+          | "cadence"
+          | "description"
+          | "dueDate"
+          | "habitMode"
+          | "isActive"
+          | "projectId"
+          | "taskKind"
+          | "title"
+          | "userId"
+        >;
+        include?: { attribute?: boolean };
+      }) {
+        const record: TaskRecord = {
+          createdAt: new Date(),
+          id: nextId("task"),
+          updatedAt: new Date(),
+          ...data,
+        };
+
+        tasks.push(record);
+
+        if (!include?.attribute) {
+          return record;
+        }
+
+        return {
+          ...record,
+          attribute: attributes.find((entry) => entry.id === record.attributeId)!,
+        };
+      },
+      async findFirst({
+        include,
+        where,
+      }: {
+        include?: { attribute?: boolean };
+        where?: {
+          attributeId?: string;
+          id?: string;
+          userId?: string;
+        };
+      }) {
+        const record = tasks.find((entry) => matchesTaskWhere(entry, where));
+
+        if (!record) {
+          return null;
+        }
+
+        if (!include?.attribute) {
+          return record;
+        }
+
+        return {
+          ...record,
+          attribute: attributes.find((entry) => entry.id === record.attributeId)!,
+        };
+      },
+      async count({
+        where,
+      }: {
+        where?: Partial<Pick<TaskRecord, "attributeId" | "userId">>;
+      } = {}) {
+        return tasks.filter((record) => matchesTaskWhere(record, where)).length;
+      },
+    },
+
+    // ── New: taskCompletion ────────────────────────────────────────────────
+    taskCompletion: {
+      async upsert({
+        create,
+        update,
+        where,
+      }: {
+        create: Pick<
+          TaskCompletionRecord,
+          "cadence" | "completedAt" | "note" | "periodKey" | "taskId" | "userId"
+        >;
+        update: Partial<Pick<TaskCompletionRecord, "completedAt" | "note">>;
+        where: {
+          userId_taskId_cadence_periodKey: Pick<
+            TaskCompletionRecord,
+            "cadence" | "periodKey" | "taskId" | "userId"
+          >;
+        };
+      }) {
+        const lookup = where.userId_taskId_cadence_periodKey;
+        const existing = taskCompletions.find(
+          (record) =>
+            record.userId === lookup.userId &&
+            record.taskId === lookup.taskId &&
+            record.cadence === lookup.cadence &&
+            record.periodKey === lookup.periodKey,
+        );
+
+        if (existing) {
+          Object.assign(existing, update);
+          return existing;
+        }
+
+        const record: TaskCompletionRecord = {
+          createdAt: new Date(),
+          id: nextId("tcomp"),
+          ...create,
+        };
+
+        taskCompletions.push(record);
+
+        return record;
+      },
+      async findUnique({
+        where,
+      }: {
+        where: {
+          userId_taskId_cadence_periodKey: Pick<
+            TaskCompletionRecord,
+            "cadence" | "periodKey" | "taskId" | "userId"
+          >;
+        };
+      }) {
+        const lookup = where.userId_taskId_cadence_periodKey;
+
+        return (
+          taskCompletions.find(
+            (record) =>
+              record.userId === lookup.userId &&
+              record.taskId === lookup.taskId &&
+              record.cadence === lookup.cadence &&
+              record.periodKey === lookup.periodKey,
+          ) ?? null
+        );
+      },
+      async delete({ where }: { where: Pick<TaskCompletionRecord, "id"> }) {
+        const index = taskCompletions.findIndex((record) => record.id === where.id);
+
+        if (index >= 0) {
+          taskCompletions.splice(index, 1);
+        }
+      },
+      async findMany({
+        include,
+        orderBy,
+        take,
+        where,
+      }: {
+        include?: { task?: { include?: { attribute?: boolean } } };
+        orderBy?: Array<{ completedAt: SortDirection } | { id: SortDirection }>;
+        take?: number;
+        where?: {
+          completedAt?: { gte?: Date; lte?: Date };
+          userId?: string;
+          task?: {
+            attributeId?: string;
+            cadence?: TaskCadence;
+            id?: string;
+            userId?: string;
+          };
+          OR?: Array<{
+            completedAt?: { lt?: Date };
+            id?: { lt?: string };
+          }>;
+        };
+      } = {}) {
+        let matching = taskCompletions.filter((record) => {
+          if (where?.userId && record.userId !== where.userId) {
+            return false;
+          }
+
+          if (where?.completedAt?.gte && record.completedAt < where.completedAt.gte) {
+            return false;
+          }
+
+          if (where?.completedAt?.lte && record.completedAt > where.completedAt.lte) {
+            return false;
+          }
+
+          const task = tasks.find((entry) => entry.id === record.taskId);
+
+          if (!task) {
+            return false;
+          }
+
+          if (where?.task?.userId && task.userId !== where.task.userId) {
+            return false;
+          }
+
+          if (where?.task?.id && task.id !== where.task.id) {
+            return false;
+          }
+
+          if (where?.task?.attributeId && task.attributeId !== where.task.attributeId) {
+            return false;
+          }
+
+          if (where?.task?.cadence && task.cadence !== where.task.cadence) {
+            return false;
+          }
+
+          if (where?.OR) {
+            const matchesOr = where.OR.some((condition) => {
+              if (condition.completedAt?.lt) {
+                return record.completedAt < condition.completedAt.lt;
+              }
+
+              if (condition.id?.lt) {
+                return record.id < condition.id.lt;
+              }
+
+              return false;
+            });
+
+            if (!matchesOr) {
+              return false;
+            }
+          }
+
+          return true;
+        });
+
+        for (const ordering of orderBy ?? []) {
+          if ("completedAt" in ordering) {
+            matching = sortByDirection(
+              matching,
+              (record) => record.completedAt.getTime(),
+              ordering.completedAt,
+            );
+          }
+
+          if ("id" in ordering) {
+            matching = sortByDirection(matching, (record) => record.id, ordering.id);
+          }
+        }
+
+        if (typeof take === "number") {
+          matching = matching.slice(0, take);
+        }
+
+        if (!include?.task) {
+          return matching;
+        }
+
+        return matching.map((record) => {
+          const task = tasks.find((entry) => entry.id === record.taskId)!;
+          const attribute = attributes.find((entry) => entry.id === task.attributeId)!;
+
+          return {
+            ...record,
+            task: include.task?.include?.attribute
+              ? {
+                  ...task,
+                  attribute,
+                }
+              : task,
+          };
+        });
       },
     },
   };
@@ -494,6 +910,9 @@ export function createInMemoryAppDb() {
       categories.length = 0;
       quests.length = 0;
       completions.length = 0;
+      attributes.length = 0;
+      tasks.length = 0;
+      taskCompletions.length = 0;
       idCounter = 0;
     },
   };

@@ -37,7 +37,7 @@ export async function PATCH(
   }
 
   const { id } = await context.params;
-  const completion = await db.questCompletion.findFirst({
+  const completion = await db.taskCompletion.findFirst({
     where: {
       id,
       userId: session.user.id,
@@ -48,7 +48,7 @@ export async function PATCH(
     return jsonError(404, "Activity Log entry not found.");
   }
 
-  const updatedCompletion = await db.questCompletion.update({
+  const updatedCompletion = await db.taskCompletion.update({
     where: { id: completion.id },
     data: {
       note: result.data.note ?? null,
@@ -71,7 +71,7 @@ export async function DELETE(
   }
 
   const { id } = await context.params;
-  const completion = await db.questCompletion.findFirst({
+  const completion = await db.taskCompletion.findFirst({
     where: {
       id,
       userId: session.user.id,
@@ -82,7 +82,7 @@ export async function DELETE(
     return jsonError(404, "Activity Log entry not found.");
   }
 
-  await db.questCompletion.delete({
+  await db.taskCompletion.delete({
     where: { id: completion.id },
   });
 

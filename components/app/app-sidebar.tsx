@@ -19,19 +19,19 @@ import { getCategoryColor } from "@/lib/category-colors";
 import { cn } from "@/lib/utils";
 import type { AppNavGroup, AppNavItem } from "@/types/app";
 
-type SidebarCategory = {
+type SidebarAttribute = {
   id: string;
   name: string;
   sortOrder: number;
 };
 
-type CategoriesPayload = {
-  categories?: SidebarCategory[];
+type AttributesPayload = {
+  attributes?: SidebarAttribute[];
 };
 
 export const moduleNavItems: AppNavItem[] = [
   {
-    href: "/dashboard",
+    href: "/today",
     label: "Tasks",
     summary: "Daily work, planning, and review.",
     icon: CheckSquare2,
@@ -49,8 +49,8 @@ export const taskNavGroups: AppNavGroup[] = [
     label: "Views",
     items: [
       {
-        aliases: ["/today"],
-        href: "/dashboard",
+        aliases: ["/dashboard"],
+        href: "/today",
         label: "Today",
         summary: "Due now and recurring work in one surface.",
         icon: Layers3,
@@ -68,8 +68,8 @@ export const taskNavGroups: AppNavGroup[] = [
         icon: CalendarDays,
       },
       {
-        aliases: ["/activity-log"],
-        href: "/history",
+        aliases: ["/history"],
+        href: "/activity-log",
         label: "Activity Log",
         summary: "Completion notes and correction flow.",
         icon: History,
@@ -77,20 +77,20 @@ export const taskNavGroups: AppNavGroup[] = [
     ],
   },
   {
-    label: "Task Spaces",
+    label: "Spaces",
     items: [
       {
-        aliases: ["/lists"],
-        href: "/quests",
+        aliases: ["/quests"],
+        href: "/lists",
         label: "Lists",
         summary: "Task buckets and recurring definitions.",
         icon: ListTodo,
       },
       {
-        aliases: ["/habit-lists"],
-        href: "/categories",
-        label: "Habit Lists",
-        summary: "Recurring containers and cadence groups.",
+        aliases: ["/categories", "/habit-lists"],
+        href: "/attributes",
+        label: "Attributes",
+        summary: "RPG-style life-domain containers.",
         icon: NotebookPen,
       },
     ],
@@ -111,31 +111,31 @@ export function isAppNavItemActive(item: AppNavItem, pathname: string) {
   return paths.some((path) => pathname === path || pathname.startsWith(`${path}/`));
 }
 
-function useSidebarCategories() {
-  const [categories, setCategories] = useState<SidebarCategory[]>([]);
+function useSidebarAttributes() {
+  const [attributes, setAttributes] = useState<SidebarAttribute[]>([]);
 
   useEffect(() => {
     let cancelled = false;
 
     async function run() {
       try {
-        const response = await fetch("/api/categories", { cache: "no-store" });
+        const response = await fetch("/api/attributes", { cache: "no-store" });
 
         if (!response.ok) {
           return;
         }
 
-        const payload = (await response.json()) as CategoriesPayload;
-        const nextCategories = [...(payload.categories ?? [])].sort(
+        const payload = (await response.json()) as AttributesPayload;
+        const nextAttributes = [...(payload.attributes ?? [])].sort(
           (left, right) => left.sortOrder - right.sortOrder,
         );
 
         if (!cancelled) {
-          setCategories(nextCategories);
+          setAttributes(nextAttributes);
         }
       } catch {
         if (!cancelled) {
-          setCategories([]);
+          setAttributes([]);
         }
       }
     }
@@ -147,7 +147,7 @@ function useSidebarCategories() {
     };
   }, []);
 
-  return categories;
+  return attributes;
 }
 
 function getInitials(name: string) {
@@ -289,34 +289,34 @@ function TaskRailItem({
   );
 }
 
-function CategoryRailItem({
-  category,
+function AttributeRailItem({
+  attribute,
   onNavigate,
 }: {
-  category: SidebarCategory;
+  attribute: SidebarAttribute;
   onNavigate?: () => void;
 }) {
   return (
     <Link
-      href="/categories"
+      href="/attributes"
       onClick={onNavigate}
       className="flex min-h-7 items-center gap-2 border-r-2 border-transparent px-3 py-1.5 text-[13px] font-medium text-muted-foreground transition-[background-color,color] duration-[160ms] ease-out hover:bg-background/70 hover:text-foreground"
     >
       <span
         className="size-1.5 shrink-0 rounded-full"
-        style={{ backgroundColor: getCategoryColor(category.name) }}
+        style={{ backgroundColor: getCategoryColor(attribute.name) }}
       />
-      <span className="truncate">{category.name}</span>
+      <span className="truncate">{attribute.name}</span>
     </Link>
   );
 }
 
 function TaskRailNavigation({
-  categories,
+  attributes,
   onNavigate,
   pathname,
 }: {
-  categories: SidebarCategory[];
+  attributes: SidebarAttribute[];
   onNavigate?: () => void;
   pathname: string;
 }) {
@@ -337,7 +337,7 @@ function TaskRailNavigation({
         ))}
       </div>
 
-      <RailDivider>Task Spaces</RailDivider>
+      <RailDivider>Spaces</RailDivider>
 
       <div>
         {taskSpaceGroup.items.map((item) => (
@@ -350,23 +350,23 @@ function TaskRailNavigation({
         ))}
       </div>
 
-      <RailLabel>Habit Lists</RailLabel>
+      <RailLabel>Attributes</RailLabel>
       <div>
-        {categories.length ? (
-          categories.map((category) => (
-            <CategoryRailItem
-              key={category.id}
-              category={category}
+        {attributes.length ? (
+          attributes.map((attribute) => (
+            <AttributeRailItem
+              key={attribute.id}
+              attribute={attribute}
               onNavigate={onNavigate}
             />
           ))
         ) : (
           <Link
-            href="/categories"
+            href="/attributes"
             onClick={onNavigate}
             className="flex min-h-7 items-center border-r-2 border-transparent px-3 py-1.5 text-[13px] font-medium text-muted-foreground transition-[background-color,color] duration-[160ms] ease-out hover:bg-background/70 hover:text-foreground"
           >
-            Manage habit lists
+            Manage attributes
           </Link>
         )}
       </div>
@@ -396,7 +396,7 @@ export function AppModuleRail({
   return (
     <div className="flex h-screen flex-col items-center px-2 py-3 text-primary-foreground">
       <Link
-        href="/dashboard"
+        href="/today"
         className="flex size-8 items-center justify-center rounded-lg bg-white/15 text-primary-foreground transition-colors duration-[160ms] ease-out hover:bg-white/20"
         title="Open Today"
       >
@@ -430,7 +430,7 @@ export function AppTaskRail({
   userName,
   onNavigate,
 }: AppSidebarProps) {
-  const categories = useSidebarCategories();
+  const attributes = useSidebarAttributes();
   const initials = getInitials(userName);
 
   return (
@@ -445,7 +445,7 @@ export function AppTaskRail({
       </div>
 
       <TaskRailNavigation
-        categories={categories}
+        attributes={attributes}
         pathname={pathname}
         onNavigate={onNavigate}
       />
@@ -481,7 +481,7 @@ export function AppMobileNavigation({
   userName,
   onNavigate,
 }: AppSidebarProps) {
-  const categories = useSidebarCategories();
+  const attributes = useSidebarAttributes();
   const initials = getInitials(userName);
 
   return (
@@ -523,7 +523,7 @@ export function AppMobileNavigation({
       </div>
 
       <TaskRailNavigation
-        categories={categories}
+        attributes={attributes}
         pathname={pathname}
         onNavigate={onNavigate}
       />

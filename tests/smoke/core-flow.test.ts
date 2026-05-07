@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { after, beforeEach, describe, it } from "node:test";
 
-import { QuestType } from "@prisma/client";
+import { TaskCadence } from "@prisma/client";
 
 import { getCurrentPeriodKey } from "../../lib/periods";
 import { db as runtimeDb } from "../../lib/db";
@@ -11,9 +11,12 @@ import { createInMemoryAppDb } from "../helpers/in-memory-app-db";
 const database = createInMemoryAppDb();
 const mutableDb = runtimeDb as unknown as typeof database.db;
 const originalDb = {
+  attribute: mutableDb.attribute,
   category: mutableDb.category,
   quest: mutableDb.quest,
   questCompletion: mutableDb.questCompletion,
+  task: mutableDb.task,
+  taskCompletion: mutableDb.taskCompletion,
 };
 
 let currentSession: { user: { id: string } } | null = {
@@ -23,25 +26,31 @@ const originalGetSessionFromRequest = sessionApi.getSessionFromRequest;
 
 async function loadRoutes() {
   const [
+    attributesRoute,
     categoriesRoute,
     categoryRoute,
+    tasksRoute,
+    taskCurrentCompletionRoute,
     questsRoute,
-    currentCompletionRoute,
     historyRoute,
   ] = await Promise.all([
+    import("../../app/api/attributes/route"),
     import("../../app/api/categories/route"),
     import("../../app/api/categories/[id]/route"),
+    import("../../app/api/tasks/route"),
+    import("../../app/api/tasks/[id]/current-completion/route"),
     import("../../app/api/quests/route"),
-    import("../../app/api/quests/[id]/current-completion/route"),
     import("../../app/api/history/route"),
   ]);
 
   return {
+    attributesRoute,
     categoriesRoute,
     categoryRoute,
-    questsRoute,
-    currentCompletionRoute,
     historyRoute,
+    questsRoute,
+    taskCurrentCompletionRoute,
+    tasksRoute,
   };
 }
 
@@ -70,65 +79,78 @@ describe("core route smoke flow", () => {
       user: { id: "user_1" },
     };
     sessionApi.getSessionFromRequest = async () => currentSession;
+    mutableDb.attribute = database.db.attribute;
     mutableDb.category = database.db.category;
     mutableDb.quest = database.db.quest;
     mutableDb.questCompletion = database.db.questCompletion;
+    mutableDb.task = database.db.task;
+    mutableDb.taskCompletion = database.db.taskCompletion;
   });
 
   after(() => {
     sessionApi.getSessionFromRequest = originalGetSessionFromRequest;
+    mutableDb.attribute = originalDb.attribute;
     mutableDb.category = originalDb.category;
     mutableDb.quest = originalDb.quest;
     mutableDb.questCompletion = originalDb.questCompletion;
+    mutableDb.task = originalDb.task;
+    mutableDb.taskCompletion = originalDb.taskCompletion;
   });
 
-  it("supports category -> quest -> completion -> history using authenticated handlers", async () => {
+  it("supports attribute -> task -> completion -> history using authenticated handlers", async () => {
     const {
-      categoriesRoute,
-      currentCompletionRoute,
+      attributesRoute,
+      taskCurrentCompletionRoute,
       historyRoute,
-      questsRoute,
+      tasksRoute,
     } = await loadRoutes();
 
-    const createCategoryResponse = await categoriesRoute.POST(
-      createJsonRequest("http://localhost/api/categories", "POST", {
+    // 1. Create an attribute
+    const createAttributeResponse = await attributesRoute.POST(
+      createJsonRequest("http://localhost/api/attributes", "POST", {
         name: "Health",
       }),
     );
-    const categoryPayload = await readJson<{
-      category: {
+    const attributePayload = await readJson<{
+      attribute: {
         id: string;
         name: string;
       };
-    }>(createCategoryResponse);
+    }>(createAttributeResponse);
 
-    assert.equal(createCategoryResponse.status, 201);
-    assert.equal(categoryPayload?.category.name, "Health");
+    assert.equal(createAttributeResponse.status, 201);
+    assert.equal(attributePayload?.attribute.name, "Health");
 
-    const createQuestResponse = await questsRoute.POST(
-      createJsonRequest("http://localhost/api/quests", "POST", {
-        categoryId: categoryPayload?.category.id,
+    // 2. Create a recurring daily task
+    const createTaskResponse = await tasksRoute.POST(
+      createJsonRequest("http://localhost/api/tasks", "POST", {
+        attributeId: attributePayload?.attribute.id,
         description: "Keep the streak alive.",
-        questType: "DAILY",
+        taskKind: "RECURRING",
+        cadence: "DAILY",
         title: "Morning Run",
       }),
     );
-    const questPayload = await readJson<{
-      quest: {
-        categoryId: string;
+    const taskPayload = await readJson<{
+      task: {
+        attributeId: string;
+        cadence: TaskCadence;
         id: string;
-        questType: QuestType;
+        taskKind: string;
         title: string;
       };
-    }>(createQuestResponse);
+    }>(createTaskResponse);
 
-    assert.equal(createQuestResponse.status, 201);
-    assert.equal(questPayload?.quest.title, "Morning Run");
-    assert.equal(questPayload?.quest.categoryId, categoryPayload?.category.id);
+    assert.equal(createTaskResponse.status, 201);
+    assert.equal(taskPayload?.task.title, "Morning Run");
+    assert.equal(taskPayload?.task.attributeId, attributePayload?.attribute.id);
+    assert.equal(taskPayload?.task.taskKind, "RECURRING");
+    assert.equal(taskPayload?.task.cadence, "DAILY");
 
-    const completeQuestResponse = await currentCompletionRoute.PUT(
+    // 3. Mark the task complete for the current period
+    const completeTaskResponse = await taskCurrentCompletionRoute.PUT(
       createJsonRequest(
-        `http://localhost/api/quests/${questPayload?.quest.id}/current-completion`,
+        `http://localhost/api/tasks/${taskPayload?.task.id}/current-completion`,
         "PUT",
         {
           note: "Finished before breakfast",
@@ -136,7 +158,7 @@ describe("core route smoke flow", () => {
       ),
       {
         params: Promise.resolve({
-          id: questPayload!.quest.id,
+          id: taskPayload!.task.id,
         }),
       },
     );
@@ -146,38 +168,40 @@ describe("core route smoke flow", () => {
         note: string | null;
         periodKey: string;
       };
-    }>(completeQuestResponse);
+    }>(completeTaskResponse);
 
-    assert.equal(completeQuestResponse.status, 200);
+    assert.equal(completeTaskResponse.status, 200);
     assert.equal(completionPayload?.completion.note, "Finished before breakfast");
     assert.equal(
       completionPayload?.completion.periodKey,
-      getCurrentPeriodKey(QuestType.DAILY),
+      getCurrentPeriodKey(TaskCadence.DAILY),
     );
 
+    // 4. Verify the completion appears in history
     const historyResponse = await historyRoute.GET(
       new Request("http://localhost/api/history"),
     );
     const historyPayload = await readJson<{
       items: Array<{
-        categoryName: string;
+        attributeName: string;
+        cadence: string;
         note: string | null;
         periodKey: string;
-        questTitle: string;
+        taskTitle: string;
       }>;
       nextCursor: string | null;
     }>(historyResponse);
 
     assert.equal(historyResponse.status, 200);
     assert.equal(historyPayload?.items.length, 1);
-    assert.equal(historyPayload?.items[0]?.categoryName, "Health");
+    assert.equal(historyPayload?.items[0]?.attributeName, "Health");
     assert.equal(historyPayload?.items[0]?.note, "Finished before breakfast");
     assert.equal(
       historyPayload?.items[0]?.periodKey,
-      getCurrentPeriodKey(QuestType.DAILY),
+      getCurrentPeriodKey(TaskCadence.DAILY),
     );
-    assert.equal(historyPayload?.items[0]?.questTitle, "Morning Run");
-    assert.equal(historyPayload?.items[0]?.questType, "DAILY");
+    assert.equal(historyPayload?.items[0]?.taskTitle, "Morning Run");
+    assert.equal(historyPayload?.items[0]?.cadence, "DAILY");
     assert.equal(historyPayload?.nextCursor, null);
   });
 
@@ -223,12 +247,12 @@ describe("core route smoke flow", () => {
   });
 
   it("rejects unauthenticated access", async () => {
-    const { categoriesRoute } = await loadRoutes();
+    const { attributesRoute } = await loadRoutes();
 
     currentSession = null;
 
-    const response = await categoriesRoute.GET(
-      new Request("http://localhost/api/categories"),
+    const response = await attributesRoute.GET(
+      new Request("http://localhost/api/attributes"),
     );
     const payload = await readJson<{ error: string }>(response);
 
