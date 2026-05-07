@@ -203,23 +203,11 @@ Both export `findOwned*` functions with identical structure. Once legacy Quest c
 - Updated: `lib/periods`, `lib/streaks`, `lib/dashboard`, `lib/upcoming`, `lib/calendar`
 - Updated: sidebar, dashboard-screen
 - All 40 unit + smoke tests pass; `npm run verify` green
+- **Sprint A complete (May 2026):** 4 hooks extracted (`use-data-fetch`, `use-mutation`, `use-auto-select`, `use-grouped-items`); `parseJsonBody`/`handlePrismaError` added to `lib/http.ts`; `lib/validators/common.ts` created; all 4 managers wired to hooks; 13 route handlers use `parseJsonBody`; 6 validator files import from `common.ts`. Net: −434 lines. `npm run verify` green (40/40 tests).
 
 ---
 
 ### 🔄 Pending Refactors (clean code sprints)
-
-#### Sprint A — Hooks + API Helpers (resolves H1 + H2 + H3)
-
-1. Create `hooks/use-data-fetch.ts`
-2. Create `hooks/use-mutation.ts`
-3. Create `hooks/use-auto-select.ts`
-4. Create `hooks/use-grouped-items.ts`
-5. Add `parseJsonBody()` and `handlePrismaError()` to `lib/http.ts`
-6. Create `lib/validators/common.ts` with shared Zod fragments
-7. Update all 4 managers to use new hooks
-8. Update all POST/PATCH route handlers to use `parseJsonBody`
-9. Update all validator files to import from `common.ts`
-10. `npm run verify` must pass ✓
 
 #### Sprint B — Component Splitting (resolves M1 + M2)
 
