@@ -204,19 +204,11 @@ Both export `findOwned*` functions with identical structure. Once legacy Quest c
 - Updated: sidebar, dashboard-screen
 - All 40 unit + smoke tests pass; `npm run verify` green
 - **Sprint A complete (May 2026):** 4 hooks extracted (`use-data-fetch`, `use-mutation`, `use-auto-select`, `use-grouped-items`); `parseJsonBody`/`handlePrismaError` added to `lib/http.ts`; `lib/validators/common.ts` created; all 4 managers wired to hooks; 13 route handlers use `parseJsonBody`; 6 validator files import from `common.ts`. Net: −434 lines. `npm run verify` green (40/40 tests).
+- **Sprint B complete (May 2026):** Shared UI extracted (`item-badge`, `section-label`, `detail-row`, `manager-alert`); `use-task-manager`, `use-quest-manager`, `use-reorder-list` hooks created; all 4 managers split into lean orchestrators + focused sub-components; `task-manager` → 5 focused files; `attribute-manager` → orchestrator + `attribute-list-item`; `category-manager` reuses `AttributeListItem`; Net: −212 lines across 18 files. `npm run verify` green (40/40 tests).
 
 ---
 
 ### 🔄 Pending Refactors (clean code sprints)
-
-#### Sprint B — Component Splitting (resolves M1 + M2)
-
-1. Split `task-manager.tsx` → orchestrator + `<TaskFormSheet>` + `<TaskDetailSheet>` + `<TaskListSection>`
-2. Split `quest-manager.tsx` → same pattern
-3. Split `attribute-manager.tsx` → extract `useReorderList` + `<AttributeListItem>`
-4. Split `category-manager.tsx` → same pattern
-5. Create shared UI: `<ItemBadge>`, `<SectionLabel>`, `<DetailRow>`, `<ManagerAlert>`
-6. `npm run verify` must pass ✓
 
 #### Sprint C — Types + Cleanup (resolves M3 + L1 + L3)
 
