@@ -1,31 +1,13 @@
 "use client";
 
-import {
-  type DragEvent,
-  type PointerEvent,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { useEffect, useState } from "react";
+import { Loader2, Plus, RotateCw } from "lucide-react";
 
 import { useAutoSelect } from "@/hooks/use-auto-select";
 import { useMutation } from "@/hooks/use-mutation";
-import {
-  ArrowDown,
-  ArrowUp,
-  Check,
-  GripVertical,
-  Loader2,
-  PencilLine,
-  Plus,
-  RotateCw,
-  Trash2,
-  X,
-} from "lucide-react";
+import { useReorderList } from "@/hooks/use-reorder-list";
 
 import { EmptyState } from "@/components/app/empty-state";
-import { DEFAULT_CATEGORY_NAMES } from "@/lib/category-defaults";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,27 +20,22 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ManagerErrorAlert, ManagerStatusAlert } from "@/components/ui/manager-alert";
 import { Skeleton } from "@/components/ui/skeleton";
+import { DEFAULT_CATEGORY_NAMES } from "@/lib/category-defaults";
 import { getCategoryColor } from "@/lib/category-colors";
-import { cn } from "@/lib/utils";
 
-type CategoryRecord = {
-  id: string;
-  name: string;
-  sortOrder: number;
-};
+// Reuse AttributeListItem — CategoryRecord has the same shape as AttributeRecord.
+import {
+  type AttributeRecord as CategoryRecord,
+  AttributeListItem,
+} from "@/components/attributes/attribute-list-item";
 
 type CategoriesPayload = {
   category?: CategoryRecord;
   categories?: CategoryRecord[];
   createdNames?: string[];
   error?: string;
-};
-
-type DragState = {
-  id: string;
-  mode: "native" | "pointer";
-  overId: string | null;
 };
 
 async function readPayload(response: Response) {
@@ -77,28 +54,12 @@ export function CategoryManager() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<CategoryRecord | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [dragState, setDragState] = useState<DragState | null>(null);
   const { errorMessage, statusMessage, isPending, runMutation, setError, setStatus } =
     useMutation();
-  const dragOverIdRef = useRef<string | null>(null);
-  const longPressTimerRef = useRef<number | null>(null);
-  const pointerDraggingRef = useRef(false);
-
-  const clearLongPressTimer = () => {
-    if (!longPressTimerRef.current) {
-      return;
-    }
-
-    window.clearTimeout(longPressTimerRef.current);
-    longPressTimerRef.current = null;
-  };
 
   const loadCategories = async () => {
     setError(null);
-
-    const response = await fetch("/api/categories", {
-      cache: "no-store",
-    });
+    const response = await fetch("/api/categories", { cache: "no-store" });
     const payload = await readPayload(response);
 
     if (!response.ok || !payload?.categories) {
@@ -116,44 +77,26 @@ export function CategoryManager() {
         await loadCategories();
       } catch (error) {
         if (!cancelled) {
-          setError(
-            error instanceof Error ? error.message : "Failed to load habit lists.",
-          );
+          setError(error instanceof Error ? error.message : "Failed to load habit lists.");
         }
       } finally {
-        if (!cancelled) {
-          setIsLoading(false);
-        }
+        if (!cancelled) setIsLoading(false);
       }
     }
 
     void run();
-
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const selectedCategory = useAutoSelect(
-    categories,
-    selectedCategoryId,
-    setSelectedCategoryId,
-  );
+  const selectedCategory = useAutoSelect(categories, selectedCategoryId, setSelectedCategoryId);
 
-  const persistCategoryOrder = (
-    reordered: CategoryRecord[],
-    message = "List order updated.",
-  ) => {
+  const persistOrder = (reordered: CategoryRecord[], message = "List order updated.") => {
     runMutation(async () => {
       const response = await fetch("/api/categories/reorder", {
         method: "POST",
-        headers: {
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({
-          categoryIds: reordered.map((category) => category.id),
-        }),
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ categoryIds: reordered.map((c) => c.id) }),
       });
       const payload = await readPayload(response);
 
@@ -166,39 +109,38 @@ export function CategoryManager() {
     });
   };
 
-  const reorderByTarget = (sourceId: string, targetId: string | null) => {
-    if (!targetId || sourceId === targetId) {
-      return;
-    }
+  const {
+    dragState,
+    handleNativeDragEnd,
+    handleNativeDragOver,
+    handleNativeDragStart,
+    handleNativeDrop,
+    handlePointerDragStart,
+  } = useReorderList(categories, (reordered) => {
+    const moved = reordered.find((c, i) => c.id !== categories[i]?.id);
+    persistOrder(reordered, moved ? `Moved "${moved.name}".` : "List order updated.");
+  }, isPending);
 
-    const sourceIndex = categories.findIndex((category) => category.id === sourceId);
-    const targetIndex = categories.findIndex((category) => category.id === targetId);
+  const handleMove = (categoryId: string, direction: "up" | "down") => {
+    const currentIndex = categories.findIndex((c) => c.id === categoryId);
+    const targetIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
 
-    if (sourceIndex < 0 || targetIndex < 0) {
-      return;
-    }
+    if (currentIndex < 0 || targetIndex < 0 || targetIndex >= categories.length) return;
 
     const reordered = [...categories];
-    const [movedCategory] = reordered.splice(sourceIndex, 1);
-
-    reordered.splice(targetIndex, 0, movedCategory);
-    persistCategoryOrder(reordered, `Moved "${movedCategory.name}".`);
+    const [moved] = reordered.splice(currentIndex, 1);
+    reordered.splice(targetIndex, 0, moved);
+    persistOrder(reordered);
   };
 
   const handleCreate = () => {
     const trimmedName = newCategoryName.trim();
-
-    if (!trimmedName) {
-      setError("List name is required.");
-      return;
-    }
+    if (!trimmedName) { setError("List name is required."); return; }
 
     runMutation(async () => {
       const response = await fetch("/api/categories", {
         method: "POST",
-        headers: {
-          "content-type": "application/json",
-        },
+        headers: { "content-type": "application/json" },
         body: JSON.stringify({ name: trimmedName }),
       });
       const payload = await readPayload(response);
@@ -216,18 +158,12 @@ export function CategoryManager() {
 
   const handleRename = (categoryId: string) => {
     const trimmedName = editingName.trim();
-
-    if (!trimmedName) {
-      setError("List name is required.");
-      return;
-    }
+    if (!trimmedName) { setError("List name is required."); return; }
 
     runMutation(async () => {
       const response = await fetch(`/api/categories/${categoryId}`, {
         method: "PATCH",
-        headers: {
-          "content-type": "application/json",
-        },
+        headers: { "content-type": "application/json" },
         body: JSON.stringify({ name: trimmedName }),
       });
       const payload = await readPayload(response);
@@ -244,9 +180,7 @@ export function CategoryManager() {
   };
 
   const handleDelete = () => {
-    if (!deleteTarget) {
-      return;
-    }
+    if (!deleteTarget) return;
 
     runMutation(async () => {
       const response = await fetch(`/api/categories/${deleteTarget.id}`, {
@@ -261,129 +195,15 @@ export function CategoryManager() {
       setStatus(`Deleted "${deleteTarget.name}".`);
       setDeleteTarget(null);
 
-      if (selectedCategoryId === deleteTarget.id) {
-        setSelectedCategoryId(null);
-      }
+      if (selectedCategoryId === deleteTarget.id) setSelectedCategoryId(null);
 
       await loadCategories();
     });
   };
 
-  const handleMove = (categoryId: string, direction: "up" | "down") => {
-    const currentIndex = categories.findIndex((category) => category.id === categoryId);
-    const targetIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
-
-    if (currentIndex < 0 || targetIndex < 0 || targetIndex >= categories.length) {
-      return;
-    }
-
-    const reordered = [...categories];
-    const [movedCategory] = reordered.splice(currentIndex, 1);
-    reordered.splice(targetIndex, 0, movedCategory);
-
-    persistCategoryOrder(reordered);
-  };
-
-  const handleNativeDragStart = (
-    event: DragEvent<HTMLButtonElement>,
-    categoryId: string,
-  ) => {
-    event.dataTransfer.effectAllowed = "move";
-    event.dataTransfer.setData("text/plain", categoryId);
-    dragOverIdRef.current = categoryId;
-    setDragState({ id: categoryId, mode: "native", overId: categoryId });
-  };
-
-  const handleNativeDrop = (
-    event: DragEvent<HTMLElement>,
-    targetId: string,
-  ) => {
-    event.preventDefault();
-    const sourceId = event.dataTransfer.getData("text/plain") || dragState?.id;
-
-    setDragState(null);
-    dragOverIdRef.current = null;
-
-    if (sourceId) {
-      reorderByTarget(sourceId, targetId);
-    }
-  };
-
-  const handlePointerDragStart = (
-    event: PointerEvent<HTMLButtonElement>,
-    categoryId: string,
-  ) => {
-    if (event.pointerType === "mouse" || isPending) {
-      return;
-    }
-
-    const pointerId = event.pointerId;
-
-    pointerDraggingRef.current = false;
-    dragOverIdRef.current = categoryId;
-    clearLongPressTimer();
-
-    const handlePointerMove = (moveEvent: globalThis.PointerEvent) => {
-      if (moveEvent.pointerId !== pointerId || !pointerDraggingRef.current) {
-        return;
-      }
-
-      moveEvent.preventDefault();
-
-      const target = document
-        .elementFromPoint(moveEvent.clientX, moveEvent.clientY)
-        ?.closest<HTMLElement>("[data-category-id]");
-      const overId = target?.dataset.categoryId ?? categoryId;
-
-      dragOverIdRef.current = overId;
-      setDragState({ id: categoryId, mode: "pointer", overId });
-    };
-
-    const finishPointerDrag = (cancelled = false) => {
-      clearLongPressTimer();
-      window.removeEventListener("pointermove", handlePointerMove);
-      window.removeEventListener("pointerup", handlePointerUp);
-      window.removeEventListener("pointercancel", handlePointerCancel);
-
-      const overId = dragOverIdRef.current;
-      const wasDragging = pointerDraggingRef.current;
-
-      pointerDraggingRef.current = false;
-      dragOverIdRef.current = null;
-      setDragState(null);
-
-      if (!cancelled && wasDragging) {
-        reorderByTarget(categoryId, overId);
-      }
-    };
-
-    const handlePointerUp = (upEvent: globalThis.PointerEvent) => {
-      if (upEvent.pointerId === pointerId) {
-        finishPointerDrag(false);
-      }
-    };
-
-    const handlePointerCancel = (cancelEvent: globalThis.PointerEvent) => {
-      if (cancelEvent.pointerId === pointerId) {
-        finishPointerDrag(true);
-      }
-    };
-
-    window.addEventListener("pointermove", handlePointerMove, { passive: false });
-    window.addEventListener("pointerup", handlePointerUp);
-    window.addEventListener("pointercancel", handlePointerCancel);
-
-    longPressTimerRef.current = window.setTimeout(() => {
-      pointerDraggingRef.current = true;
-      setDragState({ id: categoryId, mode: "pointer", overId: categoryId });
-    }, 280);
-  };
-
   const handleSeedDefaults = () => {
     runMutation(async () => {
-      const response = await fetch("/api/bootstrap/default-categories", {
-        method: "POST",
-      });
+      const response = await fetch("/api/bootstrap/default-categories", { method: "POST" });
       const payload = await readPayload(response);
 
       if (!response.ok || !payload?.categories) {
@@ -423,11 +243,7 @@ export function CategoryManager() {
                 onClick={handleSeedDefaults}
                 disabled={isPending}
               >
-                {isPending ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
-                  <RotateCw className="size-4" />
-                )}
+                {isPending ? <Loader2 className="size-4 animate-spin" /> : <RotateCw className="size-4" />}
                 Seed
               </Button>
             </div>
@@ -439,18 +255,10 @@ export function CategoryManager() {
                 placeholder="Add a new habit list"
                 disabled={isPending}
                 className="h-9 rounded-lg bg-background px-3 py-2 text-sm shadow-none"
-                onKeyDown={(event) => {
-                  if (event.key === "Enter") {
-                    handleCreate();
-                  }
-                }}
+                onKeyDown={(event) => { if (event.key === "Enter") handleCreate(); }}
               />
               <Button size="sm" onClick={handleCreate} disabled={isPending}>
-                {isPending ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
-                  <Plus className="size-4" />
-                )}
+                {isPending ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />}
                 Add list
               </Button>
               <Button
@@ -461,35 +269,16 @@ export function CategoryManager() {
                 onClick={handleSeedDefaults}
                 disabled={isPending}
               >
-                {isPending ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
-                  <RotateCw className="size-4" />
-                )}
+                {isPending ? <Loader2 className="size-4 animate-spin" /> : <RotateCw className="size-4" />}
                 Seed defaults
               </Button>
             </div>
           </section>
 
           {errorMessage ? (
-            <div className="px-5 pt-4">
-              <Alert variant="destructive">
-                <X className="size-4" />
-                <AlertTitle>Habit list update failed</AlertTitle>
-                <AlertDescription>{errorMessage}</AlertDescription>
-              </Alert>
-            </div>
+            <ManagerErrorAlert message={errorMessage} title="Habit List update failed" />
           ) : null}
-
-          {statusMessage ? (
-            <div className="px-5 pt-4">
-              <Alert>
-                <Check className="size-4" />
-                <AlertTitle>Saved</AlertTitle>
-                <AlertDescription>{statusMessage}</AlertDescription>
-              </Alert>
-            </div>
-          ) : null}
+          {statusMessage ? <ManagerStatusAlert message={statusMessage} /> : null}
 
           {isLoading ? (
             <div className="py-2">
@@ -523,180 +312,37 @@ export function CategoryManager() {
             </div>
           ) : (
             <div className="pb-5">
-              {categories.map((category, index) => {
-                const isEditing = editingId === category.id;
-                const selected = selectedCategory?.id === category.id;
-                const isDragged = dragState?.id === category.id;
-                const isDragTarget = dragState?.overId === category.id;
-
-                return (
-                  <section
-                    key={category.id}
-                    data-category-id={category.id}
-                    onDragOver={(event) => {
-                      if (!dragState) {
-                        return;
-                      }
-
-                      event.preventDefault();
-                      dragOverIdRef.current = category.id;
-                      setDragState((current) =>
-                        current ? { ...current, overId: category.id } : current,
-                      );
-                    }}
-                    onDrop={(event) => handleNativeDrop(event, category.id)}
-                    className={cn(
-                      "border-b border-border transition-colors duration-[160ms] ease-out",
-                      selected ? "bg-accent" : "bg-card hover:bg-muted/35",
-                      isDragged && "opacity-60",
-                      isDragTarget && dragState?.id !== category.id && "bg-muted",
-                    )}
-                  >
-                    <div className="grid gap-3 px-5 py-2.5 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center">
-                      <div className="flex items-center gap-1.5">
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          draggable={!isPending}
-                          onDragStart={(event) =>
-                            handleNativeDragStart(event, category.id)
-                          }
-                          onDragEnd={() => {
-                            dragOverIdRef.current = null;
-                            setDragState(null);
-                          }}
-                          onPointerDown={(event) =>
-                            handlePointerDragStart(event, category.id)
-                          }
-                          disabled={isPending}
-                          className="size-8 cursor-grab text-muted-foreground active:cursor-grabbing"
-                        >
-                          <GripVertical className="size-4" />
-                          <span className="sr-only">Reorder {category.name}</span>
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="icon"
-                          onClick={() => handleMove(category.id, "up")}
-                          disabled={isPending || index === 0}
-                          className="size-8"
-                        >
-                          <ArrowUp className="size-4" />
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="icon"
-                          onClick={() => handleMove(category.id, "down")}
-                          disabled={isPending || index === categories.length - 1}
-                          className="size-8"
-                        >
-                          <ArrowDown className="size-4" />
-                        </Button>
-                      </div>
-
-                      {isEditing ? (
-                        <div className="flex flex-col gap-2 sm:flex-row">
-                          <Input
-                            value={editingName}
-                            onChange={(event) => setEditingName(event.target.value)}
-                            disabled={isPending}
-                            className="h-9 rounded-lg bg-background px-3 py-2 text-sm shadow-none"
-                            onKeyDown={(event) => {
-                              if (event.key === "Enter") {
-                                handleRename(category.id);
-                              }
-
-                              if (event.key === "Escape") {
-                                setEditingId(null);
-                                setEditingName("");
-                              }
-                            }}
-                            autoFocus
-                          />
-                          <div className="flex gap-1.5">
-                            <Button
-                              size="sm"
-                              onClick={() => handleRename(category.id)}
-                              disabled={isPending}
-                            >
-                              <Check className="size-4" />
-                              Save
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => {
-                                setEditingId(null);
-                                setEditingName("");
-                              }}
-                              disabled={isPending}
-                            >
-                              <X className="size-4" />
-                              Cancel
-                            </Button>
-                          </div>
-                        </div>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => setSelectedCategoryId(category.id)}
-                          className="min-w-0 text-left"
-                        >
-                          <div className="flex min-w-0 items-center gap-2">
-                            <span
-                              className="size-2 shrink-0 rounded-full"
-                              style={{
-                                backgroundColor: getCategoryColor(category.name),
-                              }}
-                            />
-                            <p className="truncate text-[13px] font-medium leading-5 text-foreground">
-                              {category.name}
-                            </p>
-                          </div>
-                          <p className="mt-1 font-mono text-[10px] leading-5 text-muted-foreground">
-                            Order {index + 1} in the Tasks workspace
-                          </p>
-                        </button>
-                      )}
-
-                      {!isEditing ? (
-                        <div className="flex items-center gap-1.5 sm:justify-self-end">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="h-8 px-2 text-xs"
-                            onClick={() => {
-                              setEditingId(category.id);
-                              setEditingName(category.name);
-                            }}
-                            disabled={isPending}
-                          >
-                            <PencilLine className="size-4" />
-                            Rename
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="h-8 px-2 text-xs text-destructive hover:bg-destructive/10 hover:text-destructive"
-                            onClick={() => setDeleteTarget(category)}
-                            disabled={isPending}
-                          >
-                            <Trash2 className="size-4" />
-                            Delete
-                          </Button>
-                        </div>
-                      ) : null}
-                    </div>
-                  </section>
-                );
-              })}
+              {categories.map((category, index) => (
+                <AttributeListItem
+                  key={category.id}
+                  attribute={category}
+                  dragState={dragState}
+                  editingName={editingName}
+                  index={index}
+                  isEditing={editingId === category.id}
+                  isPending={isPending}
+                  selected={selectedCategory?.id === category.id}
+                  totalCount={categories.length}
+                  onCancelEdit={() => { setEditingId(null); setEditingName(""); }}
+                  onDelete={() => setDeleteTarget(category)}
+                  onDragEnd={handleNativeDragEnd}
+                  onDragOver={(event) => handleNativeDragOver(event, category.id)}
+                  onDragStart={(event) => handleNativeDragStart(event, category.id)}
+                  onDrop={(event) => handleNativeDrop(event, category.id)}
+                  onEditNameChange={setEditingName}
+                  onEditStart={() => { setEditingId(category.id); setEditingName(category.name); }}
+                  onMoveDown={() => handleMove(category.id, "down")}
+                  onMoveUp={() => handleMove(category.id, "up")}
+                  onPointerDown={(event) => handlePointerDragStart(event, category.id)}
+                  onRename={() => handleRename(category.id)}
+                  onSelect={() => setSelectedCategoryId(category.id)}
+                />
+              ))}
             </div>
           )}
         </div>
 
+        {/* Desktop side panel */}
         <aside className="hidden bg-background xl:block xl:h-screen xl:overflow-y-auto">
           <div className="space-y-6 p-5">
             <div>
@@ -706,18 +352,12 @@ export function CategoryManager() {
               <div className="mt-4 space-y-2">
                 <h2 className="inline-flex items-center gap-2 text-[15px] font-semibold leading-6 tracking-tight text-foreground">
                   {selectedCategory ? (
-                    <span
-                      className="size-2 rounded-full"
-                      style={{
-                        backgroundColor: getCategoryColor(selectedCategory.name),
-                      }}
-                    />
+                    <span className="size-2 rounded-full" style={{ backgroundColor: getCategoryColor(selectedCategory.name) }} />
                   ) : null}
                   {selectedCategory?.name ?? "No list selected"}
                 </h2>
                 <p className="text-sm leading-6 text-muted-foreground">
-                  Habit Lists keep recurring tasks grouped across Today, Upcoming,
-                  and Lists.
+                  Habit Lists group recurring tasks. Use them to organise tasks by life area, project, or cadence.
                 </p>
               </div>
             </div>
@@ -735,10 +375,7 @@ export function CategoryManager() {
                     key={name}
                     className="flex items-center gap-2 border-b border-border py-2 text-sm text-foreground last:border-b-0"
                   >
-                    <span
-                      className="size-1.5 rounded-full"
-                      style={{ backgroundColor: getCategoryColor(name) }}
-                    />
+                    <span className="size-1.5 rounded-full" style={{ backgroundColor: getCategoryColor(name) }} />
                     {name}
                   </div>
                 ))}
@@ -749,11 +386,7 @@ export function CategoryManager() {
                 onClick={handleSeedDefaults}
                 disabled={isPending}
               >
-                {isPending ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
-                  <RotateCw className="size-4" />
-                )}
+                {isPending ? <Loader2 className="size-4 animate-spin" /> : <RotateCw className="size-4" />}
                 Seed starter pack
               </Button>
             </div>
@@ -763,18 +396,13 @@ export function CategoryManager() {
 
       <AlertDialog
         open={Boolean(deleteTarget)}
-        onOpenChange={(open) => {
-          if (!open) {
-            setDeleteTarget(null);
-          }
-        }}
+        onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}
       >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete habit list</AlertDialogTitle>
             <AlertDialogDescription>
-              Delete &quot;{deleteTarget?.name}&quot; only if no task still depends on it.
-              The API will block this action while tasks still point to the list.
+              Delete &quot;{deleteTarget?.name}&quot; only if no task still belongs to it. The API will block this action while tasks still reference the list.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -784,11 +412,7 @@ export function CategoryManager() {
               onClick={handleDelete}
               disabled={isPending}
             >
-              {isPending ? (
-                <Loader2 className="size-4 animate-spin" />
-              ) : (
-                <Trash2 className="size-4" />
-              )}
+              {isPending ? <Loader2 className="size-4 animate-spin" /> : null}
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>

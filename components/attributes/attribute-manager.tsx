@@ -1,31 +1,13 @@
 "use client";
 
-import {
-  type DragEvent,
-  type PointerEvent,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { useEffect, useRef, useState } from "react";
+import { Loader2, Plus, RotateCw } from "lucide-react";
 
 import { useAutoSelect } from "@/hooks/use-auto-select";
 import { useMutation } from "@/hooks/use-mutation";
-import {
-  ArrowDown,
-  ArrowUp,
-  Check,
-  GripVertical,
-  Loader2,
-  PencilLine,
-  Plus,
-  RotateCw,
-  Trash2,
-  X,
-} from "lucide-react";
+import { useReorderList } from "@/hooks/use-reorder-list";
 
 import { EmptyState } from "@/components/app/empty-state";
-import { DEFAULT_ATTRIBUTE_NAMES } from "@/lib/attribute-defaults";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,27 +20,21 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ManagerErrorAlert, ManagerStatusAlert } from "@/components/ui/manager-alert";
 import { Skeleton } from "@/components/ui/skeleton";
+import { DEFAULT_ATTRIBUTE_NAMES } from "@/lib/attribute-defaults";
 import { getCategoryColor } from "@/lib/category-colors";
-import { cn } from "@/lib/utils";
 
-type AttributeRecord = {
-  id: string;
-  name: string;
-  sortOrder: number;
-};
+import {
+  type AttributeRecord,
+  AttributeListItem,
+} from "@/components/attributes/attribute-list-item";
 
 type AttributesPayload = {
   attribute?: AttributeRecord;
   attributes?: AttributeRecord[];
   createdNames?: string[];
   error?: string;
-};
-
-type DragState = {
-  id: string;
-  mode: "native" | "pointer";
-  overId: string | null;
 };
 
 async function readPayload(response: Response) {
@@ -77,28 +53,15 @@ export function AttributeManager() {
   const [selectedAttributeId, setSelectedAttributeId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<AttributeRecord | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [dragState, setDragState] = useState<DragState | null>(null);
   const { errorMessage, statusMessage, isPending, runMutation, setError, setStatus } =
     useMutation();
-  const dragOverIdRef = useRef<string | null>(null);
-  const longPressTimerRef = useRef<number | null>(null);
-  const pointerDraggingRef = useRef(false);
 
-  const clearLongPressTimer = () => {
-    if (!longPressTimerRef.current) {
-      return;
-    }
-
-    window.clearTimeout(longPressTimerRef.current);
-    longPressTimerRef.current = null;
-  };
+  // We keep a ref to loadAttributes so it can be called from handlers
+  const loadAttributesRef = useRef<(() => Promise<void>) | null>(null);
 
   const loadAttributes = async () => {
     setError(null);
-
-    const response = await fetch("/api/attributes", {
-      cache: "no-store",
-    });
+    const response = await fetch("/api/attributes", { cache: "no-store" });
     const payload = await readPayload(response);
 
     if (!response.ok || !payload?.attributes) {
@@ -108,6 +71,8 @@ export function AttributeManager() {
     setAttributes(payload.attributes);
   };
 
+  loadAttributesRef.current = loadAttributes;
+
   useEffect(() => {
     let cancelled = false;
 
@@ -116,44 +81,26 @@ export function AttributeManager() {
         await loadAttributes();
       } catch (error) {
         if (!cancelled) {
-          setError(
-            error instanceof Error ? error.message : "Failed to load attributes.",
-          );
+          setError(error instanceof Error ? error.message : "Failed to load attributes.");
         }
       } finally {
-        if (!cancelled) {
-          setIsLoading(false);
-        }
+        if (!cancelled) setIsLoading(false);
       }
     }
 
     void run();
-
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const selectedAttribute = useAutoSelect(
-    attributes,
-    selectedAttributeId,
-    setSelectedAttributeId,
-  );
+  const selectedAttribute = useAutoSelect(attributes, selectedAttributeId, setSelectedAttributeId);
 
-  const persistAttributeOrder = (
-    reordered: AttributeRecord[],
-    message = "Attribute order updated.",
-  ) => {
+  const persistOrder = (reordered: AttributeRecord[], message = "Attribute order updated.") => {
     runMutation(async () => {
       const response = await fetch("/api/attributes/reorder", {
         method: "POST",
-        headers: {
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({
-          attributeIds: reordered.map((attribute) => attribute.id),
-        }),
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ attributeIds: reordered.map((a) => a.id) }),
       });
       const payload = await readPayload(response);
 
@@ -166,39 +113,39 @@ export function AttributeManager() {
     });
   };
 
-  const reorderByTarget = (sourceId: string, targetId: string | null) => {
-    if (!targetId || sourceId === targetId) {
-      return;
-    }
+  const {
+    dragState,
+    handleNativeDragEnd,
+    handleNativeDragOver,
+    handleNativeDragStart,
+    handleNativeDrop,
+    handlePointerDragStart,
+  } = useReorderList(attributes, (reordered) => {
+    const moved = reordered.find((a, i) => a.id !== attributes[i]?.id);
+    persistOrder(reordered, moved ? `Moved "${moved.name}".` : "Attribute order updated.");
+  }, isPending);
 
-    const sourceIndex = attributes.findIndex((attribute) => attribute.id === sourceId);
-    const targetIndex = attributes.findIndex((attribute) => attribute.id === targetId);
+  const handleMove = (attributeId: string, direction: "up" | "down") => {
+    const currentIndex = attributes.findIndex((a) => a.id === attributeId);
+    const targetIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
 
-    if (sourceIndex < 0 || targetIndex < 0) {
-      return;
-    }
+    if (currentIndex < 0 || targetIndex < 0 || targetIndex >= attributes.length) return;
 
     const reordered = [...attributes];
-    const [movedAttribute] = reordered.splice(sourceIndex, 1);
-
-    reordered.splice(targetIndex, 0, movedAttribute);
-    persistAttributeOrder(reordered, `Moved "${movedAttribute.name}".`);
+    const [moved] = reordered.splice(currentIndex, 1);
+    reordered.splice(targetIndex, 0, moved);
+    persistOrder(reordered);
   };
 
   const handleCreate = () => {
     const trimmedName = newAttributeName.trim();
 
-    if (!trimmedName) {
-      setError("Attribute name is required.");
-      return;
-    }
+    if (!trimmedName) { setError("Attribute name is required."); return; }
 
     runMutation(async () => {
       const response = await fetch("/api/attributes", {
         method: "POST",
-        headers: {
-          "content-type": "application/json",
-        },
+        headers: { "content-type": "application/json" },
         body: JSON.stringify({ name: trimmedName }),
       });
       const payload = await readPayload(response);
@@ -217,17 +164,12 @@ export function AttributeManager() {
   const handleRename = (attributeId: string) => {
     const trimmedName = editingName.trim();
 
-    if (!trimmedName) {
-      setError("Attribute name is required.");
-      return;
-    }
+    if (!trimmedName) { setError("Attribute name is required."); return; }
 
     runMutation(async () => {
       const response = await fetch(`/api/attributes/${attributeId}`, {
         method: "PATCH",
-        headers: {
-          "content-type": "application/json",
-        },
+        headers: { "content-type": "application/json" },
         body: JSON.stringify({ name: trimmedName }),
       });
       const payload = await readPayload(response);
@@ -244,9 +186,7 @@ export function AttributeManager() {
   };
 
   const handleDelete = () => {
-    if (!deleteTarget) {
-      return;
-    }
+    if (!deleteTarget) return;
 
     runMutation(async () => {
       const response = await fetch(`/api/attributes/${deleteTarget.id}`, {
@@ -261,129 +201,15 @@ export function AttributeManager() {
       setStatus(`Deleted "${deleteTarget.name}".`);
       setDeleteTarget(null);
 
-      if (selectedAttributeId === deleteTarget.id) {
-        setSelectedAttributeId(null);
-      }
+      if (selectedAttributeId === deleteTarget.id) setSelectedAttributeId(null);
 
       await loadAttributes();
     });
   };
 
-  const handleMove = (attributeId: string, direction: "up" | "down") => {
-    const currentIndex = attributes.findIndex((attribute) => attribute.id === attributeId);
-    const targetIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
-
-    if (currentIndex < 0 || targetIndex < 0 || targetIndex >= attributes.length) {
-      return;
-    }
-
-    const reordered = [...attributes];
-    const [movedAttribute] = reordered.splice(currentIndex, 1);
-    reordered.splice(targetIndex, 0, movedAttribute);
-
-    persistAttributeOrder(reordered);
-  };
-
-  const handleNativeDragStart = (
-    event: DragEvent<HTMLButtonElement>,
-    attributeId: string,
-  ) => {
-    event.dataTransfer.effectAllowed = "move";
-    event.dataTransfer.setData("text/plain", attributeId);
-    dragOverIdRef.current = attributeId;
-    setDragState({ id: attributeId, mode: "native", overId: attributeId });
-  };
-
-  const handleNativeDrop = (
-    event: DragEvent<HTMLElement>,
-    targetId: string,
-  ) => {
-    event.preventDefault();
-    const sourceId = event.dataTransfer.getData("text/plain") || dragState?.id;
-
-    setDragState(null);
-    dragOverIdRef.current = null;
-
-    if (sourceId) {
-      reorderByTarget(sourceId, targetId);
-    }
-  };
-
-  const handlePointerDragStart = (
-    event: PointerEvent<HTMLButtonElement>,
-    attributeId: string,
-  ) => {
-    if (event.pointerType === "mouse" || isPending) {
-      return;
-    }
-
-    const pointerId = event.pointerId;
-
-    pointerDraggingRef.current = false;
-    dragOverIdRef.current = attributeId;
-    clearLongPressTimer();
-
-    const handlePointerMove = (moveEvent: globalThis.PointerEvent) => {
-      if (moveEvent.pointerId !== pointerId || !pointerDraggingRef.current) {
-        return;
-      }
-
-      moveEvent.preventDefault();
-
-      const target = document
-        .elementFromPoint(moveEvent.clientX, moveEvent.clientY)
-        ?.closest<HTMLElement>("[data-attribute-id]");
-      const overId = target?.dataset.attributeId ?? attributeId;
-
-      dragOverIdRef.current = overId;
-      setDragState({ id: attributeId, mode: "pointer", overId });
-    };
-
-    const finishPointerDrag = (cancelled = false) => {
-      clearLongPressTimer();
-      window.removeEventListener("pointermove", handlePointerMove);
-      window.removeEventListener("pointerup", handlePointerUp);
-      window.removeEventListener("pointercancel", handlePointerCancel);
-
-      const overId = dragOverIdRef.current;
-      const wasDragging = pointerDraggingRef.current;
-
-      pointerDraggingRef.current = false;
-      dragOverIdRef.current = null;
-      setDragState(null);
-
-      if (!cancelled && wasDragging) {
-        reorderByTarget(attributeId, overId);
-      }
-    };
-
-    const handlePointerUp = (upEvent: globalThis.PointerEvent) => {
-      if (upEvent.pointerId === pointerId) {
-        finishPointerDrag(false);
-      }
-    };
-
-    const handlePointerCancel = (cancelEvent: globalThis.PointerEvent) => {
-      if (cancelEvent.pointerId === pointerId) {
-        finishPointerDrag(true);
-      }
-    };
-
-    window.addEventListener("pointermove", handlePointerMove, { passive: false });
-    window.addEventListener("pointerup", handlePointerUp);
-    window.addEventListener("pointercancel", handlePointerCancel);
-
-    longPressTimerRef.current = window.setTimeout(() => {
-      pointerDraggingRef.current = true;
-      setDragState({ id: attributeId, mode: "pointer", overId: attributeId });
-    }, 280);
-  };
-
   const handleSeedDefaults = () => {
     runMutation(async () => {
-      const response = await fetch("/api/bootstrap/default-attributes", {
-        method: "POST",
-      });
+      const response = await fetch("/api/bootstrap/default-attributes", { method: "POST" });
       const payload = await readPayload(response);
 
       if (!response.ok || !payload?.attributes) {
@@ -403,6 +229,7 @@ export function AttributeManager() {
     <>
       <div className="min-h-[calc(100vh-4.25rem)] bg-card lg:h-screen lg:min-h-0 xl:grid xl:grid-cols-[minmax(0,1fr)_20rem] 2xl:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="min-w-0 border-border bg-card xl:h-screen xl:overflow-y-auto xl:border-r">
+          {/* Header */}
           <section className="border-b border-border bg-card lg:sticky lg:top-0 lg:z-10">
             <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0">
@@ -423,11 +250,7 @@ export function AttributeManager() {
                 onClick={handleSeedDefaults}
                 disabled={isPending}
               >
-                {isPending ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
-                  <RotateCw className="size-4" />
-                )}
+                {isPending ? <Loader2 className="size-4 animate-spin" /> : <RotateCw className="size-4" />}
                 Seed
               </Button>
             </div>
@@ -439,18 +262,10 @@ export function AttributeManager() {
                 placeholder="Add a new attribute"
                 disabled={isPending}
                 className="h-9 rounded-lg bg-background px-3 py-2 text-sm shadow-none"
-                onKeyDown={(event) => {
-                  if (event.key === "Enter") {
-                    handleCreate();
-                  }
-                }}
+                onKeyDown={(event) => { if (event.key === "Enter") handleCreate(); }}
               />
               <Button size="sm" onClick={handleCreate} disabled={isPending}>
-                {isPending ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
-                  <Plus className="size-4" />
-                )}
+                {isPending ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />}
                 Add attribute
               </Button>
               <Button
@@ -461,35 +276,16 @@ export function AttributeManager() {
                 onClick={handleSeedDefaults}
                 disabled={isPending}
               >
-                {isPending ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
-                  <RotateCw className="size-4" />
-                )}
+                {isPending ? <Loader2 className="size-4 animate-spin" /> : <RotateCw className="size-4" />}
                 Seed defaults
               </Button>
             </div>
           </section>
 
           {errorMessage ? (
-            <div className="px-5 pt-4">
-              <Alert variant="destructive">
-                <X className="size-4" />
-                <AlertTitle>Attribute update failed</AlertTitle>
-                <AlertDescription>{errorMessage}</AlertDescription>
-              </Alert>
-            </div>
+            <ManagerErrorAlert message={errorMessage} title="Attribute update failed" />
           ) : null}
-
-          {statusMessage ? (
-            <div className="px-5 pt-4">
-              <Alert>
-                <Check className="size-4" />
-                <AlertTitle>Saved</AlertTitle>
-                <AlertDescription>{statusMessage}</AlertDescription>
-              </Alert>
-            </div>
-          ) : null}
+          {statusMessage ? <ManagerStatusAlert message={statusMessage} /> : null}
 
           {isLoading ? (
             <div className="py-2">
@@ -523,180 +319,37 @@ export function AttributeManager() {
             </div>
           ) : (
             <div className="pb-5">
-              {attributes.map((attribute, index) => {
-                const isEditing = editingId === attribute.id;
-                const selected = selectedAttribute?.id === attribute.id;
-                const isDragged = dragState?.id === attribute.id;
-                const isDragTarget = dragState?.overId === attribute.id;
-
-                return (
-                  <section
-                    key={attribute.id}
-                    data-attribute-id={attribute.id}
-                    onDragOver={(event) => {
-                      if (!dragState) {
-                        return;
-                      }
-
-                      event.preventDefault();
-                      dragOverIdRef.current = attribute.id;
-                      setDragState((current) =>
-                        current ? { ...current, overId: attribute.id } : current,
-                      );
-                    }}
-                    onDrop={(event) => handleNativeDrop(event, attribute.id)}
-                    className={cn(
-                      "border-b border-border transition-colors duration-[160ms] ease-out",
-                      selected ? "bg-accent" : "bg-card hover:bg-muted/35",
-                      isDragged && "opacity-60",
-                      isDragTarget && dragState?.id !== attribute.id && "bg-muted",
-                    )}
-                  >
-                    <div className="grid gap-3 px-5 py-2.5 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center">
-                      <div className="flex items-center gap-1.5">
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          draggable={!isPending}
-                          onDragStart={(event) =>
-                            handleNativeDragStart(event, attribute.id)
-                          }
-                          onDragEnd={() => {
-                            dragOverIdRef.current = null;
-                            setDragState(null);
-                          }}
-                          onPointerDown={(event) =>
-                            handlePointerDragStart(event, attribute.id)
-                          }
-                          disabled={isPending}
-                          className="size-8 cursor-grab text-muted-foreground active:cursor-grabbing"
-                        >
-                          <GripVertical className="size-4" />
-                          <span className="sr-only">Reorder {attribute.name}</span>
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="icon"
-                          onClick={() => handleMove(attribute.id, "up")}
-                          disabled={isPending || index === 0}
-                          className="size-8"
-                        >
-                          <ArrowUp className="size-4" />
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="icon"
-                          onClick={() => handleMove(attribute.id, "down")}
-                          disabled={isPending || index === attributes.length - 1}
-                          className="size-8"
-                        >
-                          <ArrowDown className="size-4" />
-                        </Button>
-                      </div>
-
-                      {isEditing ? (
-                        <div className="flex flex-col gap-2 sm:flex-row">
-                          <Input
-                            value={editingName}
-                            onChange={(event) => setEditingName(event.target.value)}
-                            disabled={isPending}
-                            className="h-9 rounded-lg bg-background px-3 py-2 text-sm shadow-none"
-                            onKeyDown={(event) => {
-                              if (event.key === "Enter") {
-                                handleRename(attribute.id);
-                              }
-
-                              if (event.key === "Escape") {
-                                setEditingId(null);
-                                setEditingName("");
-                              }
-                            }}
-                            autoFocus
-                          />
-                          <div className="flex gap-1.5">
-                            <Button
-                              size="sm"
-                              onClick={() => handleRename(attribute.id)}
-                              disabled={isPending}
-                            >
-                              <Check className="size-4" />
-                              Save
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => {
-                                setEditingId(null);
-                                setEditingName("");
-                              }}
-                              disabled={isPending}
-                            >
-                              <X className="size-4" />
-                              Cancel
-                            </Button>
-                          </div>
-                        </div>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => setSelectedAttributeId(attribute.id)}
-                          className="min-w-0 text-left"
-                        >
-                          <div className="flex min-w-0 items-center gap-2">
-                            <span
-                              className="size-2 shrink-0 rounded-full"
-                              style={{
-                                backgroundColor: getCategoryColor(attribute.name),
-                              }}
-                            />
-                            <p className="truncate text-[13px] font-medium leading-5 text-foreground">
-                              {attribute.name}
-                            </p>
-                          </div>
-                          <p className="mt-1 font-mono text-[10px] leading-5 text-muted-foreground">
-                            Order {index + 1} in the Tasks workspace
-                          </p>
-                        </button>
-                      )}
-
-                      {!isEditing ? (
-                        <div className="flex items-center gap-1.5 sm:justify-self-end">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="h-8 px-2 text-xs"
-                            onClick={() => {
-                              setEditingId(attribute.id);
-                              setEditingName(attribute.name);
-                            }}
-                            disabled={isPending}
-                          >
-                            <PencilLine className="size-4" />
-                            Rename
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="h-8 px-2 text-xs text-destructive hover:bg-destructive/10 hover:text-destructive"
-                            onClick={() => setDeleteTarget(attribute)}
-                            disabled={isPending}
-                          >
-                            <Trash2 className="size-4" />
-                            Delete
-                          </Button>
-                        </div>
-                      ) : null}
-                    </div>
-                  </section>
-                );
-              })}
+              {attributes.map((attribute, index) => (
+                <AttributeListItem
+                  key={attribute.id}
+                  attribute={attribute}
+                  dragState={dragState}
+                  editingName={editingName}
+                  index={index}
+                  isEditing={editingId === attribute.id}
+                  isPending={isPending}
+                  selected={selectedAttribute?.id === attribute.id}
+                  totalCount={attributes.length}
+                  onCancelEdit={() => { setEditingId(null); setEditingName(""); }}
+                  onDelete={() => setDeleteTarget(attribute)}
+                  onDragEnd={handleNativeDragEnd}
+                  onDragOver={(event) => handleNativeDragOver(event, attribute.id)}
+                  onDragStart={(event) => handleNativeDragStart(event, attribute.id)}
+                  onDrop={(event) => handleNativeDrop(event, attribute.id)}
+                  onEditNameChange={setEditingName}
+                  onEditStart={() => { setEditingId(attribute.id); setEditingName(attribute.name); }}
+                  onMoveDown={() => handleMove(attribute.id, "down")}
+                  onMoveUp={() => handleMove(attribute.id, "up")}
+                  onPointerDown={(event) => handlePointerDragStart(event, attribute.id)}
+                  onRename={() => handleRename(attribute.id)}
+                  onSelect={() => setSelectedAttributeId(attribute.id)}
+                />
+              ))}
             </div>
           )}
         </div>
 
+        {/* Desktop side panel */}
         <aside className="hidden bg-background xl:block xl:h-screen xl:overflow-y-auto">
           <div className="space-y-6 p-5">
             <div>
@@ -708,9 +361,7 @@ export function AttributeManager() {
                   {selectedAttribute ? (
                     <span
                       className="size-2 rounded-full"
-                      style={{
-                        backgroundColor: getCategoryColor(selectedAttribute.name),
-                      }}
+                      style={{ backgroundColor: getCategoryColor(selectedAttribute.name) }}
                     />
                   ) : null}
                   {selectedAttribute?.name ?? "No attribute selected"}
@@ -749,11 +400,7 @@ export function AttributeManager() {
                 onClick={handleSeedDefaults}
                 disabled={isPending}
               >
-                {isPending ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
-                  <RotateCw className="size-4" />
-                )}
+                {isPending ? <Loader2 className="size-4 animate-spin" /> : <RotateCw className="size-4" />}
                 Seed starter pack
               </Button>
             </div>
@@ -763,11 +410,7 @@ export function AttributeManager() {
 
       <AlertDialog
         open={Boolean(deleteTarget)}
-        onOpenChange={(open) => {
-          if (!open) {
-            setDeleteTarget(null);
-          }
-        }}
+        onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}
       >
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -784,11 +427,7 @@ export function AttributeManager() {
               onClick={handleDelete}
               disabled={isPending}
             >
-              {isPending ? (
-                <Loader2 className="size-4 animate-spin" />
-              ) : (
-                <Trash2 className="size-4" />
-              )}
+              {isPending ? <Loader2 className="size-4 animate-spin" /> : null}
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>

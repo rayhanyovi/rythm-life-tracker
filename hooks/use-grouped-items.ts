@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 
-type Group<T> = {
+export type Group<T> = {
   id: string;
   name: string;
   items: T[];
